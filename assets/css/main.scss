@@ -8,4 +8,19 @@ input:focus {
     outline: none;
     border: none;
   }
+
+  /* Scrollbar Styling */
+div::-webkit-scrollbar, section::-webkit-scrollbar {
+  height: 0px;
+  width: 5px;
+}
+
+div::-webkit-scrollbar-thumb, section::-webkit-scrollbar-thumb {
+  background-color: #007bffd4 !important;
+  border-radius: 10px !important;
+}
+
+div::-webkit-scrollbar-thumb:hover, section::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+}
   

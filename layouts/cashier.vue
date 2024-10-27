@@ -1,7 +1,7 @@
 <template>
   <div class="cashier flex bg-gray-100">
     <div class="flex flex-col w-full transition-all duration-300 ease-in-out"
-         :class="{'pr-[400px]': OrderStore.$state.openOrder}">
+         :class="{'pr-[330px]': OrderStore.$state.openOrder}">
       <SharedCashierNavbar />
       <SharedCashierSidebar v-model="isSidebarOpen" />
       <main class="flex-grow p-1">
@@ -15,11 +15,11 @@
         <div v-if="showNewOrderModal" class="fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50">
           <div class="bg-white rounded-3xl p-10 w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
             <div class="grid grid-cols-2 gap-8">
-              <button @click="selectOrderType('dine-in')" class="order-type-btn" :class="{ 'selected': selectedOrderType === 'dine-in' }">
+              <button @click="selectOrderType('dine in')" class="order-type-btn" :class="{ 'selected': selectedOrderType === 'dine in' }">
                 <Icon name="mdi:silverware-fork-knife" size="64" />
                 <span class="text-2xl font-bold mt-6">Dine In</span>
               </button>
-              <button @click="selectOrderType('take_away')" class="order-type-btn" :class="{ 'selected': selectedOrderType === 'take_away' }">
+              <button @click="selectOrderType('takeaway')" class="order-type-btn" :class="{ 'selected': selectedOrderType === 'takeaway' }">
                 <Icon name="mdi:food-takeout-box" size="64" />
                 <span class="text-2xl font-bold mt-6">Take Away</span>
               </button>
@@ -34,13 +34,13 @@
       <Transition name="fade">
         <div v-if="showTableModal" class="fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50">
           <div class="bg-white rounded-3xl p-10 w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
-            <h3 class="text-3xl font-bold mb-8 text-center">Select Table</h3>
-            <div class="grid grid-cols-3 gap-6">
+            <h3 class="text-2xl font-bold mb-8 text-center">Select Table</h3>
+            <div class="grid grid-cols-4 gap-6">
               <button v-for="table in tables" :key="table.id" @click="selectTable(table)" 
                       class="table-btn" :class="{ 'occupied': table.is_free === 0, 'available': table.is_free === 1 }">
-                <div class="text-2xl font-bold">{{ table.number }}</div>
-                <div class="mt-2 text-lg">{{ table.capacity }} {{ table.capacity === 0 ? 'Guest' : 'Guests' }}</div>
-                <div class="mt-2 text-sm" :class="{'text-green-600': table.is_free === 1, 'text-red-600': table.is_free === 0}">
+                <div class="text-xl font-bold">{{ table.number }}</div>
+                <div class="mt-2 text-sm">{{ table.capacity }} {{ table.capacity === 0 ? 'Guest' : 'Guests' }}</div>
+                <div class="mt-2 text-xs" :class="{'text-green-600': table.is_free === 1, 'text-red-600': table.is_free === 0}">
                   {{ table.is_free === 0 ? formatDate(table.created_at) : 'Available' }}
                 </div>
                 <div v-if="table.is_free === 0" class="mt-1 text-sm text-gray-600">{{ table.waiter }}</div>
@@ -104,7 +104,7 @@ const fetchTables = () => {
 
 const selectOrderType = (type) => {
   selectedOrderType.value = type;
-  if (type === 'dine-in') {
+  if (type === 'dine in') {
     showTableModal.value = true;
   } else {
     confirmNewOrder();
@@ -135,7 +135,7 @@ const openOrdersModal = () => {
 
 const selectOrder = (order) => {
   OrderStore.openExistingOrder(order.id);
-  showOpenOrdersModal.value = false;
+  showOpenOrdersModal.value = true;
 };
 
 // Provide functions to child components

@@ -1,22 +1,20 @@
 <template>
-  <div class="w-full max-w-md mx-auto space-y-8">
-    <!-- <h2 class="text-3xl font-semibold mb-12 text-gray-800 text-center">Welcome to Sugar Rush</h2> -->
-
-    <div class="space-y-12">
+  <div class="w-full max-w-sm mx-auto space-y-8">
+    <div class="space-y-8">
       <!-- Toggle Between Email and OTP -->
       <div class="flex justify-center">
-        <div class="w-full rounded-md shadow-sm" role="group">
+        <div class="w-full rounded-[50px] shadow-sm" role="group">
           <button
             v-for="method in ['email', 'otp']"
             :key="method"
             @click="loginMethod = method"
             :class="[ 
-              'w-[50%] px-6 py-3 text-sm font-medium transition-colors duration-300',
+              'w-[50%] px-6 py-2 text-sm font-medium transition-colors duration-300',
               loginMethod === method
-                ? 'bg-pink-500 text-white'   // Custom color
-                : 'bg-white text-gray-700 hover:bg-pink-100',
-              method === 'email' ? 'rounded-l-lg' : 'rounded-r-lg',
-              'border border-gray-300 focus:z-10 focus:ring-2 focus:ring-pink-500'
+                ? 'bg-[#2b365a] text-white'
+                : 'bg-white text-gray-700 hover:bg-indigo-50',
+              method === 'email' ? 'rounded-l-xl' : 'rounded-r-lg',
+              'border border-gray-300 focus:z-10 focus:ring-2 focus:ring-indigo-500'
             ]"
           >
             {{ method === 'email' ? 'Email Login' : 'OTP Login' }}
@@ -26,65 +24,75 @@
 
       <!-- Form Section -->
       <Form @submit="onSubmit" :validation-schema="schema" v-slot="{ errors }">
-        <div v-if="loginMethod === 'email'" class="space-y-8">
+        <div v-if="loginMethod === 'email'" class="space-y-6">
           <!-- Email Input -->
           <div>
-            <label for="email" class="text-md font-medium gap-[5px] text-gray-700 flex items-start flex-col !border-b !border-b-[#cdcdcd]">
-             <span class="text-[14px]">Email Address</span> 
-             <div class="flex items-center w-full">
-              <Icon name="material-symbols:person-2" class="text-pink-500 text-[22px]" />
+            <label for="email" class="block text-sm font-medium text-gray-700">
+              Email Address
+            </label>
+            <div class="mt-1 relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Icon name="material-symbols:person-2" class="text-gray-400" />
+              </div>
               <Field
                 name="email"
                 type="email"
                 autocomplete="email"
                 required
-                class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 :class="{ 'border-red-500': errors.email }"
                 placeholder="Enter your email"
               />
-             </div>
-            </label>
+            </div>
             <ErrorMessage name="email" class="text-red-500 text-xs mt-1" />
           </div>
 
           <!-- Password Input -->
           <div>
-            <label for="password" class="text-md font-medium gap-[5px] text-gray-700 flex items-start flex-col !border-b !border-b-[#cdcdcd]">
-              <span>Password</span>
-            <div class="flex items-center w-full">
-              <Icon name="solar:lock-password-bold" class="text-pink-500 text-[20px]" />
+            <label for="password" class="block text-sm font-medium text-gray-700">
+              Password
+            </label>
+            <div class="mt-1 relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Icon name="solar:lock-password-bold" class="text-gray-400" />
+              </div>
               <Field
                 name="password"
                 type="password"
                 autocomplete="current-password"
                 required
-                class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 :class="{ 'border-red-500': errors.password }"
                 placeholder="Enter your password"
               />
             </div>
-          </label>
             <ErrorMessage name="password" class="text-red-500 text-xs mt-1" />
           </div>
         </div>
 
         <!-- OTP Input -->
         <div v-else class="space-y-4">
-          <div>
-            <ClientOnly>
-              <OtpInput @complete="onOtpComplete" />
-            </ClientOnly>
+          <div class="flex justify-center gap-6">
+            <input
+              v-for="(digit, index) in 4"
+              :key="index"
+              v-model="otpDigits[index]"
+              type="text"
+              maxlength="1"
+              class="w-[60px] h-[60px] text-center text-[20px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              @input="onOtpInput(index)"
+              @keydown="onOtpKeydown($event, index)"
+            />
           </div>
         </div>
 
         <!-- Submit Button -->
-        <div class="mt-8">
+        <div class="mt-6">
           <button
-            v-if="loginMethod === 'email'"
             type="submit"
-            class="group relative w-full flex justify-center py-4 px-4 rounded-md text-white bg-pink-500 hover:bg-pink-600 focus:outline-none transition-colors duration-300"
+            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-xl shadow-sm text-[14px] font-medium text-white bg-[#2b365a] hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            Sign in
+            {{ loginMethod === 'email' ? 'Sign in' : 'Sign in' }}
           </button>
         </div>
       </Form>
@@ -100,16 +108,14 @@ definePageMeta({
 import { ref, computed } from 'vue'
 import { Form, Field, ErrorMessage } from 'vee-validate'
 import { object, string } from 'yup'
-import OtpInput from '~/components/OtpInput.vue'
 import HandleReqErrors from "~/helpers/HandleReqErrors.js";
 import { useAuthStore } from "~/stores/auth";
-
 
 const router = useRouter();
 const AuthStore = useAuthStore();
 
-
 const loginMethod = ref('otp')
+const otpDigits = ref(Array(4).fill(''))
 
 const schema = computed(() => {
   if (loginMethod.value === 'email') {
@@ -123,7 +129,6 @@ const schema = computed(() => {
 })
 
 const onSubmit = (values) => {
-
   let formattedQuery = {}
 
   if (loginMethod.value === 'email') {
@@ -133,31 +138,27 @@ const onSubmit = (values) => {
     }
   } else {
     formattedQuery = {
-      login_code: values
+      login_code: otpDigits.value.join('')
     }
   }
 
-  if (loginMethod.value === 'email') {
-    console.log('Login with email:', values.email, values.password)
-  } else {
-    useApi(`login`, "POST", {
-      type: 'object',
-      data: formattedQuery
-    })
-    .then(response => {
-      const userData = useCookie("PosUserData", {
-        path: "/",
-        maxAge: 60 * 60 * 24,
-      });
-      const userToken = useCookie("PosUserToken", {
-        path: "/",
-        maxAge: 60 * 60 * 24,
-      });
+  useApi(`login`, "POST", {
+    type: 'object',
+    data: formattedQuery
+  })
+  .then(response => {
+    const userData = useCookie("PosUserData", {
+      path: "/",
+      maxAge: 60 * 60 * 24,
+    });
+    const userToken = useCookie("PosUserToken", {
+      path: "/",
+      maxAge: 60 * 60 * 24,
+    });
 
     userData.value = response.user;
     userToken.value = response.access_token;
 
-    // Set User Data to Local Storage
     AuthStore.setToken(`Bearer ${response.access_token}`);
     AuthStore.setUser(response.user);
     push.success(response.message);
@@ -170,32 +171,25 @@ const onSubmit = (values) => {
     } else {
       router.push('/');
     }
-    })
-    .catch(error => {
-      console.log(error)
-      HandleReqErrors(error);
-    });
-    console.log('Send OTP to:', values)
+  })
+  .catch(error => {
+    console.log(error)
+    HandleReqErrors(error);
+  });
+}
+
+const onOtpInput = (index) => {
+  if (otpDigits.value[index].length === 1 && index < 5) {
+    document.querySelectorAll('input')[index + 1].focus()
+  }
+  if (otpDigits.value.every(digit => digit !== '')) {
+    onSubmit()
   }
 }
 
-const onOtpComplete = (value) => {
-  console.log(value)
-  onSubmit(value)
+const onOtpKeydown = (event, index) => {
+  if (event.key === 'Backspace' && index > 0 && otpDigits.value[index] === '') {
+    document.querySelectorAll('input')[index - 1].focus()
+  }
 }
 </script>
-
-<style scoped>
-.custom-input {
-  border: 0;
-  background-color: transparent;
-  padding: 12px;
-  outline: none;
-  box-shadow: unset;
-  transition: background-color 0.3s ease;
-}
-
-.custom-input:focus {
-  background-color: transparent;
-}
-</style>

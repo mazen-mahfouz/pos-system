@@ -9,14 +9,14 @@ export const useOrderStore = defineStore('order', {
     currentOrder: {
       id: null,
       guest: '',
-      type: null,
+      type: '',
       table_id: null,
       items: [],
-      shift_id: 1,
-      discount: {
-        type: null,
-        amount: 0
-      }
+      shift_id: null,
+      sub_total: 0,
+      tax: 0,
+      discount: 0,
+      total_amount: 0,
     },
   }),
   getters: {
@@ -41,7 +41,7 @@ export const useOrderStore = defineStore('order', {
   actions: {
     createNewOrder(type, table_id) {
       this.currentOrder = {
-        id: Date.now(),
+        id: null, // Устанавливаем id в null для нового заказа
         guest: '',
         type: type,
         table_id: table_id,
@@ -125,15 +125,85 @@ export const useOrderStore = defineStore('order', {
       this.currentOrder.guest = name;
     },
     placeOrder() {
-      if (this.currentOrder.id) {
-        this.editOrder(this.currentOrder.id, { ...this.currentOrder });
-      } else {
-        this.addOrder({ ...this.currentOrder });
+      const orderData = {
+        table_id: this.currentOrder.table_id || null,
+        type: this.currentOrder.type,
+        guest: this.currentOrder.guest,
+        shift_id: this.currentOrder.shift_id,
+        items: this.currentOrder.items.map(item => ({
+          product_id: item.product_id,
+          quantity: item.quantity
+        }))
+      };
+
+      if (this.currentOrder.discount && this.currentOrder.discount.type && this.currentOrder.discount.amount > 0) {
+        orderData.discount = {
+          type: this.currentOrder.discount.type,
+          amount: this.currentOrder.discount.amount
+        };
       }
-      this.closeOrder();
+
+      const method = this.currentOrder.id ? 'PUT' : 'POST';
+      const endpoint = this.currentOrder.id ? `orders/${this.currentOrder.id}` : 'orders';
+
+      useApi(endpoint, method, {
+        type: 'object',
+        data: orderData,
+      })
+        .then((response) => {
+          this.updateOrderFromResponse(response.order);
+          console.log('Order placed/updated successfully:', response);
+          if (this.currentOrder.id) {
+            this.editOrder(this.currentOrder.id, { ...this.currentOrder });
+          } else {
+            this.addOrder({ ...this.currentOrder });
+          }
+          // this.closeOrder();
+          // Show success notification
+        })
+        .catch((error) => {
+          console.error('Order placement/update error:', error);
+          // Handle error and show error notification
+        });
     },
     cancelOrder() {
       this.closeOrder();
+    },
+    setOrderFromResponse(orderData) {
+      this.currentOrder = {
+        id: orderData.id,
+        guest: orderData.guest || '',
+        type: orderData.type || '',
+        table_id: orderData.table_id,
+        items: orderData.order_items.map(item => ({
+          product_id: item.product_id,
+          quantity: item.quantity,
+          price: parseFloat(item.price),
+          // Add other necessary item properties
+        })),
+        shift_id: orderData.shift_id,
+        sub_total: orderData.sub_total,
+        tax: orderData.tax,
+        discount: orderData.discount,
+        total_amount: orderData.total_amount,
+      };
+    },
+    updateOrderFromResponse(orderData) {
+      this.currentOrder = {
+        ...this.currentOrder,
+        id: orderData.id,
+        code: orderData.code,
+        status: orderData.status,
+        tax: orderData.tax,
+        discount: orderData.discount,
+        service: orderData.service,
+        sub_total: orderData.sub_total,
+        total_amount: orderData.total_amount,
+        items: orderData.order_items.map(item => ({
+          ...item,
+          product: this.currentOrder.items.find(i => i.product_id === item.product_id)?.product
+        }))
+      };
     },
   },
 });

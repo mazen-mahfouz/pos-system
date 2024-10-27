@@ -137,27 +137,7 @@
   ];
   
   // Mock data for orders
-  const orders = ref([
-    { id: 1, customer: 'John Doe', orderDate: '2023-05-01', total: '$32.50', status: 'Completed', items: [
-      { name: 'Coffee', quantity: 2, price: '$5.00' },
-      { name: 'Sandwich', quantity: 1, price: '$7.50' }
-    ]},
-    { id: 2, customer: 'Jane Smith', orderDate: '2023-05-02', total: '$45.00', status: 'In Progress', items: [
-      { name: 'Salad', quantity: 1, price: '$8.00' },
-      { name: 'Pasta', quantity: 1, price: '$12.00' },
-      { name: 'Soda', quantity: 2, price: '$4.00' }
-    ]},
-    { id: 3, customer: 'Bob Johnson', orderDate: '2023-05-03', total: '$22.50', status: 'Completed', items: [
-      { name: 'Pizza', quantity: 1, price: '$15.00' },
-      { name: 'Garlic Bread', quantity: 1, price: '$3.50' }
-    ]},
-    { id: 4, customer: 'Alice Brown', orderDate: '2023-05-04', total: '$18.00', status: 'Cancelled', items: [
-      { name: 'Burger', quantity: 1, price: '$10.00' },
-      { name: 'Fries', quantity: 1, price: '$3.00' },
-      { name: 'Milkshake', quantity: 1, price: '$5.00' }
-    ]},
-    // Add more order data as needed
-  ]);
+  const orders = ref([]);
   
   // Pagination
   const currentPage = ref(1);

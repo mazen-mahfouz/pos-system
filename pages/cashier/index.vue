@@ -3,7 +3,7 @@
     <CashierCategories @categoryChanged="onCategoryChanged" />
     <CashierSearch @searchChanged="onSearchChanged" />
     
-    <section class="h-[calc(100vh-300px)] pb-[20px] overflow-auto grid content-start gap-[10px] mt-[20px] transition-all duration-300 ease-in-out">
+    <section class="h-[calc(100vh-270px)] pb-[20px] overflow-auto grid content-start gap-[10px] mt-[20px] transition-all duration-300 ease-in-out">
       <!-- إضافة شاشة التحميل -->
       <div v-if="isLoading" class="col-span-full flex justify-center items-center">
         <div class="loader"></div>
@@ -14,21 +14,21 @@
         name="item"
         tag="div"
         class="grid gap-[10px]"
-        :class="{'grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-8': OrderStore.$state.openOrder, 'grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-10': !OrderStore.$state.openOrder }"
+        :class="{'grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-9': OrderStore.$state.openOrder, 'grid-cols-5 lg:grid-cols-7 xl:grid-cols-8 2xl:grid-cols-11': !OrderStore.$state.openOrder }"
       >
         <div
           v-for="item in items"
           :key="item.name"
-          @click="OrderStore.addItemToOrder(item), prodactHandelClick()"
+          @click="OrderStore.addItemToOrder(item) ,OrderStore.placeOrder(item), prodactHandelClick()"
           class="bg-white rounded-[15px] h-fit active border border-transparent transition-all duration-300 ease-out cursor-pointer shadow-sm p-[5px] pb-[15px] flex flex-col items-start text-start justify-start hover:scale-102 hover:shadow-md"
         >
-          <img :src="item.image || 'assets/img/item-img.png'" loading="eager" alt="" class="w-full h-[80px] mb-[10px] rounded-[15px]" />
-          <h2 class="text-[12px] h-[38px] font-[400] text-[#555555] mb-[15px] px-[5px]">{{ item.name }}</h2>
+          <img :src="item.image || 'assets/img/item-img.png'" loading="eager" alt="" class="w-full h-[70px] mb-[10px] rounded-[15px]" />
+          <h2 class="text-[11px] h-[38px] font-[500] text-[#555555] mb-[15px] px-[5px]">{{ item.name }}</h2>
           <div class="flex justify-between items-center w-full px-[8px]">
-            <span :class="categoryColor(item.category)" class="text-[9px] px-2 py-1 rounded-full font-[400]">
+            <span :class="categoryColor(item.category)" class="text-[8px] px-2 py-1 rounded-full font-[400]">
               {{ item.category.name }}
             </span>
-            <span class="text-[14px] font-[400] text-gray-600">${{ item.price }}</span>
+            <span class="text-[11px] font-[400] text-gray-600">£ {{ item.price }}</span>
           </div>
         </div>
       </TransitionGroup>
@@ -54,6 +54,12 @@ const allItems = ref([]); // Store all items
 const selectedCategoryId = ref(null);
 const searchQuery = ref('');
 const isLoading = ref(true);
+
+const openNewOrderModal = inject('openNewOrderModal');
+
+const openNewOrder = () => {
+  openNewOrderModal();
+};
 
 // تحديد الألوان بناءً على الفئة
 const categoryColor = (category) => {
@@ -87,7 +93,7 @@ const onSearchChanged = (query) => {
 
 const prodactHandelClick = () => {
   if(!OrderStore.$state.openOrder){
-    push.error('Please open an order first');
+    openNewOrder();
   }
 }
 

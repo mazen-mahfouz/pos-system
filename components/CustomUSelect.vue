@@ -1,10 +1,10 @@
 <template>
   <div class="relative w-full">
     <button
-      class="w-full bg-white border min-w-[150px] border-gray-300 rounded-lg px-4 h-[46px] flex justify-between items-center gap-2"
+      class="w-full bg-white border min-w-[150px] border-gray-300 rounded-lg px-4 h-[40px] flex justify-between items-center gap-2"
       @click="toggleDropdown"
     >
-      <span class="text-gray-700 text-[14px] font-[600]">
+      <span class="text-gray-700 text-[12px] font-[600]">
         {{ selectedLabel }}
       </span>
       <svg
@@ -30,7 +30,7 @@
           v-for="(option, index) in options"
           :key="index"
           @click="selectOption(option)"
-          class="px-4 py-2 hover:bg-[#F5F5F5] cursor-pointer"
+          class="px-4 py-3 border-b border-[#8080801b] hover:bg-[#F5F5F5] cursor-pointer"
         >
           {{ option.label }}
         </li>

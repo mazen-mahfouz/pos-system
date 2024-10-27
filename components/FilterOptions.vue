@@ -15,7 +15,7 @@
         autocomplete="off"
       />
       <label
-        class="btn-filter text-[13px] font-[600] cursor-pointer px-4 py-2 rounded-xl  text-[#515151] bg-[#a0a0ff24] peer-checked:bg-[#2d71f8] peer-checked:text-white"
+        class="btn-filter text-[12px] font-[600] cursor-pointer px-4 py-2 rounded-xl text-[#515151] bg-[#a0a0ff24] peer-checked:bg-[#1d3c7e] peer-checked:text-white"
         :for="`option-${idx + 1}`"
       >
         {{ option.name }}
@@ -26,21 +26,27 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
-// Props to pass filter options from parent
-defineProps({
+const props = defineProps({
   filters: {
     type: Array,
     required: true,
   },
+  modelValue: {
+    type: String,
+    default: 'all',
+  },
 });
 
-// Store selected filter
-const selected = ref(null);
+const emit = defineEmits(['update:modelValue']);
 
-// Emit event to parent when a filter is selected
-defineEmits(['update:modelValue']);
+const selected = ref(props.modelValue);
+
+watch(() => props.modelValue, (newVal) => {
+  selected.value = newVal;
+});
+
 watch(selected, (newVal) => {
   emit('update:modelValue', newVal);
 });

@@ -9,7 +9,7 @@
                   <UDropdown v-model:open="open" :items="items" :ui="{  width: 'w-48',  container: '!inset-[0px_auto_auto_25px]', item: { disabled: 'cursor-text select-text' } }" :popper="{ placement: 'bottom-start' }">
                   <div class="bg-[#f7f7f7] p-[7px_20px] flex justify-between items-center rounded-full gap-[15px]">
                       <div class="flex justify-center items-center rounded-full">
-                          <img src="/assets/img/avatar.jpg" class="w-[38px] h-[38px] rounded-full"  alt="" />
+                          <img src="/assets/img/avatar.png" class="w-[38px] h-[38px] rounded-full"  alt="" />
                       </div>
                       <h1 class="text-[#040404] text-[14px] font-[400] flex gap-[20px] items-center">
                           <div>
@@ -93,11 +93,7 @@ const logout = () => {
 const emit = defineEmits();
 
 const navLinks = [
-    { name: 'Menu', path: '/cashier/menu', icon: 'mdi:restaurant-menu' },
     { name: 'Cashier', path: '/cashier', icon: 'mdi:cash-register' },
-    { name: 'Orders History', path: '/cashier/orders', icon: 'mdi:order-bool-ascending-variant' },
-    { name: 'Orders', path: '/admin/order-history', icon: 'mdi:restaurant-menu' },
-    { name: 'Coupons', path: '/admin/coupons', icon: 'mdi:restaurant-menu' },
 ];
 
 const closeSidebar = () => {

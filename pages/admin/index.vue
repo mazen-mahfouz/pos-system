@@ -192,74 +192,7 @@ const columns = [
   { key: 'action', label: 'Action' },
 ];
 // Fake orders data
-const orders = ref([
-  { 
-    id: 1, 
-    customer: 'John Doe', 
-    items: 3, 
-    total: '$32.50', 
-    status: 'Completed',
-    itemDetails: [
-      { name: 'Coffee', quantity: 2, price: '$5.00' },
-      { name: 'Sandwich', quantity: 1, price: '$7.50' }
-    ],
-  },
-  { 
-    id: 1, 
-    customer: 'John Doe', 
-    items: 3, 
-    total: '$32.50', 
-    status: 'Pending',
-    itemDetails: [
-      { name: 'Coffee', quantity: 2, price: '$5.00' },
-      { name: 'Sandwich', quantity: 1, price: '$7.50' }
-    ]
-  },
-  { 
-    id: 1, 
-    customer: 'John Doe', 
-    items: 3, 
-    total: '$32.50', 
-    status: 'In Progress',
-    itemDetails: [
-      { name: 'Coffee', quantity: 2, price: '$5.00' },
-      { name: 'Sandwich', quantity: 1, price: '$7.50' }
-    ]
-  },
-  { 
-    id: 1, 
-    customer: 'John Doe', 
-    items: 3, 
-    total: '$32.50', 
-    status: 'Completed',
-    itemDetails: [
-      { name: 'Coffee', quantity: 2, price: '$5.00' },
-      { name: 'Sandwich', quantity: 1, price: '$7.50' }
-    ]
-  },
-  { 
-    id: 1, 
-    customer: 'John Doe', 
-    items: 3, 
-    total: '$32.50', 
-    status: 'Completed',
-    itemDetails: [
-      { name: 'Coffee', quantity: 2, price: '$5.00' },
-      { name: 'Sandwich', quantity: 1, price: '$7.50' }
-    ]
-  },
-  { 
-    id: 1, 
-    customer: 'John Doe', 
-    items: 3, 
-    total: '$32.50', 
-    status: 'Completed',
-    itemDetails: [
-      { name: 'Coffee', quantity: 2, price: '$5.00' },
-      { name: 'Sandwich', quantity: 1, price: '$7.50' }
-    ]
-  },
-]);
+const orders = ref([]);
 // Pagination
 const currentPage = ref(1);
 const perPage = 10;
