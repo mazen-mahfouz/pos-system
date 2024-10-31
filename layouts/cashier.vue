@@ -12,10 +12,10 @@
     <!-- New Order Modal -->
     <Teleport to="body">
       <Transition name="fade">
-        <div v-if="showNewOrderModal" class="fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50">
+        <div v-if="showNewOrderModal" class="fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50" @click="showNewOrderModal = false">
           <div class="bg-white rounded-3xl p-10 w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
             <div class="grid grid-cols-2 gap-8">
-              <button @click="selectOrderType('dine in')" class="order-type-btn" :class="{ 'selected': selectedOrderType === 'dine in' }">
+              <button @click="selectOrderType('dine-in')" class="order-type-btn" :class="{ 'selected': selectedOrderType === 'dine-in' }">
                 <Icon name="mdi:silverware-fork-knife" size="64" />
                 <span class="text-2xl font-bold mt-6">Dine In</span>
               </button>
@@ -32,7 +32,7 @@
     <!-- Table Selection Modal -->
     <Teleport to="body">
       <Transition name="fade">
-        <div v-if="showTableModal" class="fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50">
+        <div v-if="showTableModal" class="fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50" @click="showTableModal = false">
           <div class="bg-white rounded-3xl p-10 w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
             <h3 class="text-2xl font-bold mb-8 text-center">Select Table</h3>
             <div class="grid grid-cols-4 gap-6">
@@ -104,7 +104,7 @@ const fetchTables = () => {
 
 const selectOrderType = (type) => {
   selectedOrderType.value = type;
-  if (type === 'dine in') {
+  if (type === 'dine-in') {
     showTableModal.value = true;
   } else {
     confirmNewOrder();

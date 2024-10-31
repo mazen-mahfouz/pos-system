@@ -38,6 +38,41 @@
     </div>
 
     <div class="flex items-center gap-[10px]">
+      <!-- Print Button -->
+      <div @click="handlePrintClick" 
+           class="bg-[#ffffff] shadow-md p-[4px_10px] cursor-pointer transition duration-200 ease-in rounded-full"
+           :class="canPrintOrder ? 'hover:bg-[#f2f2f2] text-[#1e8370]' : 'opacity-50 cursor-not-allowed text-gray-400'">
+        <div class="flex items-center justify-between gap-[10px]">
+          <div class="bg-[#f5f9ff] p-[3px] flex justify-center items-center rounded-full">
+            <Icon name="mdi:printer" class="text-[15px]" />
+          </div>
+          <h1 class="text-[10px] font-[600]">Print</h1>
+        </div>
+      </div>
+
+      <!-- Discount Button (existing) -->
+      <div @click="handleDiscountClick" 
+           class="bg-[#ffffff] shadow-md p-[4px_10px] cursor-pointer transition duration-200 ease-in rounded-full"
+           :class="canApplyDiscount ? 'hover:bg-[#f2f2f2] text-[#1e8370]' : 'opacity-50 cursor-not-allowed text-gray-400'">
+        <div class="flex items-center justify-between gap-[10px]">
+          <div class="bg-[#f5f9ff] p-[3px] flex justify-center items-center rounded-full">
+            <Icon name="mdi:tag-outline" class="text-[15px]" />
+          </div>
+          <h1 class="text-[10px] font-[600]">Discount</h1>
+        </div>
+      </div>
+
+      <!-- Shift Details Button -->
+      <div @click="openShiftModal" 
+           class="bg-[#ffffff] shadow-md p-[4px_10px] cursor-pointer transition duration-200 ease-in hover:bg-[#f2f2f2] rounded-full">
+        <div class="flex items-center justify-between gap-[10px]">
+          <div class="bg-[#f5f9ff] p-[3px] flex justify-center items-center rounded-full">
+            <Icon name="mdi:cash-register" class="text-[#1e8370] text-[15px]" />
+          </div>
+          <h1 class="text-[10px] font-[600]">Shift Details</h1>
+        </div>
+      </div>
+
       <div @click="openOrdersModal" class="bg-[#ffffff] shadow-md p-[4px_10px] cursor-pointer transition duration-200 ease-in hover:bg-[#f2f2f2] flex justify-between items-center rounded-full gap-[10px]">
         <div class="flex items-center justify-between gap-[10px]" >
           <div class="bg-[#f5f9ff] p-[3px] flex justify-center items-center rounded-full">
@@ -56,14 +91,126 @@
       </div>
     </div>
   </div>
+
+  <!-- Add new Discount Modal -->
+  <Teleport to="body">
+    <UModal 
+      v-model="showDiscountModal"
+      :ui="{ width: 'sm:max-w-[600px]' }"
+    >
+      <div class="p-6">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold text-gray-800">Apply Discount</h2>
+          <button @click="closeDiscountModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <Icon name="mdi:close" size="24" />
+          </button>
+        </div>
+
+        <!-- Discount Types -->
+        <div class="grid grid-cols-3 gap-4 mb-6">
+          <div
+            v-for="type in discountTypes"
+            :key="type.value"
+            @click="discountType = type.value"
+            class="relative p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 transform hover:scale-[1.02]"
+          >
+            <div class="flex flex-col items-center space-y-3">
+              <div class="bg-white p-3 rounded-lg shadow-sm">
+                <Icon 
+                  :name="type.icon" 
+                  size="32" 
+                  :class="discountType === type.value ? 'text-[#2b3c5e]' : 'text-gray-600'" 
+                />
+              </div>
+              <span class="font-semibold text-[15px] text-gray-700">{{ type.label }}</span>
+              <p class="text-[12px] text-gray-500 text-center">{{ type.description }}</p>
+            </div>
+            <div v-if="discountType === type.value" class="absolute top-3 right-3">
+              <Icon name="mdi:check-circle" class="text-[#2b3c5e]" size="20" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Amount Input or Saved Discounts Select -->
+        <div class="bg-gray-50 p-5 rounded-xl mb-6">
+          <div v-if="discountType !== 'saved'" class="relative">
+            <label class="text-[14px] text-gray-600 mb-2 block">
+              {{ discountType === 'percentage' ? 'Discount Percentage' : 'Discount Amount' }}
+            </label>
+            <div class="relative">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-[15px]">
+                {{ discountType === 'percentage' ? '%' : '£' }}
+              </span>
+              <input
+                v-model="discountAmount"
+                type="number"
+                class="w-full p-3 pl-8 text-[15px] border-2 rounded-lg focus:ring-2 focus:ring-[#2b3c5e] focus:border-[#2b3c5e] transition-all duration-200"
+                :placeholder="discountType === 'percentage' ? 'Enter percentage' : 'Enter amount'"
+              />
+            </div>
+          </div>
+
+          <div v-else class="relative">
+            <label class="text-[14px] text-gray-600 mb-2 block">Select Saved Discount</label>
+            <select
+              v-model="selectedSavedDiscount"
+              class="w-full p-3 text-[15px] border-2 rounded-lg focus:ring-2 focus:ring-[#2b3c5e] focus:border-[#2b3c5e] transition-all duration-200"
+            >
+              <option value="">Select a discount</option>
+              <option v-for="discount in savedDiscounts" :key="discount.id" :value="discount.id">
+                {{ discount.name }} - {{ discount.value }}{{ discount.type === 'percentage' ? '%' : '£' }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex space-x-4">
+          <button
+            @click="closeDiscountModal"
+            class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-200 flex items-center justify-center space-x-2 text-[14px] font-medium"
+          >
+            <Icon name="mdi:close" size="20" />
+            <span>Cancel</span>
+          </button>
+          
+          <button
+            @click="applyDiscount"
+            class="flex-1 px-6 py-3 bg-[#2b3c5e] text-white rounded-lg hover:bg-[#22407c] transition-all duration-200 flex items-center justify-center space-x-2 text-[14px] font-medium"
+          >
+            <Icon name="mdi:check" size="20" />
+            <span>Apply Discount</span>
+          </button>
+        </div>
+      </div>
+    </UModal>
+  </Teleport>
+
+  <!-- Hidden Receipt Template -->
+  <CashierReceiptTemplate
+    ref="receiptTemplateRef"
+    :order="OrderStore.currentOrder"
+  />
+
+  <!-- Add shift modal -->
+  <CashierShiftDetailsModal 
+    v-if="showShiftModal"
+    @close="showShiftModal = false"
+  />
+
+  <!-- Hidden Shift Receipt Template -->
+  <CashierShiftReceiptTemplate
+    ref="shiftReceiptTemplateRef"
+    :shift="shiftDetails"
+  />
 </template>
 
 <script setup>
 import HandleReqErrors from "~/helpers/HandleReqErrors.js";
 import { useOrderStore } from '~/stores/orderStore';
-import { inject, ref, onMounted } from 'vue';
+import { inject, ref, onMounted, computed, watch, h } from 'vue';
 import { useAuthStore } from "~/stores/auth";
-
 
 const OrderStore = useOrderStore();
 const openNewOrderModal = inject('openNewOrderModal');
@@ -144,7 +291,180 @@ const toggleSidebar = () => {
 onMounted(() => {
   formatDate();
 });
+
+const showDiscountModal = ref(false);
+const discountType = ref('cash');
+const discountAmount = ref('');
+
+const canApplyDiscount = computed(() => {
+  return OrderStore.$state.openOrder && 
+         OrderStore.currentOrder.items.length > 0;
+});
+
+const handleDiscountClick = () => {
+  if (!canApplyDiscount.value) {
+    push.error('Please add items to the order first');
+    return;
+  }
+  showDiscountModal.value = true;
+};
+
+const closeDiscountModal = () => {
+  showDiscountModal.value = false;
+  discountType.value = 'cash';
+  discountAmount.value = '';
+};
+
+const discountTypes = [
+  { 
+    value: 'cash', 
+    label: 'Cash Discount',
+    icon: 'mdi:cash',
+    description: 'Apply fixed amount discount'
+  },
+  { 
+    value: 'percentage', 
+    label: 'Percentage Off',
+    icon: 'mdi:percent',
+    description: 'Apply percentage based discount'
+  },
+  { 
+    value: 'saved', 
+    label: 'Saved Discount',
+    icon: 'mdi:tag-outline',
+    description: 'Use a pre-saved discount'
+  }
+];
+
+const applyDiscount = async () => {
+  if (!discountAmount.value || discountAmount.value <= 0) {
+    push.error('Please enter a valid amount');
+    return;
+  }
+
+  if (discountType.value === 'percentage' && discountAmount.value > 100) {
+    push.error('Percentage cannot exceed 100%');
+    return;
+  }
+
+  try {
+    const response = await useApi(`orders/${OrderStore.currentOrder.id}/discount`, 'POST', {
+      type: 'object',
+      data: {
+        type: discountType.value,
+        amount: parseFloat(discountAmount.value)
+      }
+    });
+
+    // Update the order with the response data
+    OrderStore.updateOrderFromResponse(response.order);
+    push.success('Discount applied successfully');
+    closeDiscountModal();
+  } catch (error) {
+    console.error('Error applying discount:', error);
+    push.error('Failed to apply discount');
+  }
+};
+
+// Watch for changes in discount type to reset amount
+watch(discountType, () => {
+  discountAmount.value = '';
+});
+
+// Add computed property for print button
+const canPrintOrder = computed(() => {
+  return OrderStore.$state.openOrder && 
+         OrderStore.currentOrder.items.length > 0;
+});
+
+const receiptTemplateRef = ref(null);
+
+// Add print handler method
+const handlePrintClick = () => {
+  if (!canPrintOrder.value) {
+    push.error('Please add items to the order first');
+    return;
+  }
+  
+  receiptTemplateRef.value?.printReceipt();
+};
+
+const showShiftModal = ref(false);
+const shiftDetails = ref(null);
+
+const openShiftModal = () => {
+  showShiftModal.value = true;
+};
+
+const shiftReceiptTemplateRef = ref(null);
+
+const printShiftDetails = () => {
+  shiftReceiptTemplateRef.value?.print();
+};
+
+const fetchShiftDetails = async () => {
+  try {
+    const response = await useApi('shift/1/details', 'GET');
+    shiftDetails.value = response;
+  } catch (error) {
+    console.error('Error fetching shift details:', error);
+    push.error('Failed to load shift details');
+  }
+};
+
+watch(showShiftModal, (newValue) => {
+  if (newValue) {
+    fetchShiftDetails()
+  }
+})
+
+// Add formatDateTime and formatPrice functions
+const formatDateTime = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('en-GB', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  }).format(date);
+};
+
+const formatPrice = (price) => {
+  if (!price) return '0.00';
+  return Number(price).toFixed(2);
+};
+
+const selectedSavedDiscount = ref('');
+const savedDiscounts = ref([
+  { id: 1, name: 'Summer Sale', value: 10, type: 'percentage' },
+  { id: 2, name: 'VIP Discount', value: 5, type: 'cash' },
+  // Add more saved discounts as needed
+]);
 </script>
 
-<style lang="">
+<style lang="scss" scoped>
+// ... existing styles ...
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
 </style>

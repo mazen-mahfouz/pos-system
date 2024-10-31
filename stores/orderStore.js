@@ -17,25 +17,21 @@ export const useOrderStore = defineStore('order', {
       tax: 0,
       discount: 0,
       total_amount: 0,
+      service: 0,
     },
   }),
   getters: {
     subtotal() {
-      return this.currentOrder.items.reduce((total, item) => total + item.price * item.quantity, 0);
+      return this.currentOrder.sub_total || 0;
     },
     tax() {
-      return this.subtotal * 0.1; // افتراض ضريبة 10%
+      return this.currentOrder.tax || 0;
     },
     discountAmount() {
-      if (this.currentOrder.discount && this.currentOrder.discount.type === 'cash') {
-        return this.currentOrder.discount.amount;
-      } else if (this.currentOrder.discount && this.currentOrder.discount.type === 'percentage') {
-        return this.subtotal * (this.currentOrder.discount.amount / 100);
-      }
-      return 0;
+      return this.currentOrder.discount || 0;
     },
     total() {
-      return this.subtotal + this.tax - this.discountAmount;
+      return this.currentOrder.total_amount || 0;
     },
   },
   actions: {
@@ -85,10 +81,14 @@ export const useOrderStore = defineStore('order', {
       };
       this.openOrder = false;
     },
-    addItemToOrder(item) {
+    async addItemToOrder(item) {
       const existingItem = this.currentOrder.items.find(i => i.product_id === item.id);
       if (existingItem) {
         existingItem.quantity++;
+        this.updateOrderTotals();
+        if (!this.currentOrder.id) {
+          await this.placeOrder();
+        }
       } else {
         this.currentOrder.items.push({
           product_id: item.id,
@@ -97,7 +97,38 @@ export const useOrderStore = defineStore('order', {
           price: item.price,
           image: item.image
         });
+        this.updateOrderTotals();
+        if (!this.currentOrder.id) {
+          await this.placeOrder();
+        }
       }
+
+      // إرسال طلب إضافة العنصر إلى الخادم
+      if (this.currentOrder.id) {
+        try {
+          const response = await useApi('orderItem', 'POST', {
+            type: 'object',
+            data: {
+              order_id: this.currentOrder.id,
+              product_id: item.id,
+              quantity: existingItem ? existingItem.quantity : 1
+            }
+          });
+          this.updateOrderFromResponse(response.order_item.order);
+          console.log('Item added to order successfully:', response);
+        } catch (error) {
+          console.error('Error adding item to order:', error);
+          // Handle the error (e.g., show an error notification)
+        }
+      } else {
+        console.error('Failed to create order before adding item');
+        // Handle the error (e.g., show an error notification)
+      }
+    },
+    updateOrderTotals() {
+      this.currentOrder.sub_total = this.subtotal;
+      this.currentOrder.tax = this.tax;
+      this.currentOrder.total_amount = this.total;
     },
     updateDiscount(discount) {
       this.currentOrder.discount = discount;
@@ -194,16 +225,20 @@ export const useOrderStore = defineStore('order', {
         id: orderData.id,
         code: orderData.code,
         status: orderData.status,
-        tax: orderData.tax,
-        discount: orderData.discount,
-        service: orderData.service,
-        sub_total: orderData.sub_total,
-        total_amount: orderData.total_amount,
-        items: orderData.order_items.map(item => ({
-          ...item,
-          product: this.currentOrder.items.find(i => i.product_id === item.product_id)?.product
-        }))
+        tax: parseFloat(orderData.tax),
+        discount: parseFloat(orderData.discount),
+        service: parseFloat(orderData.service),
+        sub_total: parseFloat(orderData.sub_total),
+        total_amount: parseFloat(orderData.total_amount),
+        // items: orderData.order_items.map(item => ({
+        //   product_id: item.product.id,
+        //   quantity: item.quantity,
+        //   name: item.product.name,
+        //   price: parseFloat(item.price),
+        //   image: item.product.image
+        // }))
       };
+      this.updateOrderTotals();
     },
   },
 });

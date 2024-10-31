@@ -19,7 +19,7 @@
         <div
           v-for="item in items"
           :key="item.name"
-          @click="OrderStore.addItemToOrder(item) ,OrderStore.placeOrder(item), prodactHandelClick()"
+          @click="OrderStore.addItemToOrder(item), prodactHandelClick()"
           class="bg-white rounded-[15px] h-fit active border border-transparent transition-all duration-300 ease-out cursor-pointer shadow-sm p-[5px] pb-[15px] flex flex-col items-start text-start justify-start hover:scale-102 hover:shadow-md"
         >
           <img :src="item.image || 'assets/img/item-img.png'" loading="eager" alt="" class="w-full h-[70px] mb-[10px] rounded-[15px]" />

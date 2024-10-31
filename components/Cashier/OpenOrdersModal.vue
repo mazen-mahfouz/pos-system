@@ -99,7 +99,7 @@ const isLoading = ref(true);
 
 const types = [
   { value: 'dine-in', label: 'Dine in' },
-  { value: 'take-away', label: 'Take away' },
+  { value: 'takeaway', label: 'Take away' },
 ];
 
 const filtersList = ref([
@@ -129,14 +129,14 @@ onMounted(() => {
 
 const filteredOrders = computed(() => {
   if (isLoading.value || !orders.value) return [];
-  
+  console.log(selectedFilter.value);
   return orders.value.filter(order => {
     const matchesSearch = order.code.toLowerCase().includes(searchQuery.value.toLowerCase());
     const matchesType = !selected.value || order.type === selected.value;
     const matchesFilter = selectedFilter.value === 'all' || order.status.toString() === selectedFilter.value;
     const orderDate = new Date(order.created_at);
     const matchesDate = (!dateFrom.value || !dateTo.value) || (orderDate >= dateFrom.value && orderDate <= dateTo.value);
-    return matchesSearch && matchesType && matchesFilter && matchesDate && order.status === 'live';
+    return matchesSearch && matchesType && matchesFilter && matchesDate;
   });
 });
 
@@ -202,6 +202,11 @@ const selectOrder = (order) => {
     table_id: order.table_id,
     items: order.order_items,
     shift_id: order.shift_id,
+    tax: parseFloat(order.tax),
+    discount: parseFloat(order.discount),
+    service: parseFloat(order.service),
+    sub_total: parseFloat(order.sub_total),
+    total_amount: parseFloat(order.total_amount),
   };
   
   OrderStore.openExistingOrder(order.id);
