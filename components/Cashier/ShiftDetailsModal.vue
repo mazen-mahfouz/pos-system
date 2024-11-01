@@ -7,7 +7,7 @@
 
     <Transition name="fade">
       <div class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-30 p-4">
-        <div class="bg-white py-3 px-2 rounded-[20px] w-full max-w-2xl overflow-hidden shadow-lg" @click.stop>
+        <div class="bg-white py-3 px-2 rounded-[20px] w-full max-w-2xl md:max-w-2xl h-[90vh] md:h-[auto] max-h-[700px] overflow-auto  shadow-lg" @click.stop>
           <!-- Modal Header -->
           <div class="px-4 py-3 w-full flex justify-between items-center border-b">
             <h2 class="text-lg font-bold text-gray-800">Shift Details</h2>

@@ -4,7 +4,7 @@
     @update:model-value="$emit('update:modelValue', $event)"
     :ui="{ 
       width: 'sm:max-w-[390px]',
-      container: 'max-h-[520px]'
+      height: 'h-[90vh] md:max-h-[520px]'
     }"
   >
     <div class="p-4 h-full overflow-y-auto">

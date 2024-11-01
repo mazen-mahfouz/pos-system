@@ -13,7 +13,7 @@
       <TransitionGroup
         name="item"
         tag="div"
-        class="grid gap-[5px]"
+        class="grid gap-[10px]"
         :class="{'grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8': OrderStore.$state.openOrder, 'grid-cols-7 lg:grid-cols-6 xl:grid-cols-13 2xl:grid-cols-12': !OrderStore.$state.openOrder }"
       >
         <div

@@ -1,7 +1,7 @@
 <template>
   <div class="cashier flex bg-gray-100">
     <div class="flex flex-col w-full transition-all duration-300 ease-in-out"
-         :class="{'pr-[295px]': OrderStore.$state.openOrder}">
+         :class="{'pr-[300px]': OrderStore.$state.openOrder}">
       <SharedCashierNavbar />
       <SharedCashierSidebar v-model="isSidebarOpen" />
       <main class="flex-grow p-1">

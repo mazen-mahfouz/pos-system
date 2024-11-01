@@ -8,28 +8,28 @@
       <div
         :class="['category-box', { active: activeCategoryId === null }]"
         @click="setActiveCategory(null)"
-        class="p-[12px_8px] md:p-[14px_10px] lg:p-[30px_18px]"
+        class="p-[12px_8px] md:p-[18px_10px] lg:p-[35px_18px]"
       >
         <div class="icon bg-[#f7f7f7] rounded-full flex items-center justify-center p-[4px] md:p-[5px] lg:p-[6px] w-fit">
           <UIcon name="mdi:view-grid" class="text-[#878787] text-[12px] md:text-[14px] lg:text-[16px] font-[100]" />
         </div>
-        <h1 class="font-[400] text-[black] text-[11px] md:text-[13px] lg:text-[14px] ml-[5px] mt-[10px]">All</h1>
-        <span class="text-[9px] md:text-[11px] lg:text-[12px] mt-[5px] ml-[5px] text-[#888]">{{ categories.all_products_count }} Items</span>
+        <h1 class="font-[400] text-[black] text-[11px] md:text-[11px] lg:text-[14px] ml-[5px] mt-[10px]">All</h1>
+        <span class="text-[9px] md:text-[9px] lg:text-[12px] mt-[5px] ml-[5px] text-[#888]">{{ categories.all_products_count }} Items</span>
       </div>
     </SwiperSlide>
     
     <!-- Category list -->
     <SwiperSlide v-for="category in categories.categories" :key="category.id" class="swiper-slide-auto">
       <div
-        class="p-[12px_8px] md:p-[14px_10px] lg:p-[30px_18px]"
+        class="p-[12px_8px] md:p-[18px_10px] lg:p-[35px_18px]"
         :class="['category-box', { active: category.id === activeCategoryId }]"
         @click="setActiveCategory(category.id)"
       >
         <div class="icon bg-[#f7f7f7] rounded-full flex items-center justify-center p-[4px] md:p-[5px] lg:p-[6px] w-fit">
-          <UIcon :name="category.icon || 'mdi:food'" class="text-[#878787] text-[12px] md:text-[14px] lg:text-[16px] font-[100]" />
+          <UIcon :name="category.icon || 'mdi:food'" class="text-[#878787] text-[10px] md:text-[14px] lg:text-[16px] font-[100]" />
         </div>
-        <h1 class="font-[400] text-[black] text-[11px] md:text-[13px] lg:text-[14px] ml-[5px] mt-[10px]">{{ category.name }}</h1>
-        <span class="text-[9px] md:text-[11px] lg:text-[12px] mt-[5px] ml-[5px] text-[#888]">{{ category.products_count }} Items</span>
+        <h1 class="font-[400] text-[black] text-[11px] md:text-[11px] lg:text-[14px] ml-[5px] mt-[10px]">{{ category.name }}</h1>
+        <span class="text-[8px] md:text-[9px] lg:text-[12px] mt-[5px] ml-[5px] text-[#888]">{{ category.products_count }} Items</span>
       </div>
     </SwiperSlide>
   </Swiper>
@@ -92,7 +92,7 @@ const fetchCategories = () => {
 .swiper-slide-auto {
   width: 90px;
   @media (min-width: 768px) { /* md */
-    width: 100px;
+    width: 110px;
   }
   @media (min-width: 1024px) { /* lg */
     width: 140px;
