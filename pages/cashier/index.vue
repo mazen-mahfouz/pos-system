@@ -3,7 +3,7 @@
     <CashierCategories @categoryChanged="onCategoryChanged" />
     <CashierSearch @searchChanged="onSearchChanged" />
     
-    <section class="h-[calc(100vh-270px)] pb-[20px] overflow-auto grid content-start gap-[10px] mt-[20px] transition-all duration-300 ease-in-out">
+    <section class="h-[calc(100vh-240px)] pb-[10px] overflow-auto grid content-start gap-[5px] mt-[10px] transition-all duration-300 ease-in-out">
       <!-- إضافة شاشة التحميل -->
       <div v-if="isLoading" class="col-span-full flex justify-center items-center">
         <div class="loader"></div>
@@ -13,22 +13,22 @@
       <TransitionGroup
         name="item"
         tag="div"
-        class="grid gap-[10px]"
-        :class="{'grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-9': OrderStore.$state.openOrder, 'grid-cols-5 lg:grid-cols-7 xl:grid-cols-8 2xl:grid-cols-11': !OrderStore.$state.openOrder }"
+        class="grid gap-[5px]"
+        :class="{'grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8': OrderStore.$state.openOrder, 'grid-cols-7 lg:grid-cols-9 xl:grid-cols-13 2xl:grid-cols-12': !OrderStore.$state.openOrder }"
       >
         <div
           v-for="item in items"
           :key="item.name"
           @click="OrderStore.addItemToOrder(item), prodactHandelClick()"
-          class="bg-white rounded-[15px] h-fit active border border-transparent transition-all duration-300 ease-out cursor-pointer shadow-sm p-[5px] pb-[15px] flex flex-col items-start text-start justify-start hover:scale-102 hover:shadow-md"
+          class="bg-white rounded-[8px] h-fit active border border-transparent transition-all duration-300 ease-out cursor-pointer shadow-sm p-[3px] pb-[8px] flex flex-col items-start text-start justify-start hover:scale-102 hover:shadow-md"
         >
-          <img :src="item.image || 'assets/img/item-img.png'" loading="eager" alt="" class="w-full h-[70px] mb-[10px] rounded-[15px]" />
-          <h2 class="text-[11px] h-[38px] font-[500] text-[#555555] mb-[15px] px-[5px]">{{ item.name }}</h2>
-          <div class="flex justify-between items-center w-full px-[8px]">
-            <span :class="categoryColor(item.category)" class="text-[8px] px-2 py-1 rounded-full font-[400]">
+          <img :src="item.image || 'assets/img/item-img.png'" loading="eager" alt="" class="w-full h-[60px] mb-[5px] rounded-[8px]" />
+          <h2 class="text-[9px] h-[25px] font-[500] text-[#555555] mb-[8px] px-[3px]">{{ item.name }}</h2>
+          <div class="flex justify-between items-center w-full px-[5px]">
+            <span :class="categoryColor(item.category)" class="text-[7px] px-1.5 py-0.5 rounded-full font-[400]">
               {{ item.category.name }}
             </span>
-            <span class="text-[11px] font-[400] text-gray-600">£ {{ item.price }}</span>
+            <span class="text-[9px] font-[400] text-gray-600">£ {{ item.price }}</span>
           </div>
         </div>
       </TransitionGroup>
@@ -160,8 +160,8 @@ onMounted(() => {
   border: 3px solid #f3f3f3;
   border-top: 3px solid #3498db;
   border-radius: 50%;
-  width: 100px;
-  height: 100px;
+  width: 50px;
+  height: 50px;
   animation: spin 1s linear infinite;
   margin: 100px 0;
 }

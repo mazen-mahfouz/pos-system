@@ -2,82 +2,85 @@
   <UModal 
     :model-value="modelValue" 
     @update:model-value="$emit('update:modelValue', $event)"
-    :ui="{ width: 'sm:max-w-[600px]' }"
+    :ui="{ 
+      width: 'sm:max-w-[390px]',
+      container: 'max-h-[520px]'
+    }"
   >
-    <div class="p-6">
+    <div class="p-4 h-full overflow-y-auto">
       <!-- Header -->
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-bold text-gray-800">Payment Details</h2>
-        <button @click="$emit('update:modelValue', false)" class="text-gray-400 hover:text-gray-600 transition-colors">
-          <Icon name="mdi:close" size="24" />
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-[15px] font-bold text-gray-800">Payment Details</h2>
+        <button @click="$emit('update:modelValue', false)" class="text-gray-400 hover:text-gray-600">
+          <Icon name="mdi:close" size="20" />
         </button>
       </div>
       
       <!-- Payment Methods -->
-      <div class="grid grid-cols-2 gap-4 mb-8">
+      <div class="grid grid-cols-2 gap-3 mb-4">
         <div
           v-for="method in paymentMethods"
           :key="method.id"
           @click="selectedMethod = method.id"
-          class="relative p-6 border-2 rounded-2xl cursor-pointer transition-all duration-300 transform hover:scale-[1.02]"
-          :class="selectedMethod === method.id ? 'border-[#2b3c5e] bg-[#f8faff]' : 'border-gray-200 hover:border-gray-300'"
+          class="relative p-3.5 border rounded-lg cursor-pointer"
+          :class="selectedMethod === method.id ? 'border-[#2b3c5e] bg-[#f8faff]' : 'border-gray-200'"
         >
-          <div class="flex flex-col items-center space-y-3">
-            <div class="bg-white p-4 rounded-xl shadow-sm">
+          <div class="flex flex-col items-center space-y-2">
+            <div class="bg-white p-2 rounded-lg shadow-sm">
               <Icon 
                 :name="method.icon" 
-                size="40" 
+                size="22"
                 :class="selectedMethod === method.id ? 'text-[#2b3c5e]' : 'text-gray-600'" 
               />
             </div>
-            <span class="font-semibold text-[15px] text-gray-700">{{ method.name }}</span>
-            <p class="text-xs text-gray-500 text-center">{{ method.description }}</p>
+            <span class="text-[13px] font-semibold">{{ method.name }}</span>
+            <p class="text-[11px] text-gray-500 text-center">{{ method.description }}</p>
           </div>
-          <div v-if="selectedMethod === method.id" class="absolute top-3 right-3">
-            <Icon name="mdi:check-circle" class="text-[#2b3c5e]" size="24" />
+          <div v-if="selectedMethod === method.id" class="absolute top-2 right-2">
+            <Icon name="mdi:check-circle" class="text-[#2b3c5e]" size="16" />
           </div>
         </div>
       </div>
 
       <!-- Amount Details -->
-      <div class="bg-gray-50 p-5 rounded-2xl mb-6">
-        <div class="flex justify-between items-center p-4 bg-white rounded-xl shadow-sm mb-4">
-          <span class="text-gray-600 font-medium">Total Amount</span>
-          <span class="text-xl font-bold text-[#2b3c5e]">£{{ formatPrice(total) }}</span>
+      <div class="bg-gray-50 p-3.5 rounded-lg mb-4">
+        <div class="flex justify-between items-center p-2.5 bg-white rounded-lg shadow-sm mb-3">
+          <span class="text-[12px] text-gray-600">Total Amount</span>
+          <span class="text-[15px] font-bold text-[#2b3c5e]">£{{ formatPrice(total) }}</span>
         </div>
         
-        <div v-if="selectedMethod === 1" class="space-y-4">
+        <div v-if="selectedMethod === 1" class="space-y-3">
           <div class="relative">
-            <label class="text-sm text-gray-600 mb-2 block">Amount Received</label>
+            <label class="text-[12px] text-gray-600 mb-1.5 block">Amount Received</label>
             <div class="relative">
-              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">£</span>
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">£</span>
               <input
                 v-model="amountReceived"
                 type="number"
-                class="w-full p-3 pl-8 border-2 rounded-xl focus:ring-2 focus:ring-[#2b3c5e] focus:border-[#2b3c5e] transition-all duration-200"
+                class="w-full p-2.5 pl-6 text-sm border rounded-lg"
                 placeholder="Enter amount"
                 @input="calculateChange"
               />
             </div>
           </div>
           
-          <div class="flex justify-between items-center p-4 bg-white rounded-xl">
-            <span class="text-gray-600 font-medium">Change</span>
-            <span class="text-lg font-bold" :class="change < 0 ? 'text-red-500' : 'text-green-500'">
+          <div class="flex justify-between items-center p-2.5 bg-white rounded-lg">
+            <span class="text-[12px] text-gray-600 font-medium">Change</span>
+            <span class="text-[15px] font-bold" :class="change < 0 ? 'text-red-500' : 'text-green-500'">
               £{{ formatPrice(change) }}
             </span>
           </div>
         </div>
       </div>
 
-      <!-- Quick Amount Buttons (for Cash) -->
-      <div v-if="selectedMethod === 1" class="mb-6">
+      <!-- Quick Amount Buttons -->
+      <div v-if="selectedMethod === 1" class="mb-4">
         <div class="grid grid-cols-4 gap-2">
           <button
             v-for="amount in quickAmounts"
             :key="amount"
             @click="setQuickAmount(amount)"
-            class="p-2 text-sm font-medium rounded-lg border-2 border-gray-200 hover:border-[#2b3c5e] hover:bg-[#f8faff] transition-all duration-200"
+            class="p-2 text-[12px] font-medium rounded-lg border hover:border-[#2b3c5e] hover:bg-[#f8faff]"
           >
             £{{ amount }}
           </button>
@@ -85,29 +88,25 @@
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex space-x-4">
+      <div class="flex space-x-3">
         <button
           @click="handlePrint"
-          class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-200 flex items-center justify-center space-x-2 font-medium"
+          class="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg text-[12px] flex items-center justify-center space-x-2"
         >
-          <Icon name="mdi:printer" size="20" />
-          <span>Print Receipt</span>
+          <Icon name="mdi:printer" size="14" />
+          <span>Print</span>
         </button>
         
         <button
           @click="handlePayment"
           :disabled="!isValidPayment"
-          class="flex-1 px-6 py-3 bg-[#2b3c5e] text-white rounded-xl hover:bg-[#22407c] transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center space-x-2 font-medium"
+          class="flex-1 px-4 py-2.5 bg-[#2b3c5e] text-white rounded-lg text-[12px] disabled:bg-gray-300 flex items-center justify-center space-x-2"
         >
-          <Icon name="mdi:cash-register" size="20" />
-          <span>Complete Payment</span>
+          <Icon name="mdi:cash-register" size="14" />
+          <span>Complete</span>
         </button>
       </div>
     </div>
-    <CashierReceiptTemplate
-      ref="receiptRef"
-      :order="orderData"
-    />
   </UModal>
 </template>
 

@@ -1,102 +1,111 @@
 <template>
-  <div class="w-full max-w-sm mx-auto space-y-8">
-    <div class="space-y-8">
-      <!-- Toggle Between Email and OTP -->
-      <div class="flex justify-center">
-        <div class="w-full rounded-[50px] shadow-sm" role="group">
-          <button
-            v-for="method in ['email', 'otp']"
-            :key="method"
-            @click="loginMethod = method"
-            :class="[ 
-              'w-[50%] px-6 py-2 text-sm font-medium transition-colors duration-300',
-              loginMethod === method
-                ? 'bg-[#2b365a] text-white'
-                : 'bg-white text-gray-700 hover:bg-indigo-50',
-              method === 'email' ? 'rounded-l-xl' : 'rounded-r-lg',
-              'border border-gray-300 focus:z-10 focus:ring-2 focus:ring-indigo-500'
-            ]"
-          >
-            {{ method === 'email' ? 'Email Login' : 'OTP Login' }}
-          </button>
+  <div class="w-full max-w-[400px] mx-auto space-y-4 bg-white p-6 rounded-xl shadow-lg">
+    <!-- Toggle Between Email and OTP -->
+    <div class="flex justify-center mb-4">
+      <div class="w-full rounded-[12px] p-1 bg-gray-50 shadow-sm" role="group">
+        <button
+          v-for="method in ['email', 'otp']"
+          :key="method"
+          @click="loginMethod = method"
+          :class="[ 
+            'w-[50%] px-4 py-2 text-xs font-medium transition-all duration-300 rounded-lg',
+            loginMethod === method
+              ? 'bg-[#2b365a] text-white shadow-md transform scale-[1.02]'
+              : 'bg-transparent text-gray-600 hover:bg-gray-100'
+          ]"
+        >
+          <div class="flex items-center justify-center space-x-1.5">
+            <Icon :name="method === 'email' ? 'mdi:email' : 'mdi:message-lock'" size="14" />
+            <span>{{ method === 'email' ? 'Email Login' : 'Code Login' }}</span>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Form Section -->
+    <Form @submit="onSubmit" :validation-schema="schema" v-slot="{ errors }">
+      <div v-if="loginMethod === 'email'" class="space-y-4">
+        <!-- Email Input -->
+        <div class="space-y-1.5">
+          <label for="email" class="block text-xs font-medium text-gray-700">
+            Email Address
+          </label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Icon name="material-symbols:person-2" class="text-gray-400" size="16" />
+            </div>
+            <Field
+              name="email"
+              type="email"
+              autocomplete="email"
+              required
+              class="block w-full pl-9 pr-3 py-2 text-sm border-2 border-gray-200 rounded-lg leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2b365a] focus:border-[#2b365a] transition-all duration-200"
+              :class="{ 'border-red-300 ring-red-200': errors.email }"
+              placeholder="Enter your email"
+            />
+          </div>
+          <ErrorMessage name="email" class="text-red-500 text-xs mt-1" />
+        </div>
+
+        <!-- Password Input -->
+        <div class="space-y-1.5">
+          <label for="password" class="block text-xs font-medium text-gray-700">
+            Password
+          </label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Icon name="solar:lock-password-bold" class="text-gray-400" size="16" />
+            </div>
+            <Field
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required
+              class="block w-full pl-9 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2b365a] focus:border-[#2b365a] transition-all duration-200"
+              :class="{ 'border-red-300 ring-red-200': errors.password }"
+              placeholder="Enter your password"
+            />
+          </div>
+          <ErrorMessage name="password" class="text-red-500 text-[10px] mt-1" />
         </div>
       </div>
 
-      <!-- Form Section -->
-      <Form @submit="onSubmit" :validation-schema="schema" v-slot="{ errors }">
-        <div v-if="loginMethod === 'email'" class="space-y-6">
-          <!-- Email Input -->
-          <div>
-            <label for="email" class="block text-sm font-medium text-gray-700">
-              Email Address
-            </label>
-            <div class="mt-1 relative rounded-md shadow-sm">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Icon name="material-symbols:person-2" class="text-gray-400" />
-              </div>
-              <Field
-                name="email"
-                type="email"
-                autocomplete="email"
-                required
-                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                :class="{ 'border-red-500': errors.email }"
-                placeholder="Enter your email"
-              />
-            </div>
-            <ErrorMessage name="email" class="text-red-500 text-xs mt-1" />
+      <!-- OTP Input -->
+      <div v-else class="space-y-4">
+        <div class="bg-gray-50 p-4 rounded-xl">
+          <div class="text-center mb-4">
+            <h3 class="text-base font-semibold text-gray-800">Enter Code</h3>
+            <p class="text-xs text-gray-500 mt-1">Please enter the 4-digit code sent to your device</p>
           </div>
-
-          <!-- Password Input -->
-          <div>
-            <label for="password" class="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <div class="mt-1 relative rounded-md shadow-sm">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Icon name="solar:lock-password-bold" class="text-gray-400" />
-              </div>
-              <Field
-                name="password"
-                type="password"
-                autocomplete="current-password"
-                required
-                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                :class="{ 'border-red-500': errors.password }"
-                placeholder="Enter your password"
-              />
-            </div>
-            <ErrorMessage name="password" class="text-red-500 text-xs mt-1" />
-          </div>
-        </div>
-
-        <!-- OTP Input -->
-        <div v-else class="space-y-4">
-          <div class="flex justify-center gap-6">
+          <div class="flex justify-center gap-2">
             <input
               v-for="(digit, index) in 4"
               :key="index"
               v-model="otpDigits[index]"
               type="text"
               maxlength="1"
-              class="w-[60px] h-[60px] text-center text-[20px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              class="w-[45px] h-[45px] text-center text-xl font-bold border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2b365a] focus:border-[#2b365a] transition-all duration-300 bg-white shadow-sm"
+              :class="{ 'border-[#2b365a] bg-[#f8faff] transform scale-[1.05]': otpDigits[index] }"
               @input="onOtpInput(index)"
               @keydown="onOtpKeydown($event, index)"
             />
           </div>
         </div>
+      </div>
 
-        <!-- Submit Button -->
-        <div class="mt-6">
-          <button
-            type="submit"
-            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-xl shadow-sm text-[14px] font-medium text-white bg-[#2b365a] hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            {{ loginMethod === 'email' ? 'Sign in' : 'Sign in' }}
-          </button>
-        </div>
-      </Form>
-    </div>
+      <!-- Submit Button -->
+      <div class="mt-6">
+        <button
+          type="submit"
+          class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#2b365a] hover:bg-[#22407c] transform hover:scale-[1.02] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2b365a]"
+        >
+          <div class="flex items-center space-x-1.5">
+            <Icon :name="loginMethod === 'email' ? 'mdi:login' : 'mdi:message-lock'" size="16" />
+            <span>{{ loginMethod === 'email' ? 'Sign in' : 'Send Code' }}</span>
+          </div>
+        </button>
+      </div>
+    </Form>
   </div>
 </template>
 
@@ -165,7 +174,7 @@ const onSubmit = (values) => {
     if(response.user?.roles[0].name === 'cashier') {
       router.push('/cashier');
     } else if(response.user?.roles[0]?.name === 'Admin') {
-      router.push('/admin');
+      router.push('/cashier');
     } else if(response.user?.roles[0]?.name === 'waiter') {
       router.push('/waiter');
     } else {
@@ -179,11 +188,17 @@ const onSubmit = (values) => {
 }
 
 const onOtpInput = (index) => {
-  if (otpDigits.value[index].length === 1 && index < 5) {
-    document.querySelectorAll('input')[index + 1].focus()
+  // Ensure only numbers are entered
+  otpDigits.value[index] = otpDigits.value[index].replace(/[^0-9]/g, '');
+  
+  if (otpDigits.value[index].length === 1 && index < 3) {
+    // Move to next input
+    document.querySelectorAll('input')[index + 1]?.focus();
   }
+  
+  // If all digits are filled, submit automatically
   if (otpDigits.value.every(digit => digit !== '')) {
-    onSubmit()
+    onSubmit({ login_code: otpDigits.value.join('') });
   }
 }
 

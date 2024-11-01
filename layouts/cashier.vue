@@ -1,7 +1,7 @@
 <template>
   <div class="cashier flex bg-gray-100">
     <div class="flex flex-col w-full transition-all duration-300 ease-in-out"
-         :class="{'pr-[330px]': OrderStore.$state.openOrder}">
+         :class="{'pr-[295px]': OrderStore.$state.openOrder}">
       <SharedCashierNavbar />
       <SharedCashierSidebar v-model="isSidebarOpen" />
       <main class="flex-grow p-1">
@@ -13,15 +13,15 @@
     <Teleport to="body">
       <Transition name="fade">
         <div v-if="showNewOrderModal" class="fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50" @click="showNewOrderModal = false">
-          <div class="bg-white rounded-3xl p-10 w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
+          <div class="bg-white rounded-3xl p-6 lg:p-10 w-10/12 lg:w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
             <div class="grid grid-cols-2 gap-8">
               <button @click="selectOrderType('dine-in')" class="order-type-btn" :class="{ 'selected': selectedOrderType === 'dine-in' }">
-                <Icon name="mdi:silverware-fork-knife" size="64" />
-                <span class="text-2xl font-bold mt-6">Dine In</span>
+                <Icon name="mdi:silverware-fork-knife" class="text-[45px] lg:text-[64px]" />
+                <span class="text-[23px] lg:text-2xl font-bold mt-6">Dine In</span>
               </button>
               <button @click="selectOrderType('takeaway')" class="order-type-btn" :class="{ 'selected': selectedOrderType === 'takeaway' }">
-                <Icon name="mdi:food-takeout-box" size="64" />
-                <span class="text-2xl font-bold mt-6">Take Away</span>
+                <Icon name="mdi:food-takeout-box" class="text-[45px] lg:text-[64px]" />
+                <span class="text-[23px] lg:text-2xl font-bold mt-6">Take Away</span>
               </button>
             </div>
           </div>
@@ -33,17 +33,47 @@
     <Teleport to="body">
       <Transition name="fade">
         <div v-if="showTableModal" class="fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50" @click="showTableModal = false">
-          <div class="bg-white rounded-3xl p-10 w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
-            <h3 class="text-2xl font-bold mb-8 text-center">Select Table</h3>
-            <div class="grid grid-cols-4 gap-6">
-              <button v-for="table in tables" :key="table.id" @click="selectTable(table)" 
-                      class="table-btn" :class="{ 'occupied': table.is_free === 0, 'available': table.is_free === 1 }">
-                <div class="text-xl font-bold">{{ table.number }}</div>
-                <div class="mt-2 text-sm">{{ table.capacity }} {{ table.capacity === 0 ? 'Guest' : 'Guests' }}</div>
-                <div class="mt-2 text-xs" :class="{'text-green-600': table.is_free === 1, 'text-red-600': table.is_free === 0}">
+          <div class="bg-white rounded-3xl p-8 w-10/12 lg:w-11/12 max-w-4xl max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <h2 class="text-xl xl:text-[24px] font-bold text-gray-800">Select Table</h2>
+                <p class="text-sm xl:text-[18px] text-gray-500 mt-1">Choose a table for your guests</p>
+              </div>
+              <button @click="showTableModal = false" class="text-gray-400 hover:text-gray-600">
+                <Icon name="mdi:close" size="24" />
+              </button>
+            </div>            
+            <div class="grid grid-cols-3 md:grid-cols-4 gap-4">
+              <button 
+                v-for="table in tables" 
+                :key="table.id" 
+                @click="selectTable(table)" 
+                class="flex flex-col items-center justify-center p-2 sm:p-4  bg-white border-2 rounded-xl transition-all duration-300"
+                :class="{
+                  'border-red-200 bg-red-50/50 hover:cursor-not-allowed': table.is_free === 0,
+                  'border-[#2b3c5e] bg-white hover:scale-105 sm:hover:scale-110 md:hover:scale-125 lg:hover:scale-150 hover:shadow-xl hover:border-[#2b3c5e] hover:bg-[#f8faff]': table.is_free === 1
+                }"
+              >
+                <div class="mb-1 sm:mb-2 md:mb-3 p-1 sm:p-2 md:p-2 rounded-full bg-gray-50 transition-all duration-300">
+                  <Icon 
+                    :name="table.is_free === 1 ? 'mdi:table-furniture' : 'mdi:table-lock'" 
+                    class="text-xl md:text-2xl lg:text-[34px]"
+                    :class="[
+                      table.is_free === 1 ? 'text-[#2b3c5e] group-hover:text-white' : 'text-red-500'
+                    ]"
+                  />
+                </div>
+                <div class="md:text-[16px] lg:text-[18px] xl:text-xl font-bold">{{ table.number }}</div>
+                <div class="mt-1 sm:mt-2 text-[13px] lg:text-[15px] text-gray-600">
+                  {{ table.capacity }} {{ table.capacity === 1 ? 'Guest' : 'Guests' }}
+                </div>
+                <div class="mt-1 sm:mt-2 text-[14px] lg:text-md" 
+                    :class="{'text-green-600': table.is_free === 1, 'text-red-600': table.is_free === 0}">
                   {{ table.is_free === 0 ? formatDate(table.created_at) : 'Available' }}
                 </div>
-                <div v-if="table.is_free === 0" class="mt-1 text-sm text-gray-600">{{ table.waiter }}</div>
+                <div v-if="table.is_free === 0" class="mt-1 text-[14px] lg:text-lg text-gray-500">
+                  {{ table.waiter }}
+                </div>
               </button>
             </div>
           </div>

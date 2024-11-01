@@ -10,9 +10,9 @@
         @click="setActiveCategory(null)"
       >
         <div class="icon bg-[#f7f7f7] rounded-full flex items-center justify-center p-[4px] w-fit">
-          <UIcon name="mdi:view-grid" class="text-[#878787] text-[14px] font-[100]" />
+          <UIcon name="mdi:view-grid" class="text-[#878787] text-[12px] font-[100]" />
         </div>
-        <h1 class="font-[400] text-[black] text-[12px] ml-[5px] mt-[10px]">All</h1>
+        <h1 class="font-[400] text-[black] text-[11px] ml-[5px] mt-[10px]">All</h1>
         <span class="text-[9px] mt-[5px] ml-[5px] text-[#888]">{{ categories.all_products_count }} Items</span>
       </div>
     </SwiperSlide>
@@ -24,9 +24,9 @@
         @click="setActiveCategory(category.id)"
       >
         <div class="icon bg-[#f7f7f7] rounded-full flex items-center justify-center p-[4px] w-fit">
-          <UIcon :name="category.icon || 'mdi:food'" class="text-[#878787] text-[14px] font-[100]" />
+          <UIcon :name="category.icon || 'mdi:food'" class="text-[#878787] text-[12px] font-[100]" />
         </div>
-        <h1 class="font-[400] text-[black] text-[12px] ml-[5px] mt-[10px]">{{ category.name }}</h1>
+        <h1 class="font-[400] text-[black] text-[11px] ml-[5px] mt-[10px]">{{ category.name }}</h1>
         <span class="text-[9px] mt-[5px] ml-[5px] text-[#888]">{{ category.products_count }} Items</span>
       </div>
     </SwiperSlide>
@@ -67,7 +67,7 @@ const fetchCategories = () => {
 .category-box {
   background-color: #fff;
   border-radius: 12px;
-  padding: 20px 12px;
+  padding: 18px 10px;
   box-shadow: 0 0px 15px #d0d0d011;
   cursor: pointer;
   transition: 0.5s ease;
