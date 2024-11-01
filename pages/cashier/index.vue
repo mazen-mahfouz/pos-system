@@ -14,21 +14,21 @@
         name="item"
         tag="div"
         class="grid gap-[5px]"
-        :class="{'grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8': OrderStore.$state.openOrder, 'grid-cols-7 lg:grid-cols-9 xl:grid-cols-13 2xl:grid-cols-12': !OrderStore.$state.openOrder }"
+        :class="{'grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8': OrderStore.$state.openOrder, 'grid-cols-7 lg:grid-cols-6 xl:grid-cols-13 2xl:grid-cols-12': !OrderStore.$state.openOrder }"
       >
         <div
           v-for="item in items"
           :key="item.name"
           @click="OrderStore.addItemToOrder(item), prodactHandelClick()"
-          class="bg-white rounded-[8px] h-fit active border border-transparent transition-all duration-300 ease-out cursor-pointer shadow-sm p-[3px] pb-[8px] flex flex-col items-start text-start justify-start hover:scale-102 hover:shadow-md"
+          class="bg-white rounded-[12px] h-fit active border border-transparent transition-all duration-300 ease-out cursor-pointer shadow-sm p-[5px] pb-[12px] gap-[5px] flex flex-col items-start text-start justify-start hover:scale-102 hover:shadow-md"
         >
-          <img :src="item.image || 'assets/img/item-img.png'" loading="eager" alt="" class="w-full h-[60px] mb-[5px] rounded-[8px]" />
-          <h2 class="text-[9px] h-[25px] font-[500] text-[#555555] mb-[8px] px-[3px]">{{ item.name }}</h2>
+          <img :src="item.image || 'assets/img/item-img.png'" loading="eager" alt="" class="w-full h-[60px] lg:h-[70px] xl:h-[90px] mb-[8px] rounded-[12px]" />
+          <h2 class="text-[9px] lg:text-[12px] xl:text-[14px] h-[25px] lg:h-[40px] xl:h-[40px] font-[500] text-[#555555] mb-[8px] px-[3px]">{{ item.name }}</h2>
           <div class="flex justify-between items-center w-full px-[5px]">
-            <span :class="categoryColor(item.category)" class="text-[7px] px-1.5 py-0.5 rounded-full font-[400]">
+            <span :class="categoryColor(item.category)" class="text-[7px] lg:text-[10px] xl:text-[11px] px-1.5 py-0.5 rounded-full font-[400]">
               {{ item.category.name }}
             </span>
-            <span class="text-[9px] font-[400] text-gray-600">£ {{ item.price }}</span>
+            <span class="text-[9px] lg:text-[12px] xl:text-[13px] font-[400] xl:font-[500] text-gray-600">£ {{ item.price }}</span>
           </div>
         </div>
       </TransitionGroup>

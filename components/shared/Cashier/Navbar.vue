@@ -1,13 +1,13 @@
 <template>
-  <div class="w-full rounded-lg flex justify-between p-2 ">
-    <div class="flex items-center justify-between gap-[10px]">
+  <div class="w-full rounded-lg flex justify-between p-2 lg:p-3 xl:p-4">
+    <div class="flex items-center justify-between gap-[10px] lg:gap-[15px] xl:gap-[20px]">
       <UDropdown :items="items" :ui="{ item: { disabled: 'cursor-text select-text' } }" :popper="{ placement: 'bottom-start' }">
-        <img src="/assets/img/avatar.png" class="w-[32px] h-[32px] mx-[10px] rounded-full" />
+        <img src="/assets/img/avatar.png" class="w-[32px] h-[32px] lg:w-[40px] lg:h-[40px] xl:w-[48px] xl:h-[48px] mx-[10px] rounded-full" />
 
         <template #account="{ item }">
           <div class="text-left">
-            <h1 class="text-[#262626] text-[14px] font-medium">{{ AuthStore?.user?.first_name }} {{ AuthStore?.user?.last_name }}</h1>
-            <p class="truncate font-medium text-[11px] text-gray-900 dark:text-white">
+            <h1 class="text-[#262626] text-[14px] lg:text-[16px] xl:text-[18px] font-medium">{{ AuthStore?.user?.first_name }} {{ AuthStore?.user?.last_name }}</h1>
+            <p class="truncate font-medium text-[11px] lg:text-[13px] xl:text-[14px] text-gray-900 dark:text-white">
               {{ AuthStore?.user?.roles?.[0]?.name }}            
             </p>
           </div>
@@ -20,73 +20,73 @@
           </NuxtLink>
         </template>
       </UDropdown>
-      <div class="flex items-center gap-[5px]" v-if="!OrderStore.$state.openOrder">
-        <div class="bg-[#ffffff] shadow-md p-[5px_8px] pr-[18px] flex justify-between items-center rounded-full gap-[10px]">
-          <div class="bg-[#f5f9ff] p-[4px] flex justify-center items-center rounded-full">
-            <Icon name="material-symbols:calendar-month-outline-rounded" class="text-[#6b9bfa] text-[15px]" />
+      <div class="flex items-center gap-[5px] lg:gap-[8px] xl:gap-[10px]" v-if="!OrderStore.$state.openOrder">
+        <div class="bg-[#ffffff] shadow-md p-[5px_8px] lg:p-[6px_10px] xl:p-[8px_12px] pr-[18px] flex justify-between items-center rounded-full gap-[10px]">
+          <div class="bg-[#f5f9ff] p-[4px] lg:p-[5px] xl:p-[6px] flex justify-center items-center rounded-full">
+            <Icon name="material-symbols:calendar-month-outline-rounded" class="text-[#6b9bfa] text-[15px] lg:text-[17px] xl:text-[19px]" />
           </div>
-          <h1 class="text-[#040404] text-[9px] font-[500]">{{ formattedDate }}</h1>
+          <h1 class="text-[#040404] text-[9px] lg:text-[11px] xl:text-[13px] font-[500]">{{ formattedDate }}</h1>
         </div>
         <span class="text-[10px] text-[#6d6d6d]">-</span>
-        <div class="bg-[#ffffff] shadow-md p-[5px_8px] pr-[18px] flex justify-between items-center rounded-full gap-[10px]">
-          <div class="bg-[#f5f9ff] p-[4px] flex justify-center items-center rounded-full">
-            <Icon name="bi:clock" class="text-[#6b9bfa] text-[11px]" />
+        <div class="bg-[#ffffff] shadow-md p-[5px_8px] lg:p-[6px_10px] xl:p-[8px_12px] pr-[18px] flex justify-between items-center rounded-full gap-[10px]">
+          <div class="bg-[#f5f9ff] p-[4px] lg:p-[5px] xl:p-[6px] flex justify-center items-center rounded-full">
+            <Icon name="bi:clock" class="text-[#6b9bfa] text-[11px] lg:text-[13px] xl:text-[15px]" />
           </div>
-          <h1 class="text-[#040404] text-[9px] font-[500]">{{ formattedTime }}</h1>
+          <h1 class="text-[#040404] text-[9px] lg:text-[11px] xl:text-[13px] font-[500]">{{ formattedTime }}</h1>
         </div>
       </div>
     </div>
 
-    <div class="flex items-center gap-[10px]">
+    <div class="flex items-center gap-[10px] lg:gap-[15px] xl:gap-[20px]">
       <!-- Print Button -->
       <div @click="handlePrintClick" 
-           class="bg-[#ffffff] shadow-md p-[4px_10px] cursor-pointer transition duration-200 ease-in rounded-full"
+           class="bg-[#ffffff] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in rounded-full"
            :class="canPrintOrder ? 'hover:bg-[#f2f2f2] text-[#1e8370]' : 'opacity-50 cursor-not-allowed text-gray-400'">
         <div class="flex items-center justify-between gap-[10px]">
-          <div class="bg-[#f5f9ff] p-[3px] flex justify-center items-center rounded-full">
-            <Icon name="mdi:printer" class="text-[15px]" />
+          <div class="bg-[#f5f9ff] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
+            <Icon name="mdi:printer" class="text-[15px] lg:text-[17px] xl:text-[19px]" />
           </div>
-          <h1 class="text-[10px] font-[600]">Print</h1>
+          <h1 class="text-[10px] lg:text-[12px] xl:text-[14px] font-[600]">Print</h1>
         </div>
       </div>
 
       <!-- Discount Button (existing) -->
       <div @click="handleDiscountClick" 
-           class="bg-[#ffffff] shadow-md p-[4px_10px] cursor-pointer transition duration-200 ease-in rounded-full"
+           class="bg-[#ffffff] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in rounded-full"
            :class="canApplyDiscount ? 'hover:bg-[#f2f2f2] text-[#1e8370]' : 'opacity-50 cursor-not-allowed text-gray-400'">
         <div class="flex items-center justify-between gap-[10px]">
-          <div class="bg-[#f5f9ff] p-[3px] flex justify-center items-center rounded-full">
-            <Icon name="mdi:tag-outline" class="text-[15px]" />
+          <div class="bg-[#f5f9ff] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
+            <Icon name="mdi:tag-outline" class="text-[15px] lg:text-[17px] xl:text-[19px]" />
           </div>
-          <h1 class="text-[10px] font-[600]">Discount</h1>
+          <h1 class="text-[10px] lg:text-[12px] xl:text-[14px] font-[600]">Discount</h1>
         </div>
       </div>
 
       <!-- Shift Details Button -->
       <div @click="openShiftModal" 
-           class="bg-[#ffffff] shadow-md p-[4px_10px] cursor-pointer transition duration-200 ease-in hover:bg-[#f2f2f2] rounded-full">
+           class="bg-[#ffffff] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in hover:bg-[#f2f2f2] rounded-full">
         <div class="flex items-center justify-between gap-[10px]">
-          <div class="bg-[#f5f9ff] p-[3px] flex justify-center items-center rounded-full">
-            <Icon name="mdi:cash-register" class="text-[#1e8370] text-[15px]" />
+          <div class="bg-[#f5f9ff] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
+            <Icon name="mdi:cash-register" class="text-[#1e8370] text-[15px] lg:text-[17px] xl:text-[19px]" />
           </div>
-          <h1 class="text-[10px] font-[600]">Shift</h1>
+          <h1 class="text-[10px] lg:text-[12px] xl:text-[14px] font-[600]">Shift</h1>
         </div>
       </div>
 
-      <div @click="openOrdersModal" class="bg-[#ffffff] shadow-md p-[4px_10px] cursor-pointer transition duration-200 ease-in hover:bg-[#f2f2f2] flex justify-between items-center rounded-full gap-[10px]">
+      <div @click="openOrdersModal" class="bg-[#ffffff] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in hover:bg-[#f2f2f2] flex justify-between items-center rounded-full gap-[10px]">
         <div class="flex items-center justify-between gap-[10px]" >
-          <div class="bg-[#f5f9ff] p-[3px] flex justify-center items-center rounded-full">
-            <Icon name="line-md:list" class="text-[#1e8370] text-[15px]" />
+          <div class="bg-[#f5f9ff] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
+            <Icon name="line-md:list" class="text-[#1e8370] text-[15px] lg:text-[17px] xl:text-[19px]" />
           </div>
-          <h1 class="text-[#040404] text-[10px] font-[600]">Orders</h1>
+          <h1 class="text-[#040404] text-[10px] lg:text-[12px] xl:text-[14px] font-[600]">Orders</h1>
         </div>
       </div>
-      <div @click="openNewOrder" v-if="!OrderStore.$state.openOrder" class="bg-[#1ca84f] shadow-md p-[4px_10px] cursor-pointer transition duration-200 ease-in hover:bg-[#299751] flex justify-between items-center rounded-full gap-[10px]">
+      <div @click="openNewOrder" v-if="!OrderStore.$state.openOrder" class="bg-[#1ca84f] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in hover:bg-[#299751] flex justify-between items-center rounded-full gap-[10px]">
         <div class="flex items-center justify-between gap-[10px]" >
-        <div class="bg-[#f1f6ff] p-[3px] flex justify-center items-center rounded-full">
-          <Icon name="i-heroicons-plus" class="text-[#125b2d] text-[13px]" />
+        <div class="bg-[#f1f6ff] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
+          <Icon name="i-heroicons-plus" class="text-[#125b2d] text-[13px] lg:text-[15px] xl:text-[17px]" />
         </div>          
-        <h1 class="text-[#fff] text-[10px] font-[600]">New order</h1>
+        <h1 class="text-[#fff] text-[10px] lg:text-[12px] xl:text-[14px] font-[600]">New order</h1>
         </div>
       </div>
     </div>

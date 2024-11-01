@@ -7,18 +7,18 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   const tokenCookie = useCookie('PosUserToken').value;
   const userCookie = useCookie('PosUserData').value;
 
-  if (tokenCookie && userCookie) {
+  // if (tokenCookie && userCookie) {
 
-    AuthStore.token = tokenCookie;
-    AuthStore.user = userCookie;
+  //   AuthStore.token = tokenCookie;
+  //   AuthStore.user = userCookie;
 
-    if (to.path === '/auth/login') {
-      return navigateTo('/');
-    }
+  //   if (to.path === '/auth/login') {
+  //     return navigateTo('/');
+  //   }
 
-  } else {
-    if (to.path !== '/auth/login') {
-      return navigateTo('/auth/login');
-    }
-  }
+  // } else {
+  //   if (to.path !== '/auth/login') {
+  //     return navigateTo('/auth/login');
+  //   }
+  // }
 });
