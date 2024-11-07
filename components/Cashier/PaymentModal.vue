@@ -3,11 +3,11 @@
     :model-value="modelValue" 
     @update:model-value="$emit('update:modelValue', $event)"
     :ui="{ 
-      width: 'sm:max-w-[390px]',
-      height: 'h-[90vh] md:max-h-[520px]'
+      width: 'sm:max-w-[550px]',
+      height: 'h-auto sm:max-h-[90vh] md:max-h-[90vh] lg:max-h-[90vh]'
     }"
   >
-    <div class="p-4 h-full overflow-y-auto">
+    <div class="p-4 sm:p-6 h-full overflow-y-auto">
       <!-- Header -->
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-[15px] font-bold text-gray-800">Payment Details</h2>
@@ -43,10 +43,10 @@
       </div>
 
       <!-- Amount Details -->
-      <div class="bg-gray-50 p-3.5 rounded-lg mb-4">
-        <div class="flex justify-between items-center p-2.5 bg-white rounded-lg shadow-sm mb-3">
-          <span class="text-[12px] text-gray-600">Total Amount</span>
-          <span class="text-[15px] font-bold text-[#2b3c5e]">£{{ formatPrice(total) }}</span>
+      <div class="bg-gray-50 p-3.5 sm:p-5 rounded-lg mb-4 sm:mb-6">
+        <div class="flex justify-between items-center p-2.5 sm:p-4 bg-white rounded-lg shadow-sm mb-3 sm:mb-5">
+          <span class="text-[12px] sm:text-[14px] text-gray-600">Total Amount</span>
+          <span class="text-[15px] sm:text-[18px] font-bold text-[#2b3c5e] cursor-pointer" @click="setTotalAmount">£{{ formatPrice(total) }}</span>
         </div>
         
         <div v-if="selectedMethod === 1" class="space-y-3">
@@ -74,13 +74,13 @@
       </div>
 
       <!-- Quick Amount Buttons -->
-      <div v-if="selectedMethod === 1" class="mb-4">
-        <div class="grid grid-cols-4 gap-2">
+      <div v-if="selectedMethod === 1" class="mb-4 sm:mb-6">
+        <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3">
           <button
             v-for="amount in quickAmounts"
             :key="amount"
             @click="setQuickAmount(amount)"
-            class="p-2 text-[12px] font-medium rounded-lg border hover:border-[#2b3c5e] hover:bg-[#f8faff]"
+            class="p-2 sm:p-3 text-[12px] sm:text-[14px] font-medium rounded-lg border hover:border-[#2b3c5e] hover:bg-[#f8faff]"
           >
             £{{ amount }}
           </button>
@@ -108,10 +108,15 @@
       </div>
     </div>
   </UModal>
+
+  <ReceiptTemplate 
+    ref="receiptRef"
+    :order="orderData"
+  />
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useOrderStore } from '~/stores/orderStore';
 import ReceiptTemplate from './ReceiptTemplate.vue';
 
@@ -147,7 +152,11 @@ const paymentMethods = [
   },
 ];
 
-const quickAmounts = [10, 20, 50, 100];
+const quickAmounts = computed(() => {
+  const baseAmounts = [10, 20, 50, 100];
+  const roundedTotal = Math.ceil(props.total / 10) * 10;
+  return baseAmounts.map(amount => amount + roundedTotal).filter(amount => amount > props.total);
+});
 const selectedMethod = ref(1);
 const amountReceived = ref('');
 const change = ref(0);
@@ -210,6 +219,18 @@ const handlePayment = () => {
   });
   emit('update:modelValue', false);
 };
+
+const setTotalAmount = () => {
+  amountReceived.value = props.total;
+  calculateChange();
+};
+
+watch(() => props.modelValue, (newValue) => {
+  if (newValue) {
+    amountReceived.value = '';
+    calculateChange();
+  }
+});
 </script>
 
 <style scoped>
@@ -221,5 +242,25 @@ input[type="number"]::-webkit-outer-spin-button {
 
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+@media (min-width: 768px) {
+  .u-modal {
+    max-width: 468px;
+    max-height: 724px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .u-modal {
+    max-width: 672px;
+    max-height: 900px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .u-modal {
+    max-width: 806px;
+  }
 }
 </style>

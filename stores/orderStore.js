@@ -3,9 +3,7 @@ import { defineStore } from 'pinia';
 export const useOrderStore = defineStore('order', {
   state: () => ({
     openOrder: false,
-    orders: [
-      // ... (الأوامر الموجودة مسبقًا)
-    ],
+    orders: [],
     currentOrder: {
       id: null,
       guest: '',
@@ -17,7 +15,6 @@ export const useOrderStore = defineStore('order', {
       tax: 0,
       discount: 0,
       total_amount: 0,
-      service: 0,
     },
   }),
   getters: {
@@ -37,12 +34,12 @@ export const useOrderStore = defineStore('order', {
   actions: {
     createNewOrder(type, table_id) {
       this.currentOrder = {
-        id: null, // Устанавливаем id в null для нового заказа
+        id: null,
         guest: '',
         type: type,
         table_id: table_id,
         items: [],
-        shift_id: 1,
+        shift_id: useCookie('PosUserData').value.shift,
         discount: {
           type: null,
           amount: 0
@@ -70,14 +67,14 @@ export const useOrderStore = defineStore('order', {
       this.currentOrder = {
         id: null,
         guest: '',
-        type: null,
+        type: '',
         table_id: null,
         items: [],
-        shift_id: 1,
-        discount: {
-          type: null,
-          amount: 0
-        }
+        shift_id: null,
+        sub_total: 0,
+        tax: 0,
+        discount: 0,
+        total_amount: 0,
       };
       this.openOrder = false;
     },
@@ -103,26 +100,21 @@ export const useOrderStore = defineStore('order', {
         }
       }
 
-      // إرسال طلب إضافة العنصر إلى الخادم
       if (this.currentOrder.id) {
-        try {
-          const response = await useApi('orderItem', 'POST', {
-            type: 'object',
-            data: {
-              order_id: this.currentOrder.id,
-              product_id: item.id,
-              quantity: existingItem ? existingItem.quantity : 1
-            }
-          });
+        useApi('orderItem', 'POST', {
+          type: 'object',
+          data: {
+            order_id: this.currentOrder.id,
+            product_id: item.id,
+            quantity: existingItem ? existingItem.quantity : 1
+          }
+        })
+        .then(response => {
           this.updateOrderFromResponse(response.order_item.order);
-          console.log('Item added to order successfully:', response);
-        } catch (error) {
+        })
+        .catch(error => {
           console.error('Error adding item to order:', error);
-          // Handle the error (e.g., show an error notification)
-        }
-      } else {
-        console.error('Failed to create order before adding item');
-        // Handle the error (e.g., show an error notification)
+        });
       }
     },
     updateOrderTotals() {
@@ -135,22 +127,82 @@ export const useOrderStore = defineStore('order', {
     },
     increaseQuantity(productId) {
       const item = this.currentOrder.items.find(i => i.product_id === productId);
-      if (item) {
-        item.quantity++;
+      if (!item) return;
+
+      item.quantity++;
+      this.updateOrderTotals();
+
+      if (this.currentOrder.id) {
+        useApi(`orderItem/${productId}`, 'PUT', {
+          type: 'object',
+          data: {
+            quantity: item.quantity
+          }
+        })
+        .then(response => {
+          if (response.order) {
+            this.updateOrderFromResponse(response.order);
+          }
+        })
+        .catch(error => {
+          item.quantity--;
+          this.updateOrderTotals();
+          console.error('Failed to update quantity:', error);
+        });
       }
     },
     decreaseQuantity(productId) {
       const item = this.currentOrder.items.find(i => i.product_id === productId);
-      if (item) {
-        if (item.quantity > 1) {
-          item.quantity--;
-        } else {
-          this.removeItem(productId);
-        }
+      if (!item) {
+        return;
+      }
+
+      if (item.quantity <= 1) {
+        return;
+      }
+
+      item.quantity--;
+      this.updateOrderTotals();
+
+      if (this.currentOrder.id) {
+        useApi(`orderItem/${this.currentOrder.id}/${productId}`, 'PUT', {
+          type: 'object',
+          data: {
+            quantity: item.quantity
+          }
+        })
+          .then(response => {
+            if (response.order) {
+              this.updateOrderFromResponse(response.order);
+            }
+          })
+          .catch(error => {
+            item.quantity++;
+            this.updateOrderTotals();
+          });
       }
     },
     removeItem(productId) {
-      this.currentOrder.items = this.currentOrder.items.filter(i => i.product_id !== productId);
+      const itemIndex = this.currentOrder.items.findIndex(i => i.product_id === productId);
+      if (itemIndex === -1) {
+        return;
+      }
+
+      this.currentOrder.items.splice(itemIndex, 1);
+      this.updateOrderTotals();
+
+      if (this.currentOrder.id) {
+        useApi(`orderItem/${productId}`, 'DELETE')
+          .then(response => {
+            if (response.order) {
+              this.updateOrderFromResponse(response.order);
+            }
+          })
+          .catch(error => {
+            this.currentOrder.items.splice(itemIndex, 0, removedItem);
+            this.updateOrderTotals();
+          });
+      }
     },
     setOrderName(name) {
       this.currentOrder.guest = name;
@@ -183,18 +235,14 @@ export const useOrderStore = defineStore('order', {
       })
         .then((response) => {
           this.updateOrderFromResponse(response.order);
-          console.log('Order placed/updated successfully:', response);
           if (this.currentOrder.id) {
             this.editOrder(this.currentOrder.id, { ...this.currentOrder });
           } else {
             this.addOrder({ ...this.currentOrder });
           }
-          // this.closeOrder();
-          // Show success notification
         })
         .catch((error) => {
           console.error('Order placement/update error:', error);
-          // Handle error and show error notification
         });
     },
     cancelOrder() {
@@ -210,7 +258,6 @@ export const useOrderStore = defineStore('order', {
           product_id: item.product_id,
           quantity: item.quantity,
           price: parseFloat(item.price),
-          // Add other necessary item properties
         })),
         shift_id: orderData.shift_id,
         sub_total: orderData.sub_total,
@@ -230,13 +277,6 @@ export const useOrderStore = defineStore('order', {
         service: parseFloat(orderData.service),
         sub_total: parseFloat(orderData.sub_total),
         total_amount: parseFloat(orderData.total_amount),
-        // items: orderData.order_items.map(item => ({
-        //   product_id: item.product.id,
-        //   quantity: item.quantity,
-        //   name: item.product.name,
-        //   price: parseFloat(item.price),
-        //   image: item.product.image
-        // }))
       };
       this.updateOrderTotals();
     },

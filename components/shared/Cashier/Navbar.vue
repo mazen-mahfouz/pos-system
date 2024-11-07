@@ -290,6 +290,7 @@ const toggleSidebar = () => {
 
 onMounted(() => {
   formatDate();
+  console.log(useCookie('PosUserData'))
 });
 
 const showDiscountModal = ref(false);
@@ -404,7 +405,7 @@ const printShiftDetails = () => {
 
 const fetchShiftDetails = async () => {
   try {
-    const response = await useApi('shift/1/details', 'GET');
+    const response = await useApi(`shift/${useCookie('PosUserData').value.shift}/details`, 'GET');
     shiftDetails.value = response;
   } catch (error) {
     console.error('Error fetching shift details:', error);

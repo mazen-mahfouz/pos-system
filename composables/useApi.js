@@ -1,6 +1,5 @@
 export default async function useApiHandler(apiBase, method, payload) {
     const runtimeConfig = useRuntimeConfig();
-    console.log(runtimeConfig)
     const headers = { Accept: "application/json", "Access-Control-Allow-Origin": "*"};
 
     const userData = useCookie("PosUserToken");

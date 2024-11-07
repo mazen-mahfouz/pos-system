@@ -3,7 +3,7 @@
     <CashierCategories @categoryChanged="onCategoryChanged" />
     <CashierSearch @searchChanged="onSearchChanged" />
     
-    <section class="h-[calc(100vh-240px)] pb-[10px] overflow-auto grid content-start gap-[5px] mt-[10px] transition-all duration-300 ease-in-out">
+    <section class="h-[calc(100vh-238px)] lg:h-[calc(100vh-295px)] xl:h-[calc(100vh-310px)]  pb-[10px] overflow-auto grid content-start gap-[5px] mt-[10px] transition-all duration-300 ease-in-out">
       <!-- إضافة شاشة التحميل -->
       <div v-if="isLoading" class="col-span-full flex justify-center items-center">
         <div class="loader"></div>
@@ -14,7 +14,7 @@
         name="item"
         tag="div"
         class="grid gap-[10px]"
-        :class="{'grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8': OrderStore.$state.openOrder, 'grid-cols-7 lg:grid-cols-6 xl:grid-cols-13 2xl:grid-cols-12': !OrderStore.$state.openOrder }"
+        :class="{'grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8': OrderStore.$state.openOrder, 'grid-cols-7 lg:grid-cols-6 xl:grid-cols-13 2xl:grid-cols-12': !OrderStore.$state.openOrder }"
       >
         <div
           v-for="item in items"

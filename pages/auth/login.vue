@@ -156,6 +156,16 @@ const onSubmit = (values) => {
     data: formattedQuery
   })
   .then(response => {
+    // Prepare user data by excluding roles array to avoid cookie size issues
+    const userDataForCookie = {
+      first_name: response.user.first_name,
+      last_name: response.user.last_name,
+      username: response.user.username,
+      id: response.user.id,
+      shift: response.user.shift,
+      role: response.user.roles[0]?.name // Just store the role name
+    };
+    
     const userData = useCookie("PosUserData", {
       path: "/",
       maxAge: 60 * 60 * 24,
@@ -164,17 +174,19 @@ const onSubmit = (values) => {
       path: "/",
       maxAge: 60 * 60 * 24,
     });
-
-    userData.value = response.user;
+    
+    userData.value = userDataForCookie; // Store simplified user data
     userToken.value = response.access_token;
 
     AuthStore.setToken(`Bearer ${response.access_token}`);
-    AuthStore.setUser(response.user);
+    AuthStore.setUser(response.user); // Store full user object in store
     push.success(response.message);
-    if(response.user?.roles[0].name === 'cashier') {
-      router.push('/cashier');
+    
+    // Fix typo in requestFullscreea
+    if(response.user?.roles[0]?.name === 'cashier') {
+      router.push('/cashier').then(() => requestFullscreen());
     } else if(response.user?.roles[0]?.name === 'Admin') {
-      router.push('/cashier');
+      router.push('/cashier').then(() => requestFullscreen()); // Fixed typo
     } else if(response.user?.roles[0]?.name === 'waiter') {
       router.push('/waiter');
     } else {
@@ -185,6 +197,20 @@ const onSubmit = (values) => {
     console.log(error)
     HandleReqErrors(error);
   });
+}
+
+const requestFullscreen = () => {
+  try {
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen();
+    } else if (document.documentElement.webkitRequestFullscreen) { // Safari
+      document.documentElement.webkitRequestFullscreen();
+    } else if (document.documentElement.msRequestFullscreen) { // IE11
+      document.documentElement.msRequestFullscreen();
+    }
+  } catch (error) {
+    console.log('Fullscreen request failed:', error);
+  }
 }
 
 const onOtpInput = (index) => {

@@ -6,18 +6,18 @@
     />
 
     <Transition name="fade">
-      <div class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-30 p-4">
-        <div class="bg-white py-3 px-2 rounded-[20px] w-full max-w-2xl md:max-w-2xl h-[90vh] md:h-[auto] max-h-[700px] overflow-auto  shadow-lg" @click.stop>
+      <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-30 p-4">
+        <div class="bg-white py-3 px-2 rounded-xl w-full max-w-xl  min-h-[500px] max-h-[850px] flex flex-col shadow-xl">
           <!-- Modal Header -->
-          <div class="px-4 py-3 w-full flex justify-between items-center border-b">
-            <h2 class="text-lg font-bold text-gray-800">Shift Details</h2>
+          <div class="px-4 py-3 flex justify-between items-center border-b sticky top-0 bg-white z-10">
+            <h2 class="text-[15px] font-bold text-gray-800">Shift Details</h2>
             <button @click="$emit('close')" class="text-gray-400 hover:text-gray-600 transition-colors">
               <Icon name="mdi:close" size="20" />
             </button>
           </div>
 
           <!-- Modal Content -->
-          <div class="p-4">
+          <div class="flex-1 overflow-y-auto px-4 py-3">
             <!-- Loading State -->
             <div v-if="loading" class="flex justify-center items-center h-[400px]">
               <UiSpinner />
@@ -173,7 +173,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import ShiftReceiptTemplate from './ShiftReceiptTemplate.vue'
+import { useAuthStore } from "~/stores/auth";
 
+const AuthStore = useAuthStore()
 const loading = ref(true)
 const error = ref(null)
 const shiftDetails = ref(null)
@@ -202,7 +204,7 @@ const fetchShiftDetails = async () => {
   try {
     loading.value = true
     error.value = null
-    const response = await useApi('shift/1/details', 'GET')
+    const response = await useApi(`shift/${useCookie('PosUserData')?.value?.shift}/details`, 'GET')
     shiftDetails.value = response
   } catch (err) {
     error.value = 'Failed to load shift details'
@@ -222,7 +224,7 @@ const printShiftDetails = () => {
 
 const closeShift = async () => {
   try {
-    await useApi('shift/1/close', 'POST')
+    await useApi(`shift/${useCookie('PosUserData').value.shift}/close`, 'POST')
     push.success('Shift closed successfully')
     $emit('close')
     router.push('/auth/login')
@@ -234,5 +236,6 @@ const closeShift = async () => {
 
 onMounted(() => {
   fetchShiftDetails()
+  console.log(AuthStore.user)
 })
 </script>

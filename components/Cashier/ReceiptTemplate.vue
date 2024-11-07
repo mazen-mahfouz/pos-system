@@ -138,7 +138,7 @@ const formatDateTime = (date, timeOnly = false) => {
 };
 
 const printReceipt = () => {
-  const printWindow = window.open('', '', 'width=800,height=600');
+  const printWindow = window.open('', '_blank', 'width=800,height=600');
   
   const printContent = `
     <html>
@@ -148,6 +148,7 @@ const printReceipt = () => {
           @page {
             size: 80mm auto;
             margin: 0;
+            font-weight: bold;
           }
           
           body {
@@ -156,6 +157,7 @@ const printReceipt = () => {
             font-family: 'Courier New', monospace;
             font-size: 12px;
             line-height: 1.4;
+            font-weight: bold;
           }
 
           .receipt-container {
@@ -279,14 +281,11 @@ const printReceipt = () => {
   `;
   
   printWindow.document.write(printContent);
-  printWindow.document.close();
+  printWindow.document.close();                                    
   
   printWindow.onload = function() {
-    printWindow.focus();
     printWindow.print();
-    setTimeout(() => {
-      printWindow.close();
-    }, 1000);
+    printWindow.close();
   };
 };
 
