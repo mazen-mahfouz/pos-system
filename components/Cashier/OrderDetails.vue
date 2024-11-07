@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed top-0 right-0 h-screen w-[300px] xl:w-[500px] bg-white shadow-lg flex flex-col transition-transform duration-300 ease-in-out transform"
+  <div class="fixed top-0 right-0 h-screen w-[300px] xl:w-[400px] 2xl:w-[500px] bg-white shadow-lg flex flex-col transition-transform duration-300 ease-in-out transform"
        :class="{ 'translate-x-0': OrderStore.$state.openOrder, 'translate-x-full': !OrderStore.$state.openOrder }">
     
     <div class="bg-gradient-to-r from-[#2b3c5e] to-[#1a2744] p-3">
@@ -112,13 +112,25 @@
         </div>
         
         <div class="flex justify-between items-center text-xs xl:text-base">
-          <div class="flex items-center space-x-1 text-green-600">
+          <div class="flex items-center space-x-1 text-green-600 cursor-pointer"
+               @click="handleDiscountClick">
             <Icon name="mdi:tag-outline" size="12" />
             <span>Discount</span>
+            <Icon v-if="OrderStore.currentOrder.discount > 0" 
+                  name="mdi:pencil" 
+                  size="12" 
+                  class="ml-1" />
           </div>
-          <span class="font-medium text-green-600">
-            -£{{ OrderStore.currentOrder.discount > 0 ? formatPrice(OrderStore.currentOrder.discount) : '0.00' }}
-          </span>
+          <div class="flex items-center">
+            <span class="font-medium text-green-600">
+              -£{{ OrderStore.currentOrder.discount > 0 ? formatPrice(OrderStore.currentOrder.discount) : '0.00' }}
+            </span>
+            <Icon v-if="OrderStore.currentOrder.discount > 0"
+                  @click="handleRemoveDiscount"
+                  name="mdi:close"
+                  size="12"
+                  class="ml-2 cursor-pointer text-red-500 hover:text-red-600" />
+          </div>
         </div>
       </div>
 
@@ -173,27 +185,43 @@ const permissionAction = ref('');
 const selectedItem = ref(null);
 const pendingAction = ref(null);
 
-const handlePermissionConfirm = (verified) => {
-  if (verified) {
-    switch (pendingAction.value) {
-      case 'remove':
-        if (selectedItem.value) {
-          OrderStore.removeItem(selectedItem.value.product_id);
-          selectedItem.value = null;
-        }
-        break;
-      case 'decrease':
-        if (selectedItem.value) {
-          OrderStore.decreaseQuantity(selectedItem.value.product_id);
-          selectedItem.value = null;
-        }
-        break;
-      case 'edit-type':
-        emit('edit-type');
-        break;
-    }
-    pendingAction.value = null;
+const handlePermissionConfirm = async (verified) => {
+  if (!verified) return;
+
+  switch (pendingAction.value) {
+    case 'remove':
+      if (selectedItem.value) {
+        OrderStore.removeItem(selectedItem.value.product_id);
+        selectedItem.value = null;
+      }
+      break;
+    case 'decrease':
+      if (selectedItem.value) {
+        OrderStore.decreaseQuantity(selectedItem.value.product_id);
+        selectedItem.value = null;
+      }
+      break;
+    case 'edit-type':
+      emit('edit-type');
+      break;
+    case 'remove-discount':
+      try {
+        await useApi(`orders/${OrderStore.currentOrder.id}/discount`, 'DELETE');
+        const orderResponse = await useApi(`orders/${OrderStore.currentOrder.id}`, 'GET');
+        OrderStore.updateOrderFromResponse(orderResponse.order);
+        push.success('Discount removed successfully');
+      } catch (error) {
+        console.error('Error removing discount:', error);
+        push.error('Failed to remove discount');
+      }
+      break;
+    default:
+      if (permissionAction.value.includes('discount')) {
+        emit('open-discount-modal');
+      }
   }
+  
+  pendingAction.value = null;
 };
 
 const confirmRemoveItem = (item) => {
@@ -254,7 +282,6 @@ const processPayment = async (paymentDetails) => {
 
   // Show success message
   push.success('The payment has been processed successfully.');
-  // Automatically print the receipt
   receiptRef.value?.printReceipt();
 };
 
@@ -349,9 +376,7 @@ const emit = defineEmits(['edit-type', 'edit-table']);
 
 const editOrderType = () => {
   if (OrderStore.currentOrder.id) {
-    permissionAction.value = 'edit order';
-    pendingAction.value = 'edit-type';
-    showPermissionModal.value = true;
+    emit('edit-type');
   } else {
     emit('edit-type');
   }
@@ -359,6 +384,16 @@ const editOrderType = () => {
 
 const editOrderTable = () => {
   emit('edit-table');
+};
+
+const handleDiscountClick = () => {
+  showPermissionModal.value = true;
+  permissionAction.value = OrderStore.currentOrder.discount > 0 ? 'edit discount' : 'create discount';
+};
+
+const handleRemoveDiscount = async () => {
+  showPermissionModal.value = true;
+  permissionAction.value = 'remove discount';
 };
 </script>
 

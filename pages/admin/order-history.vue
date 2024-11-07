@@ -67,8 +67,18 @@
           />
         </div>
   
-        <UModal v-model="isModalOpen">
-          <UCard v-if="selectedOrder" class="w-full max-w-2xl">
+        <UModal 
+          v-model="isModalOpen"
+          :ui="{
+            overlay: { background: 'bg-gray-900/60 backdrop-blur-sm' },
+            width: 'sm:max-w-2xl',
+            height: 'auto',
+            padding: 'p-0',
+            background: 'bg-white dark:bg-gray-900',
+            rounded: 'rounded-xl'
+          }"
+        >
+          <UCard v-if="selectedOrder" class="w-full">
             <template #header>
               <div class="flex justify-between items-center">
                 <h3 class="text-xl font-semibold text-gray-800">Order #{{ selectedOrder.id }} Details</h3>

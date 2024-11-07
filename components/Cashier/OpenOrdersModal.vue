@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <Transition name="fade">
-      <div v-if="modelValue" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-30 p-4" :class="{'w-[calc(100%-335px)]': OrderStore.$state.openOrder, 'w-full': !OrderStore.$state.openOrder}" @click="closeModal">
+      <div v-if="modelValue" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-30 p-4" :class="{'w-[calc(100%-300px)] xl:w-[calc(100%-400px)] 2xl:w-[calc(100%-500px)]': OrderStore.$state.openOrder, 'w-full': !OrderStore.$state.openOrder}" @click="closeModal">
         <div class="bg-white py-4 px-2 rounded-[30px] w-full max-w-3xl h-[80vh] overflow-hidden shadow-lg overflow-y-auto" @click.stop>
           <div class="p-2 pl-4 w-full flex justify-between items-center">
             <h3 class="text-lg font-bold text-[#1A1A1A] text-center">Open Orders</h3>

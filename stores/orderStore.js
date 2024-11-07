@@ -122,8 +122,11 @@ export const useOrderStore = defineStore('order', {
       this.currentOrder.tax = this.tax;
       this.currentOrder.total_amount = this.total;
     },
-    updateDiscount(discount) {
-      this.currentOrder.discount = discount;
+    updateDiscount(discountData) {
+      this.currentOrder.discount = discountData;
+    },
+    removeDiscount() {
+      this.currentOrder.discount = 0;
     },
     increaseQuantity(productId) {
       const item = this.currentOrder.items.find(i => i.product_id === productId);

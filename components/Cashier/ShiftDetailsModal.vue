@@ -6,18 +6,20 @@
     />
 
     <Transition name="fade">
-      <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-30 p-4">
-        <div class="bg-white py-3 px-2 rounded-xl w-full max-w-xl  min-h-[500px] max-h-[850px] flex flex-col shadow-xl">
+      <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-30 p-4"
+           @click="$emit('close')">
+        <div class="bg-white py-3 px-2 rounded-xl w-full md:w-[95%] lg:w-[85%] xl:max-w-[50%] h-[90vh] md:h-[85vh] flex flex-col shadow-xl"
+             @click.stop>
           <!-- Modal Header -->
-          <div class="px-4 py-3 flex justify-between items-center border-b sticky top-0 bg-white z-10">
-            <h2 class="text-[15px] font-bold text-gray-800">Shift Details</h2>
+          <div class="px-4 py-2 md:py-3 flex justify-between items-center border-b sticky top-0 bg-white z-10">
+            <h2 class="text-[15px] md:text-lg font-bold text-gray-800">Shift Details</h2>
             <button @click="$emit('close')" class="text-gray-400 hover:text-gray-600 transition-colors">
               <Icon name="mdi:close" size="20" />
             </button>
           </div>
 
           <!-- Modal Content -->
-          <div class="flex-1 overflow-y-auto px-4 py-3">
+          <div class="flex-1 overflow-y-auto px-2 md:px-4 py-3">
             <!-- Loading State -->
             <div v-if="loading" class="flex justify-center items-center h-[400px]">
               <UiSpinner />
@@ -31,7 +33,7 @@
             <!-- Content -->
             <template v-else-if="shiftDetails">
               <!-- Shift Timing Cards -->
-              <div class="grid grid-cols-2 gap-3 mb-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 mb-4">
                 <div class="relative p-4 border-2 rounded-xl bg-[#f8faff] border-[#2b3c5e]">
                   <div class="flex flex-col items-center space-y-2">
                     <div class="bg-white p-3 rounded-lg shadow-sm">
@@ -58,7 +60,7 @@
               </div>
 
               <!-- Sales Summary -->
-              <div class="bg-gray-50 p-4 rounded-xl mb-4">
+              <div class="bg-gray-50 p-3 md:p-4 rounded-xl mb-3 md:mb-4">
                 <div class="flex items-center gap-2 mb-3">
                   <div class="bg-[#2b3c5e] p-1.5 rounded-lg">
                     <Icon name="mdi:chart-box" size="18" class="text-white" />
@@ -66,7 +68,7 @@
                   <h3 class="text-base font-bold text-gray-800">Sales Summary</h3>
                 </div>
 
-                <div class="space-y-2">
+                <div class="space-y-1.5 md:space-y-2">
                   <div class="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
                     <div class="flex items-center gap-2">
                       <Icon name="mdi:cash-multiple" size="16" class="text-[#2b3c5e]" />
@@ -110,7 +112,7 @@
               </div>
 
               <!-- Payment Methods -->
-              <div class="bg-gray-50 p-4 rounded-xl mb-4">
+              <div class="bg-gray-50 p-3 md:p-4 rounded-xl mb-3 md:mb-4">
                 <div class="flex items-center gap-2 mb-3">
                   <div class="bg-[#2b3c5e] p-1.5 rounded-lg">
                     <Icon name="mdi:wallet" size="18" class="text-white" />
@@ -138,10 +140,10 @@
               </div>
 
               <!-- Action Buttons -->
-              <div class="flex gap-3">
+              <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <button
                   @click="printShiftDetails"
-                  class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-200 flex items-center justify-center gap-2 text-sm font-medium"
+                  class="w-full sm:flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-200 flex items-center justify-center gap-2 text-sm font-medium"
                 >
                   <Icon name="mdi:printer" size="16" />
                   <span>Print Report</span>
@@ -149,7 +151,7 @@
                 
                 <button
                   @click="closeShift"
-                  class="flex-1 px-4 py-2 bg-[#2b3c5e] text-white rounded-lg hover:bg-[#22407c] transition-all duration-200 flex items-center justify-center gap-2 text-sm font-medium"
+                  class="w-full sm:flex-1 px-4 py-2.5 bg-[#2b3c5e] text-white rounded-lg hover:bg-[#22407c] transition-all duration-200 flex items-center justify-center gap-2 text-sm font-medium"
                 >
                   <Icon name="mdi:cash-register" size="16" />
                   <span>Close Shift</span>
@@ -157,7 +159,7 @@
 
                 <button
                   @click="$emit('close')"
-                  class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-200 text-sm"
+                  class="w-full sm:flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-200 text-sm font-medium"
                 >
                   Cancel
                 </button>

@@ -130,6 +130,7 @@ const print = () => {
           @page {
             size: 80mm auto;
             margin: 0;
+            font-weight: bold;    
           }
           
           body {
@@ -137,7 +138,8 @@ const print = () => {
             padding: 10mm;
             font-family: 'Courier New', monospace;
             font-size: 12px;
-            line-height: 1.4;
+            line-height: 1.4; 
+            font-wig               
           }
 
           .receipt-container {

@@ -1,5 +1,12 @@
 <template>
-    <UModal v-model="isOpen">
+    <UModal v-model="isOpen" :ui="{
+      overlay: { background: 'bg-gray-900/60 backdrop-blur-sm' },
+      width: 'sm:max-w-[550px]',
+      height: 'auto',
+      padding: 'p-0',
+      background: 'bg-white dark:bg-gray-900',
+      rounded: 'rounded-xl'
+    }">
       <UCard :ui="{ ring: '', divide: 'divide-y divide-gray-100' }">
         <template #header>
           <div class="flex justify-between items-center">

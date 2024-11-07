@@ -1,7 +1,7 @@
 <template>
   <div class="cashier flex bg-gray-100">
     <div class="flex flex-col w-full transition-all duration-300 ease-in-out"
-         :class="{'pr-[300px] xl:pr-[500px]': OrderStore.$state.openOrder}">
+         :class="{'pr-[300px] xl:pr-[400px] 2xl:pr-[500px]': OrderStore.$state.openOrder}">
       <SharedCashierNavbar />
       <SharedCashierSidebar v-model="isSidebarOpen" />
       <main class="flex-grow p-1">
@@ -98,7 +98,7 @@ const selectOrder = (order) => {
 };
 
 const editOrderType = () => {
-  permissionAction.value = 'edit-type';
+  permissionAction.value = 'edit order';
   showPermissionModal.value = true;
 };
 
@@ -106,6 +106,7 @@ const updateOrderType = (type) => {
   OrderStore.currentOrder.type = type;
   if (type === 'takeaway') {
     OrderStore.currentOrder.table_id = null;
+    showEditTypeModal.value = false;
   } else if (type === 'dine-in') {
     showEditTypeModal.value = false;
     showEditTableModal.value = true;
@@ -118,16 +119,16 @@ const updateOrderTable = (table) => {
 };
 
 const editOrderTable = () => {
-  permissionAction.value = 'edit-table';
+  permissionAction.value = 'edit order';
   showPermissionModal.value = true;
 };
 
 const handlePermissionConfirm = (verified) => {
   showPermissionModal.value = false;
   if (verified) {
-    if (permissionAction.value === 'edit-type') {
+    if (permissionAction.value === 'edit order') {
       showEditTypeModal.value = true;
-    } else if (permissionAction.value === 'edit-table') {
+    } else if (permissionAction.value === 'edit order') {
       showEditTableModal.value = true;
     }
   }

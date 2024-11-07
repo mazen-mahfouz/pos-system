@@ -96,7 +96,14 @@
   <Teleport to="body">
     <UModal 
       v-model="showDiscountModal"
-      :ui="{ width: 'sm:max-w-[600px]' }"
+      :ui="{ 
+        width: 'sm:max-w-[600px]',
+        overlay: { background: 'bg-gray-900/60 backdrop-blur-sm' },
+        height: 'auto',
+        padding: 'p-0',
+        background: 'bg-white dark:bg-gray-900',
+        rounded: 'rounded-xl'
+      }"
     >
       <div class="p-6">
         <!-- Header -->
@@ -204,6 +211,11 @@
     ref="shiftReceiptTemplateRef"
     :shift="shiftDetails"
   />
+  <CashierPermissionModal
+  v-model="showPermissionModal"
+  :action="permissionAction"
+  @confirm="handlePermissionConfirm"
+/>
 </template>
 
 <script setup>
@@ -211,11 +223,18 @@ import HandleReqErrors from "~/helpers/HandleReqErrors.js";
 import { useOrderStore } from '~/stores/orderStore';
 import { inject, ref, onMounted, computed, watch, h } from 'vue';
 import { useAuthStore } from "~/stores/auth";
+import CashierPermissionModal from '~/components/Cashier/PermissionModal.vue'
+
+const emit = defineEmits(['open-discount-modal']);
 
 const OrderStore = useOrderStore();
 const openNewOrderModal = inject('openNewOrderModal');
 const openOrdersModal = inject('openOrdersModal');
 const AuthStore = useAuthStore()
+
+const showDiscountModal = ref(false);
+const discountType = ref('cash');
+const discountAmount = ref('');
 
 const openNewOrder = () => {
   console.log(OrderStore.$state.openOrder)
@@ -293,21 +312,28 @@ onMounted(() => {
   console.log(useCookie('PosUserData'))
 });
 
-const showDiscountModal = ref(false);
-const discountType = ref('cash');
-const discountAmount = ref('');
-
 const canApplyDiscount = computed(() => {
   return OrderStore.$state.openOrder && 
          OrderStore.currentOrder.items.length > 0;
 });
+
+const handlePermissionConfirm = (verified) => {
+  if (!verified) return;
+  
+  if (permissionAction.value.includes('discount')) {
+    showDiscountModal.value = true;
+  }
+  showPermissionModal.value = false;
+};
 
 const handleDiscountClick = () => {
   if (!canApplyDiscount.value) {
     push.error('Please add items to the order first');
     return;
   }
-  showDiscountModal.value = true;
+  
+  showPermissionModal.value = true;
+  permissionAction.value = OrderStore.currentOrder.discount > 0 ? 'edit discount' : 'create discount';
 };
 
 const closeDiscountModal = () => {
@@ -349,7 +375,8 @@ const applyDiscount = async () => {
   }
 
   try {
-    const response = await useApi(`orders/${OrderStore.currentOrder.id}/discount`, 'POST', {
+    // First, apply the discount
+    const discountResponse = await useApi(`orders/${OrderStore.currentOrder.id}/discount`, 'POST', {
       type: 'object',
       data: {
         type: discountType.value,
@@ -357,8 +384,11 @@ const applyDiscount = async () => {
       }
     });
 
-    // Update the order with the response data
-    OrderStore.updateOrderFromResponse(response.order);
+    // Then, fetch the updated order data
+    const orderResponse = await useApi(`orders/${OrderStore.currentOrder.id}`, 'GET');
+    
+    // Update the order with the latest data
+    OrderStore.updateOrderFromResponse(orderResponse.order);
     push.success('Discount applied successfully');
     closeDiscountModal();
   } catch (error) {
@@ -444,6 +474,11 @@ const savedDiscounts = ref([
   { id: 2, name: 'VIP Discount', value: 5, type: 'cash' },
   // Add more saved discounts as needed
 ]);
+
+// Add permission modal handling
+const showPermissionModal = ref(false);
+const permissionAction = ref('');
+
 </script>
 
 <style lang="scss" scoped>

@@ -4,7 +4,8 @@
     @update:model-value="$emit('update:modelValue', $event)"
     :ui="{ 
       width: 'sm:max-w-[550px]',
-      height: 'h-auto sm:max-h-[90vh] md:max-h-[90vh] lg:max-h-[90vh]'
+      height: 'h-auto sm:max-h-[90vh] md:max-h-[90vh] lg:max-h-[90vh]',
+      overlay: { background: 'bg-gray-900/60 backdrop-blur-sm' }
     }"
   >
     <div class="p-4 sm:p-6 h-full overflow-y-auto">

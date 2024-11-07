@@ -28,31 +28,21 @@
 
     <!-- Content -->
     <div class="p-6">
-      <!-- <div class="mb-6">
-        <div class="flex items-start space-x-3 p-4 bg-yellow-50 rounded-lg border border-yellow-100">
-          <Icon name="mdi:alert" class="text-yellow-600 mt-0.5" size="20" />
-          <div>
-            <h3 class="text-sm font-medium text-yellow-800 mb-1">Authorization Required</h3>
-            <p class="text-sm text-yellow-600">{{ actionMessage }}</p>
-          </div>
-        </div>
-      </div> -->
-
       <div class="space-y-2">
         <label class="text-sm font-medium text-gray-700 block">Manager Code</label>
-        <div class="relative">
+        <div class="flex justify-center gap-2">
           <input
-            v-model="permissionCode"
+            v-for="(digit, index) in 4"
+            :key="index"
+            v-model="codeDigits[index]"
             type="password"
-            class="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#2b3c5e]/20 focus:border-[#2b3c5e] transition-all duration-200"
-            placeholder="Enter authorization code"
-            @keyup.enter="handleConfirm"
-            ref="codeInput"
-          />
-          <Icon 
-            name="mdi:lock" 
-            class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-            size="18" 
+            inputmode="numeric"
+            maxlength="1"
+            class="w-[45px] h-[45px] text-center text-xl font-bold border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2b3c5e]/20 focus:border-[#2b3c5e] transition-all duration-300 bg-white shadow-sm"
+            :class="{ 'border-[#2b3c5e] bg-[#f8faff] transform scale-[1.05]': codeDigits[index] }"
+            @input="onCodeInput(index)"
+            @keydown="onCodeKeydown($event, index)"
+            ref="codeInputs"
           />
         </div>
       </div>
@@ -70,7 +60,7 @@
         
         <button
           @click="handleConfirm"
-          :disabled="!permissionCode"
+          :disabled="!codeDigits.some(digit => digit !== '')"
           class="px-6 py-2.5 bg-[#2b3c5e] text-white rounded-lg hover:bg-[#1a2744] active:bg-[#2b3c5e] disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 text-sm font-medium flex items-center space-x-2"
         >
           <Icon name="mdi:shield-check" size="18" />
@@ -99,7 +89,7 @@ const props = defineProps({
       'create discount',
       'edit discount',
       'delete discount',
-      'reprint reciept',
+      'reprint receipt',
       'shift details'
     ].includes(value)
   }
@@ -107,8 +97,8 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'confirm']);
 
-const permissionCode = ref('');
-const codeInput = ref(null);
+const codeDigits = ref(Array(4).fill(''));
+const codeInputs = ref([]);
 
 const actionMessage = computed(() => {
   switch (props.action) {
@@ -130,7 +120,7 @@ const actionMessage = computed(() => {
       return 'Manager authorization is required to edit the discount.';
     case 'delete discount':
       return 'Manager authorization is required to delete the discount.';
-    case 'reprint reciept':
+    case 'reprint receipt':
       return 'Manager authorization is required to reprint the receipt.';
     case 'shift details':
       return 'Manager authorization is required to view shift details.';
@@ -139,20 +129,14 @@ const actionMessage = computed(() => {
   }
 });
 
-onMounted(() => {
-  // Focus input when modal opens
-  if (codeInput.value) {
-    codeInput.value.focus();
-  }
-});
-
 const handleConfirm = () => {
-  if (!permissionCode.value) return;
+  const code = codeDigits.value.join('');
+  if (!code) return;
 
   useApi('permission', 'POST', {
     type: 'object',
     data: {
-      code: permissionCode.value,
+      code: code,
       permission: props.action
     }
   })
@@ -170,7 +154,35 @@ const handleConfirm = () => {
       push.error('Failed to verify permission');
     })
     .finally(() => {
-      permissionCode.value = '';
+      codeDigits.value = Array(4).fill('');
     });
 };
+
+const onCodeInput = (index) => {
+  // Ensure only numbers are entered
+  codeDigits.value[index] = codeDigits.value[index].replace(/[^0-9]/g, '');
+  
+  if (codeDigits.value[index].length === 1 && index < 3) {
+    // Move to next input
+    codeInputs.value[index + 1]?.focus();
+  }
+  
+  // If all digits are filled, submit automatically
+  if (codeDigits.value.every(digit => digit !== '')) {
+    handleConfirm();
+  }
+};
+
+const onCodeKeydown = (event, index) => {
+  if (event.key === 'Backspace' && index > 0 && codeDigits.value[index] === '') {
+    codeInputs.value[index - 1]?.focus();
+  }
+};
+
+onMounted(() => {
+  // Focus first input when modal opens
+  if (codeInputs.value[0]) {
+    codeInputs.value[0].focus();
+  }
+});
 </script>
