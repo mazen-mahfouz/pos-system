@@ -385,7 +385,7 @@ const applyDiscount = async () => {
     });
 
     // Then, fetch the updated order data
-    const orderResponse = await useApi(`orders/${OrderStore.currentOrder.id}`, 'GET');
+    const orderResponse = await useApi(`orders/show/${OrderStore.currentOrder.id}`, 'GET');
     
     // Update the order with the latest data
     OrderStore.updateOrderFromResponse(orderResponse.order);
