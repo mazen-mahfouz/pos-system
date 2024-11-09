@@ -3,7 +3,7 @@
     <CashierCategories @categoryChanged="onCategoryChanged" />
     <CashierSearch @searchChanged="onSearchChanged" />
     
-    <section class="h-[calc(100vh-238px)] lg:h-[calc(100vh-275px)] 2xl:h-[calc(100vh-310px)]  pb-[10px] overflow-auto grid content-start gap-[5px] mt-[10px] transition-all duration-300 ease-in-out">
+    <section class="h-[calc(100vh-238px)] lg:h-[calc(100vh-275px)] xl:h-[calc(100vh-310px)]  pb-[10px] overflow-auto grid content-start gap-[5px] mt-[10px] transition-all duration-300 ease-in-out">
       <!-- إضافة شاشة التحميل -->
       <div v-if="isLoading" class="col-span-full flex justify-center items-center">
         <div class="loader"></div>
@@ -19,7 +19,8 @@
         <div
           v-for="item in items"
           :key="item.name"
-          @click="OrderStore.addItemToOrder(item), prodactHandelClick()"
+          @click="handleProductClick(item)"
+          :class="{'pointer-events-none opacity-50': isItemDisabled}"
           class="bg-white rounded-[12px] h-fit active border border-transparent transition-all duration-300 ease-out cursor-pointer shadow-sm p-[5px] pb-[12px] gap-[5px] flex flex-col items-start text-start justify-start hover:scale-102 hover:shadow-md"
         >
           <img :src="item.image || 'assets/img/item-img.png'" loading="eager" alt="" class="w-full h-[60px] lg:h-[70px] xl:h-[90px] mb-[8px] rounded-[12px]" />
@@ -91,11 +92,22 @@ const onSearchChanged = (query) => {
   filterItems();
 };
 
-const prodactHandelClick = () => {
-  if(!OrderStore.$state.openOrder){
+const isItemDisabled = ref(false);
+
+const handleProductClick = (item) => {
+  if (isItemDisabled.value) return;
+  
+  isItemDisabled.value = true;
+  OrderStore.addItemToOrder(item);
+  
+  if (!OrderStore.$state.openOrder) {
     openNewOrder();
   }
-}
+  
+  setTimeout(() => {
+    isItemDisabled.value = false;
+  }, 1000); // 500ms cooldown
+};
 
 const fetchProducts = () => {
   isLoading.value = true;

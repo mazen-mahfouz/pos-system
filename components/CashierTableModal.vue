@@ -72,6 +72,7 @@
 
 <script setup>
 import { format } from 'date-fns';
+import HandleReqErrors from "~/helpers/HandleReqErrors.js"
 
 const props = defineProps({
   modelValue: Boolean,
@@ -94,6 +95,20 @@ const selectTable = (table) => {
 const close = () => {
   emit('update:modelValue', false);
 };
+
+const tables = ref([]);
+
+watch(() => props.modelValue, (newValue) => {
+  if (newValue) {
+    useApi('tables', 'GET')
+      .then(response => {
+        tables.value = response;
+      })
+      .catch(error => {
+        HandleReqErrors(error);
+      });
+  }
+});
 </script>
 
 <style lang="scss" scoped>

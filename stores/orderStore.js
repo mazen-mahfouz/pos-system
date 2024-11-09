@@ -193,19 +193,25 @@ export const useOrderStore = defineStore('order', {
 
       this.currentOrder.items.splice(itemIndex, 1);
       this.updateOrderTotals();
+      this.placeOrder();
 
-      if (this.currentOrder.id) {
-        useApi(`orderItem/${productId}`, 'DELETE')
-          .then(response => {
-            if (response.order) {
-              this.updateOrderFromResponse(response.order);
-            }
-          })
-          .catch(error => {
-            this.currentOrder.items.splice(itemIndex, 0, removedItem);
-            this.updateOrderTotals();
-          });
-      }
+
+
+
+
+
+      // if (this.currentOrder.id) {
+      //   useApi(`orderItem/${productId}`, 'DELETE')
+      //     .then(response => {
+      //       if (response.order) {
+      //         this.updateOrderFromResponse(response.order);
+      //       }
+      //     })
+      //     .catch(error => {
+      //       this.currentOrder.items.splice(itemIndex, 0, removedItem);
+      //       this.updateOrderTotals();
+      //     });
+      // }
     },
     setOrderName(name) {
       this.currentOrder.guest = name;

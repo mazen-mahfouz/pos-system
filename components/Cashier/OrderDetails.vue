@@ -24,7 +24,7 @@
             v-model="OrderStore.currentOrder.guest"
             type="text"
             placeholder="Guest Name"
-            class="w-full bg-transparent text-xs xl:text-base focus:outline-none"
+            class="w-full bg-transparent text-xs xl:text-sm focus:outline-none"
           >
         </div>
         
@@ -35,7 +35,7 @@
               <span class="text-[10px] lg:text-sm text-gray-600">{{ OrderStore.currentOrder.type || 'Type' }}</span>
             </div>
           </div>
-          <div @click="editOrderTable" v-if="isDineIn" class="flex-1 bg-gray-50/50 rounded-lg p-1.5 cursor-pointer hover:bg-gray-100 transition-colors">
+          <div @click="emit('edit-table')" v-if="isDineIn" class="flex-1 bg-gray-50/50 rounded-lg p-1.5 cursor-pointer hover:bg-gray-100 transition-colors">
             <div class="flex items-center space-x-1">
               <Icon name="ic:baseline-table-restaurant" size="16" class="text-gray-500" />
               <span class="text-[10px] lg:text-sm text-gray-600">Table {{ OrderStore.currentOrder.table_id || 'any' }}</span>
@@ -74,18 +74,20 @@
               <p class="text-xs lg:text-sm text-gray-500">£{{ formatPrice(item.price) }}</p>
             </div>
 
-            <div class="flex items-center space-x-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div class="flex items-center space-x-1">
               <button @click="handleDecreaseQuantity(item)" 
-                      class="p-1 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors">
-                <Icon name="mdi:minus" size="14" />
+                      :disabled="isButtonDisabled"
+                      class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                <Icon name="mdi:minus" size="18" />
               </button>
-              <button @click="OrderStore.increaseQuantity(item.product_id)" 
-                      class="p-1 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors">
-                <Icon name="mdi:plus" size="10" />
+              <button @click="handleIncreaseQuantity(item)" 
+                      :disabled="isButtonDisabled"
+                      class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                <Icon name="mdi:plus" size="18" />
               </button>
               <button @click="confirmRemoveItem(item)" 
-                      class="p-1 rounded-lg hover:bg-red-50 text-red-400 transition-colors">
-                <Icon name="mdi:delete" size="10" />
+                      class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 transition-colors">
+                <Icon name="mdi:delete" size="18" />
               </button>
             </div>
           </div>
@@ -171,13 +173,21 @@
       :action="permissionAction"
       @confirm="handlePermissionConfirm"
     />
+
+    <ReceiptTemplate 
+      ref="receiptRef"
+      :order="OrderStore.currentOrder"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
 import { useOrderStore } from '~/stores/orderStore';
+import ReceiptTemplate from './ReceiptTemplate.vue';
+
 const OrderStore = useOrderStore();
+const receiptRef = ref(null);
 
 const showPaymentModal = ref(false);
 const showPermissionModal = ref(false);
@@ -185,12 +195,15 @@ const permissionAction = ref('');
 const selectedItem = ref(null);
 const pendingAction = ref(null);
 
+const isButtonDisabled = ref(false);
+
 const handlePermissionConfirm = async (verified) => {
   if (!verified) return;
 
   switch (pendingAction.value) {
     case 'remove':
       if (selectedItem.value) {
+        console.log('removing item', selectedItem.value);
         OrderStore.removeItem(selectedItem.value.product_id);
         selectedItem.value = null;
       }
@@ -232,6 +245,10 @@ const confirmRemoveItem = (item) => {
 };
 
 const handleDecreaseQuantity = (item) => {
+  if (isButtonDisabled.value) return;
+  
+  isButtonDisabled.value = true;
+  
   if (item.quantity === 1) {
     selectedItem.value = item;
     permissionAction.value = 'edit order';
@@ -240,6 +257,21 @@ const handleDecreaseQuantity = (item) => {
   } else {
     OrderStore.decreaseQuantity(item.product_id);
   }
+  
+  setTimeout(() => {
+    isButtonDisabled.value = false;
+  }, 500); // 500ms cooldown
+};
+
+const handleIncreaseQuantity = (item) => {
+  if (isButtonDisabled.value) return;
+  
+  isButtonDisabled.value = true;
+  OrderStore.increaseQuantity(item.product_id);
+  
+  setTimeout(() => {
+    isButtonDisabled.value = false;
+  }, 500); // 500ms cooldown
 };
 
 const checkout = () => {
@@ -278,11 +310,11 @@ const processPayment = async (paymentDetails) => {
   });
 
   showPaymentModal.value = false;
+  
+  await receiptRef.value?.printReceipt();
+  
   OrderStore.closeOrder();
-
-  // Show success message
   push.success('The payment has been processed successfully.');
-  receiptRef.value?.printReceipt();
 };
 
 const formatPrice = (price) => {
@@ -375,15 +407,7 @@ const getOrderTypeIcon = (type) => {
 const emit = defineEmits(['edit-type', 'edit-table']);
 
 const editOrderType = () => {
-  if (OrderStore.currentOrder.id) {
-    emit('edit-type');
-  } else {
-    emit('edit-type');
-  }
-};
-
-const editOrderTable = () => {
-  emit('edit-table');
+  emit('edit-type');
 };
 
 const handleDiscountClick = () => {

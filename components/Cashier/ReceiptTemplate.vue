@@ -15,19 +15,19 @@
       <div class="order-details">
         <div class="detail-row">
           <span class="label">Order #:</span>
-          <span class="value">{{ order.id }}</span>
+          <span class="value">{{ order?.id }}</span>
         </div>
         <div class="detail-row">
           <span class="label">Date:</span>
-          <span class="value">{{ formatDateTime(order.created_at) }}</span>
+          <span class="value">{{ formatDateTime(order?.created_at) }}</span>
         </div>
         <div class="detail-row">
           <span class="label">Type:</span>
-          <span class="value">{{ order.type }} {{ order.table_id ? `(Table ${order.table_id})` : '' }}</span>
+          <span class="value">{{ order?.type }} {{ order?.table_id ? `(Table ${order.table_id})` : '' }}</span>
         </div>
         <div class="detail-row">
           <span class="label">Customer:</span>
-          <span class="value">{{ order.guest || 'Walk-in Customer' }}</span>
+          <span class="value">{{ order?.guest || 'Walk-in Customer' }}</span>
         </div>
         <div class="detail-row">
           <span class="label">Cashier:</span>
@@ -46,9 +46,9 @@
         <span class="amount">Amount</span>
       </div>
       <div class="items-list">
-        <div v-for="item in order.items" :key="item.id" class="item-row">
+        <div v-for="item in order?.items || []" :key="item.id" class="item-row">
           <span class="qty">{{ item.quantity }}</span>
-          <span class="desc">{{ item.name }}</span>
+          <span class="desc">{{ item?.name ? item.name : item?.product?.name }}</span>
           <span class="amount">{{ formatPrice(item.price * item.quantity) }}</span>
         </div>
       </div>
@@ -60,25 +60,25 @@
     <div class="totals-section">
       <div class="total-row">
         <span>Subtotal:</span>
-        <span>{{ formatPrice(order.sub_total) }}</span>
+        <span>{{ formatPrice(order?.sub_total) }}</span>
       </div>
       <div class="total-row">
         <span>VAT (14%):</span>
-        <span>{{ formatPrice(order.tax) }}</span>
+        <span>{{ formatPrice(order?.tax) }}</span>
       </div>
-      <div v-if="order.service_charge > 0" class="total-row">
+      <div v-if="order?.service_charge > 0" class="total-row">
         <span>Service Charge:</span>
-        <span>{{ formatPrice(order.service_charge) }}</span>
+        <span>{{ formatPrice(order?.service_charge) }}</span>
       </div>
-      <div v-if="order.discount > 0" class="total-row discount">
+      <div v-if="order?.discount > 0" class="total-row discount">
         <span>Discount:</span>
-        <span>-{{ formatPrice(order.discount) }}</span>
+        <span>-{{ formatPrice(order?.discount) }}</span>
       </div>
       <div class="total-row grand-total">
         <span>TOTAL:</span>
-        <span>{{ formatPrice(order.total_amount) }}</span>
+        <span>{{ formatPrice(order?.total_amount) }}</span>
       </div>
-      <div v-if="order.payments && order.payments.length > 0" class="payment-info">
+      <div v-if="order?.payments?.length > 0" class="payment-info">
         <div class="total-row">
           <span>Paid ({{ order.payments[0].method }}):</span>
           <span>{{ formatPrice(order.payments[0].amount) }}</span>
@@ -94,7 +94,7 @@
 
     <!-- Footer -->
     <div class="footer">
-      <div class="items-count">Items Count: {{ order.items.reduce((sum, item) => sum + item.quantity, 0) }}</div>
+      <div class="items-count">Items Count: {{ order?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0 }}</div>
       <div class="thank-you">Thank You For Your Visit!</div>
       <div class="print-info">{{ formatDateTime(new Date(), true) }}</div>
     </div>

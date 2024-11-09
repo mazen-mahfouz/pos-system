@@ -38,8 +38,13 @@
             <div v-else >
               <TransitionGroup name="list" tag="div" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-3">
                 <div v-for="order in filteredOrders" :key="order.id" 
-                  @click="selectOrder(order)"
-                  class="order-card bg-white rounded-md shadow border border-gray-200 overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md">
+                  @click="order.status === 'live' ? selectOrder(order) : null"
+                  class="order-card rounded-md shadow border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-md"
+                  :class="{
+                    'cursor-pointer hover:scale-105': order.status === 'live',
+                    'bg-green-50': order.status === 'completed',
+                    'bg-red-50': order.status === 'canceled',
+                  }">
                   <div class="p-4">
                     <div class="flex justify-between items-center mb-1">
                       <span class="text-sm font-semibold text-gray-800">{{ order.code }}</span>   
@@ -62,6 +67,19 @@
                       <span class="text-xs font-medium text-gray-500">Total</span>
                       <span class="text-sm font-bold text-gray-800">${{ formatPrice(order.total_amount) }}</span>
                     </div>
+                    <div class="flex justify-between items-center mt-2">
+                      <button 
+                        @click.stop="printOrder(order)"
+                        class="text-xs flex items-center gap-1 text-gray-600 hover:text-gray-800"
+                      >
+                        <Icon name="mdi:printer" class="text-sm" />
+                        Print
+                      </button>
+                      <span v-if="order.status !== 'live'" class="text-xs">
+                        <span v-if="order.status === 'completed'" class="text-green-600">Order completed</span>
+                        <span v-else class="text-red-600">Order canceled</span>
+                      </span>
+                    </div>
                   </div>
                 </div>
               </TransitionGroup>
@@ -71,14 +89,19 @@
       </div>
     </Transition>
   </Teleport>
+  <ReceiptTemplate 
+    ref="receiptRef"
+    :order="selectedOrderForPrint"
+  />
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import { useOrderStore } from '~/stores/orderStore';
 import CustomUSelect from '~/components/CustomUSelect.vue';
 import DateRangeSelector from '~/components/DateRangeSelector.vue';
 import FilterOptions from '~/components/FilterOptions.vue';
+import ReceiptTemplate from './ReceiptTemplate.vue';
 
 const props = defineProps({
   modelValue: Boolean,
@@ -123,10 +146,6 @@ const fetchOrders = async () => {
   }
 };
 
-onMounted(() => {
-  fetchOrders();
-});
-
 const filteredOrders = computed(() => {
   if (isLoading.value || !orders.value) return [];
   console.log(selectedFilter.value);
@@ -170,9 +189,11 @@ const updateFilterCounts = () => {
 const getStatusClass = (status) => {
   switch (status.toLowerCase()) {
     case 'completed':
-      return 'px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium';
+      return 'px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium';
     case 'live':
       return 'px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium';
+    case 'canceled':
+      return 'px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium';
     default:
       return 'px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium';
   }
@@ -194,6 +215,8 @@ const formatPrice = (price) => {
 };
 
 const selectOrder = (order) => {
+  if (order.status !== 'live') return;
+  
   OrderStore.$state.openOrder = true;
   OrderStore.currentOrder = {
     id: order.id,
@@ -211,26 +234,55 @@ const selectOrder = (order) => {
   
   OrderStore.openExistingOrder(order.id);
   emit('select-order', order);
-  // emit('update:modelValue', false);
-};
-
-const handleSearch = () => {
-  // The filtering is handled by the computed property
-};
-
-const handleDateChange = () => {
-  // The filtering is handled by the computed property
 };
 
 const closeModal = () => {
   emit('update:modelValue', false);
 };
 
-// إضافة مراقبة للتغييرات في الفلاتر
-watch([searchQuery, dateFrom, dateTo, selected, selectedFilter], () => {
-  // يمكنك إضافة أي منطق إضافي هنا إذا لزم الأمر
-  console.log('Filters changed');
+const receiptRef = ref(null);
+const selectedOrderForPrint = ref(null);
+
+const printOrder = (order) => {
+  selectedOrderForPrint.value = {
+    id: order.id,
+    code: order.code,
+    created_at: order.created_at,
+    type: order.type,
+    table_id: order.table_id,
+    guest: order.guest || 'Walk-in Customer',
+    items: order.order_items.map(item => ({
+      id: item.id,
+      quantity: item.quantity,
+      name: item.product?.name || item.name,
+      price: parseFloat(item.price)
+    })),
+    sub_total: parseFloat(order.sub_total),
+    tax: parseFloat(order.tax),
+    service_charge: parseFloat(order.service),
+    discount: parseFloat(order.discount),
+    total_amount: parseFloat(order.total_amount),
+    ...(order.status !== 'live' && {
+      payments: [{
+        method: order.payment_method || 'Unknown',
+        amount: parseFloat(order.total_amount),
+        change_amount: 0
+      }]
+    })
+  };
+  
+  nextTick(() => {
+    receiptRef.value?.printReceipt();
+  });
+};
+
+// Add watch for modelValue
+watch(() => props.modelValue, (newValue) => {
+  if (newValue) {
+    fetchOrders();
+  }
 });
+
 </script>
 
 <style scoped>

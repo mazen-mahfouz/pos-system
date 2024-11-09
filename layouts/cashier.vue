@@ -56,20 +56,6 @@ const showEditTableModal = ref(false);
 const showPermissionModal = ref(false);
 const permissionAction = ref('');
 
-onMounted(() => {
-  fetchTables();
-}); 
-
-const fetchTables = () => {
-  useApi('tables', 'GET')
-    .then(response => {
-      tables.value = response;
-    })
-    .catch(error => {
-      HandleReqErrors(error);
-    });
-};
-
 const selectOrderType = (type) => {
   if (type === 'dine-in') {
     showTableModal.value = true;
@@ -98,15 +84,22 @@ const selectOrder = (order) => {
 };
 
 const editOrderType = () => {
-  permissionAction.value = 'edit order';
-  showPermissionModal.value = true;
+  if (OrderStore.currentOrder.id) {
+    permissionAction.value = 'edit order';
+    showPermissionModal.value = true;  
+  } else {
+    showEditTypeModal.value = true;
+  }
 };
 
 const updateOrderType = (type) => {
-  OrderStore.currentOrder.type = type;
   if (type === 'takeaway') {
+    OrderStore.currentOrder.type = type;
     OrderStore.currentOrder.table_id = null;
     showEditTypeModal.value = false;
+    if (OrderStore.currentOrder.id) {
+      OrderStore.placeOrder();
+    }
   } else if (type === 'dine-in') {
     showEditTypeModal.value = false;
     showEditTableModal.value = true;
@@ -114,13 +107,16 @@ const updateOrderType = (type) => {
 };
 
 const updateOrderTable = (table) => {
+  OrderStore.currentOrder.type = 'dine-in';
   OrderStore.currentOrder.table_id = table.id;
   showEditTableModal.value = false;
+  if (OrderStore.currentOrder.id) {
+    OrderStore.placeOrder();
+  }
 };
 
 const editOrderTable = () => {
-  permissionAction.value = 'edit order';
-  showPermissionModal.value = true;
+  showEditTableModal.value = true;
 };
 
 const handlePermissionConfirm = (verified) => {
@@ -128,8 +124,6 @@ const handlePermissionConfirm = (verified) => {
   if (verified) {
     if (permissionAction.value === 'edit order') {
       showEditTypeModal.value = true;
-    } else if (permissionAction.value === 'edit order') {
-      showEditTableModal.value = true;
     }
   }
 };

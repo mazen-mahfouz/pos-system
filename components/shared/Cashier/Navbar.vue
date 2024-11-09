@@ -202,8 +202,8 @@
 
   <!-- Add shift modal -->
   <CashierShiftDetailsModal 
+    v-model="showShiftModal"
     v-if="showShiftModal"
-    @close="showShiftModal = false"
   />
 
   <!-- Hidden Shift Receipt Template -->
@@ -224,6 +224,7 @@ import { useOrderStore } from '~/stores/orderStore';
 import { inject, ref, onMounted, computed, watch, h } from 'vue';
 import { useAuthStore } from "~/stores/auth";
 import CashierPermissionModal from '~/components/Cashier/PermissionModal.vue'
+import CashierShiftDetailsModal from '~/components/Cashier/ShiftDetailsModal.vue';
 
 const emit = defineEmits(['open-discount-modal']);
 
@@ -318,12 +319,15 @@ const canApplyDiscount = computed(() => {
 });
 
 const handlePermissionConfirm = (verified) => {
+  showPermissionModal.value = false; // Close permission modal first
+  
   if (!verified) return;
   
-  if (permissionAction.value.includes('discount')) {
+  if (permissionAction.value === 'discount') {
     showDiscountModal.value = true;
+  } else if (permissionAction.value === 'shift details') {
+    showShiftModal.value = true;
   }
-  showPermissionModal.value = false;
 };
 
 const handleDiscountClick = () => {
@@ -424,7 +428,8 @@ const showShiftModal = ref(false);
 const shiftDetails = ref(null);
 
 const openShiftModal = () => {
-  showShiftModal.value = true;
+  showPermissionModal.value = true;
+  permissionAction.value = 'shift details';
 };
 
 const shiftReceiptTemplateRef = ref(null);
@@ -432,22 +437,6 @@ const shiftReceiptTemplateRef = ref(null);
 const printShiftDetails = () => {
   shiftReceiptTemplateRef.value?.print();
 };
-
-const fetchShiftDetails = async () => {
-  try {
-    const response = await useApi(`shift/${useCookie('PosUserData').value.shift}/details`, 'GET');
-    shiftDetails.value = response;
-  } catch (error) {
-    console.error('Error fetching shift details:', error);
-    push.error('Failed to load shift details');
-  }
-};
-
-watch(showShiftModal, (newValue) => {
-  if (newValue) {
-    fetchShiftDetails()
-  }
-})
 
 // Add formatDateTime and formatPrice functions
 const formatDateTime = (dateString) => {

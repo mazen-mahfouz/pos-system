@@ -7,13 +7,13 @@
 
     <Transition name="fade">
       <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-30 p-4"
-           @click="$emit('close')">
+           @click="handleClose">
         <div class="bg-white py-3 px-2 rounded-xl w-full md:w-[95%] lg:w-[85%] xl:max-w-[50%] h-[90vh] md:h-[85vh] flex flex-col shadow-xl"
              @click.stop>
           <!-- Modal Header -->
           <div class="px-4 py-2 md:py-3 flex justify-between items-center border-b sticky top-0 bg-white z-10">
             <h2 class="text-[15px] md:text-lg font-bold text-gray-800">Shift Details</h2>
-            <button @click="$emit('close')" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <button @click="handleClose" class="text-gray-400 hover:text-gray-600 transition-colors">
               <Icon name="mdi:close" size="20" />
             </button>
           </div>
@@ -21,8 +21,8 @@
           <!-- Modal Content -->
           <div class="flex-1 overflow-y-auto px-2 md:px-4 py-3">
             <!-- Loading State -->
-            <div v-if="loading" class="flex justify-center items-center h-[400px]">
-              <UiSpinner />
+            <div v-if="isLoading" class="flex justify-center items-center py-8">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2b3c5e]"></div>
             </div>
 
             <!-- Error State -->
@@ -158,7 +158,7 @@
                 </button>
 
                 <button
-                  @click="$emit('close')"
+                  @click="handleClose"
                   class="w-full sm:flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-200 text-sm font-medium"
                 >
                   Cancel
@@ -173,17 +173,22 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import ShiftReceiptTemplate from './ShiftReceiptTemplate.vue'
 import { useAuthStore } from "~/stores/auth";
 
 const AuthStore = useAuthStore()
-const loading = ref(true)
+const loading = ref(false)
 const error = ref(null)
 const shiftDetails = ref(null)
 const receiptTemplateRef = ref(null)
 const router = useRouter();
 
+const props = defineProps({
+  modelValue: Boolean
+});
+
+const emit = defineEmits(['update:modelValue', 'close']);
 
 const formatPrice = (price) => {
   return Number(price).toFixed(2)
@@ -202,15 +207,25 @@ const formatDateTime = (dateString) => {
   }).format(date)
 }
 
+const isLoading = computed(() => loading.value)
+
 const fetchShiftDetails = async () => {
+  if (!useCookie('PosUserData').value?.shift) {
+    error.value = 'No active shift found'
+    return
+  }
+
+  loading.value = true
+  error.value = null
+  
   try {
-    loading.value = true
-    error.value = null
-    const response = await useApi(`shift/${useCookie('PosUserData')?.value?.shift}/details`, 'GET')
+    const response = await useApi(`shift/${useCookie('PosUserData').value.shift}/details`, 'GET')
+    if (!response) throw new Error('No data received')
     shiftDetails.value = response
   } catch (err) {
-    error.value = 'Failed to load shift details'
+    error.value = err.message || 'Failed to load shift details'
     console.error('Error fetching shift details:', err)
+    push.error(error.value)
   } finally {
     loading.value = false
   }
@@ -225,19 +240,54 @@ const printShiftDetails = () => {
 }
 
 const closeShift = async () => {
+  loading.value = true
   try {
-    await useApi(`shift/${useCookie('PosUserData').value.shift}/close`, 'POST')
+    const shiftId = useCookie('PosUserData').value?.shift
+    if (!shiftId) throw new Error('No active shift found')
+    
+    await useApi(`shift/${shiftId}/close`, 'POST')
     push.success('Shift closed successfully')
-    $emit('close')
+    emit('close')
+    AuthStore.logout()
     router.push('/auth/login')
   } catch (err) {
-    push.error('Failed to close shift')
+    const errorMessage = err.message || 'Failed to close shift'
+    push.error(errorMessage)
     console.error('Error closing shift:', err)
+  } finally {
+    loading.value = false
   }
 }
 
+// Fetch data when modal opens
+watch(() => props.modelValue, (newValue) => {
+  if (newValue) {
+    fetchShiftDetails();
+  } else {
+    // إعادة تعيين البيانات عند إغلاق Modal
+    shiftDetails.value = null;
+    error.value = null;
+  }
+}, { immediate: true }); // إضافة immediate: true للتنفيذ الفوري
+
 onMounted(() => {
-  fetchShiftDetails()
+  if (props.modelValue) {
+    fetchShiftDetails();
+  }
+});
+
+onMounted(() => {
   console.log(AuthStore.user)
 })
+
+// إضافة دالة handleClose
+const handleClose = () => {
+  // تنظيف البيانات
+  shiftDetails.value = null;
+  error.value = null;
+  
+  // إغلاق Modal
+  emit('update:modelValue', false);
+  emit('close');
+};
 </script>
