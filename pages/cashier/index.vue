@@ -14,7 +14,7 @@
         name="item"
         tag="div"
         class="grid gap-[10px]"
-        :class="{'grid-cols-4 lg:grid-cols-6 xl:grid-cols-5 2xl:grid-cols-8': OrderStore.$state.openOrder, 'grid-cols-7 lg:grid-cols-6 xl:grid-cols-13 2xl:grid-cols-12': !OrderStore.$state.openOrder }"
+        :class="{'grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-8': OrderStore.$state.openOrder, 'grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-12': !OrderStore.$state.openOrder }"
       >
         <div
           v-for="item in items"
@@ -98,15 +98,17 @@ const handleProductClick = (item) => {
   if (isItemDisabled.value) return;
   
   isItemDisabled.value = true;
-  OrderStore.addItemToOrder(item);
   
   if (!OrderStore.$state.openOrder) {
+    OrderStore.setPendingItem(item);
     openNewOrder();
+  } else {
+    OrderStore.addItemToOrder(item);
   }
   
   setTimeout(() => {
     isItemDisabled.value = false;
-  }, 1000); // 500ms cooldown
+  }, 1000);
 };
 
 const fetchProducts = () => {

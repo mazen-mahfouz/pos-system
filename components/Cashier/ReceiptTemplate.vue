@@ -66,9 +66,9 @@
         <span>VAT (14%):</span>
         <span>{{ formatPrice(order?.tax) }}</span>
       </div>
-      <div v-if="order?.service_charge > 0" class="total-row">
+      <div class="total-row">
         <span>Service Charge:</span>
-        <span>{{ formatPrice(order?.service_charge) }}</span>
+        <span>{{ formatPrice(order?.service) }}</span>
       </div>
       <div v-if="order?.discount > 0" class="total-row discount">
         <span>Discount:</span>

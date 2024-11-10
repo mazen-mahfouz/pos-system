@@ -4,6 +4,7 @@ export const useOrderStore = defineStore('order', {
   state: () => ({
     openOrder: false,
     orders: [],
+    pendingItem: null,
     currentOrder: {
       id: null,
       guest: '',
@@ -15,6 +16,7 @@ export const useOrderStore = defineStore('order', {
       tax: 0,
       discount: 0,
       total_amount: 0,
+      service: 0,
     },
   }),
   getters: {
@@ -46,6 +48,11 @@ export const useOrderStore = defineStore('order', {
         }
       };
       this.openOrder = true;
+
+      if (this.pendingItem) {
+        this.addItemToOrder(this.pendingItem);
+        this.pendingItem = null;
+      }
     },
     addOrder(order) {
       this.orders.push(order);
@@ -75,6 +82,7 @@ export const useOrderStore = defineStore('order', {
         tax: 0,
         discount: 0,
         total_amount: 0,
+        service: 0,
       };
       this.openOrder = false;
     },
@@ -282,12 +290,15 @@ export const useOrderStore = defineStore('order', {
         code: orderData.code,
         status: orderData.status,
         tax: parseFloat(orderData.tax),
-        discount: parseFloat(orderData.discount),
         service: parseFloat(orderData.service),
+        discount: parseFloat(orderData.discount),
         sub_total: parseFloat(orderData.sub_total),
         total_amount: parseFloat(orderData.total_amount),
       };
       this.updateOrderTotals();
+    },
+    setPendingItem(item) {
+      this.pendingItem = item;
     },
   },
 });

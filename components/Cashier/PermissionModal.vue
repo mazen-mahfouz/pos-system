@@ -42,14 +42,16 @@
                 :key="index"
                 v-model="codeDigits[index]"
                 type="password"
-                inputmode="numeric"
                 maxlength="1"
+                readonly
+                @paste="handlePaste"
                 :disabled="isLoading"
                 class="w-[45px] h-[45px] text-center text-xl font-bold border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2b3c5e]/20 focus:border-[#2b3c5e] transition-all duration-300 bg-white shadow-sm disabled:opacity-50"
                 :class="{ 'border-[#2b3c5e] bg-[#f8faff] transform scale-[1.05]': codeDigits[index] }"
                 @input="onCodeInput(index)"
                 @keydown="onCodeKeydown($event, index)"
                 ref="codeInputs"
+                style="-webkit-text-security: disc;"
               />
             </div>
 
@@ -251,6 +253,26 @@ const clearAllDigits = () => {
   codeDigits.value = Array(4).fill('');
   codeInputs.value[0]?.focus();
 };
+
+const handlePaste = (event) => {
+  event.preventDefault()
+  const pastedText = event.clipboardData.getData('text')
+  const numbers = pastedText.replace(/[^0-9]/g, '').slice(0, 4)
+  
+  if (numbers.length) {
+    numbers.split('').forEach((num, index) => {
+      if (index < 4) {
+        codeDigits.value[index] = num
+      }
+    })
+    
+    if (codeDigits.value.every(digit => digit !== '')) {
+      setTimeout(() => {
+        handleConfirm()
+      }, 300)
+    }
+  }
+}
 
 onMounted(() => {
   if (codeInputs.value[0]) {

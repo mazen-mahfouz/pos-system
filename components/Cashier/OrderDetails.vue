@@ -114,6 +114,14 @@
         </div>
         
         <div class="flex justify-between items-center text-xs xl:text-base">
+          <div class="flex items-center space-x-1 text-gray-600">
+            <Icon name="mdi:room-service-outline" size="12" />
+            <span>Service</span>
+          </div>
+          <span class="font-medium">£{{ formatPrice(OrderStore.currentOrder.service || 0) }}</span>
+        </div>
+        
+        <div class="flex justify-between items-center text-xs xl:text-base">
           <div class="flex items-center space-x-1 text-green-600 cursor-pointer"
                @click="handleDiscountClick">
             <Icon name="mdi:tag-outline" size="12" />
@@ -275,9 +283,16 @@ const handleIncreaseQuantity = (item) => {
 };
 
 const checkout = () => {
-  if (OrderStore.currentOrder.items.length === 0) {
+  if (!OrderStore.currentOrder || !OrderStore.currentOrder.items) {
+    push.error('Cannot proceed with payment. No order exists.');
     return;
   }
+  
+  if (OrderStore.currentOrder.items.length === 0) {
+    push.error('Cannot proceed with payment. Please add items to the order first.');
+    return;
+  }
+  
   showPaymentModal.value = true;
 };
 
@@ -285,7 +300,7 @@ const processPayment = async (paymentDetails) => {
   let orderId = OrderStore.currentOrder.id;
 
   if (!orderId) {
-    const placeOrderResponse = await useApi('orders', 'POST', {
+    useApi('orders', 'POST', {
       type: 'object',
       data: {
         guest: OrderStore.currentOrder.guest,
@@ -294,27 +309,52 @@ const processPayment = async (paymentDetails) => {
         items: OrderStore.currentOrder.items,
         shift_id: OrderStore.currentOrder.shift_id,
       },
+    })
+    .then(placeOrderResponse => {
+      orderId = placeOrderResponse.order.id;
+      return useApi('payment', 'POST', {
+        type: 'object',
+        data: {
+          order_id: orderId,
+          amount: OrderStore.currentOrder.total_amount,
+          payment_method_id: paymentDetails.method,
+          amount_received: paymentDetails.amountReceived,
+          change_amount: paymentDetails.change
+        },
+      });
+    })
+    .then(async () => {
+      showPaymentModal.value = false;
+      await receiptRef.value?.printReceipt();
+      OrderStore.closeOrder();
+      push.success('The payment has been processed successfully.');
+    })
+    .catch(error => {
+      console.error('Payment processing error:', error);
+      push.error('Failed to process payment. Please try again.');
     });
-    orderId = placeOrderResponse.order.id;
+  } else {
+    useApi('payment', 'POST', {
+      type: 'object',
+      data: {
+        order_id: orderId,
+        amount: OrderStore.currentOrder.total_amount,
+        payment_method_id: paymentDetails.method,
+        amount_received: paymentDetails.amountReceived,
+        change_amount: paymentDetails.change
+      },
+    })
+    .then(async () => {
+      showPaymentModal.value = false;
+      await receiptRef.value?.printReceipt();
+      OrderStore.closeOrder();
+      push.success('The payment has been processed successfully.');
+    })
+    .catch(error => {
+      console.error('Payment processing error:', error);
+      push.error('Failed to process payment. Please try again.');
+    });
   }
-
-  await useApi('payment', 'POST', {
-    type: 'object',
-    data: {
-      order_id: orderId,
-      amount: OrderStore.currentOrder.total_amount,
-      payment_method_id: paymentDetails.method,
-      amount_received: paymentDetails.amountReceived,
-      change_amount: paymentDetails.change
-    },
-  });
-
-  showPaymentModal.value = false;
-  
-  await receiptRef.value?.printReceipt();
-  
-  OrderStore.closeOrder();
-  push.success('The payment has been processed successfully.');
 };
 
 const formatPrice = (price) => {

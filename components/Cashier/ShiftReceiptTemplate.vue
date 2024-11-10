@@ -36,19 +36,26 @@
         <div class="section-title">SALES SUMMARY</div>
         <div class="detail-row">
           <span class="label">Total Sales:</span>
-          <span class="value">£{{ formatPrice(shift.total_sales) }}</span>
+          <span class="value">£{{ formatPrice(shift.total_sales || 0) }}</span>
         </div>
         <div class="detail-row">
-          <span class="label">Tax:</span>
-          <span class="value">£{{ formatPrice(shift.total_tax) }}</span>
+          <span class="label">Tax (14%):</span>
+          <span class="value">£{{ formatPrice(shift.total_tax || 0) }}</span>
         </div>
         <div class="detail-row">
-          <span class="label">Service Charges:</span>
-          <span class="value">£{{ formatPrice(shift.total_services) }}</span>
+          <span class="label">Service Charges (12%):</span>
+          <span class="value">£{{ formatPrice(shift.total_services || 0) }}</span>
         </div>
         <div class="detail-row discount">
           <span class="label">Discounts:</span>
-          <span class="value">-£{{ formatPrice(shift.total_discounts) }}</span>
+          <span class="value">-£{{ formatPrice(shift.total_discounts || 0) }}</span>
+        </div>
+        
+        <!-- إضافة المجموع النهائي -->
+        <div class="separator">--------------------------------</div>
+        <div class="detail-row total">
+          <span class="label">NET TOTAL:</span>
+          <span class="value">£{{ formatPrice(calculateNetTotal) }}</span>
         </div>
       </div>
 
@@ -139,7 +146,7 @@ const print = () => {
             font-family: 'Courier New', monospace;
             font-size: 12px;
             line-height: 1.4; 
-            font-wig               
+            font-weight: bold;      
           }
 
           .receipt-container {
@@ -203,6 +210,32 @@ const print = () => {
           .cashier-info {
             font-weight: bold;
           }
+
+          .total {
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 8px;
+          }
+
+          .detail-row .label {
+            font-weight: normal;
+          }
+
+          .detail-row .value {
+            font-weight: bold;
+          }
+
+          .detail-row.total .label,
+          .detail-row.total .value {
+            font-weight: bold;
+          }
+
+          .section-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-align: center;
+            font-size: 14px;
+          }
         </style>
       </head>
       <body>
@@ -226,11 +259,33 @@ const print = () => {
 defineExpose({
   print
 })
+
+// إضافة حساب المجموع النهائي
+const calculateNetTotal = computed(() => {
+  const sales = Number(props.shift?.total_sales || 0);
+  const tax = Number(props.shift?.total_tax || 0);
+  const services = Number(props.shift?.total_services || 0);
+  const discounts = Number(props.shift?.total_discounts || 0);
+  
+  return sales + tax + services - discounts;
+});
 </script>
 
 <style scoped>
 /* Hide receipt on screen */
 .receipt-container {
   display: none;
+}
+
+/* إضافة أنماط للعرض المباشر إذا كنت تريد اختبار المظهر */
+:deep(.total) {
+  font-weight: bold;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+:deep(.section-title) {
+  text-align: center;
+  font-size: 14px;
 }
 </style>

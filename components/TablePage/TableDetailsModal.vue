@@ -1,7 +1,7 @@
 <template>
     <UModal v-model="isOpen" :ui="{
       overlay: { background: 'bg-gray-900/60 backdrop-blur-sm' },
-      width: 'sm:max-w-[550px]',
+      width: 'sm:max-w-[600px]',
       height: 'auto',
       padding: 'p-0',
       background: 'bg-white dark:bg-gray-900',

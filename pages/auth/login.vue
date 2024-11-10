@@ -73,12 +73,15 @@
               v-for="(digit, index) in 4"
               :key="index"
               v-model="otpDigits[index]"
-              type="text"
+              type="password"
               maxlength="1"
+              readonly
+              @paste="handlePaste"
               class="w-[45px] h-[45px] text-center text-xl font-bold border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2b365a] focus:border-[#2b365a] transition-all duration-300 bg-white shadow-sm"
               :class="{ 'border-[#2b365a] bg-[#f8faff] transform scale-[1.05]': otpDigits[index] }"
               @input="onOtpInput(index)"
               @keydown="onOtpKeydown($event, index)"
+              style="-webkit-text-security: disc;"
             />
           </div>
 
@@ -152,9 +155,11 @@ import { Form, Field, ErrorMessage } from 'vee-validate'
 import { object, string } from 'yup'
 import HandleReqErrors from "~/helpers/HandleReqErrors.js"
 import { useAuthStore } from "~/stores/auth"
+import { useOrderStore } from '~/stores/orderStore';
 
 const router = useRouter()
 const AuthStore = useAuthStore()
+const OrderStore = useOrderStore()
 const loginMethod = ref('otp')
 const otpDigits = ref(Array(4).fill(''))
 const isLoading = ref(false)
@@ -204,6 +209,9 @@ const onSubmit = (values) => {
       AuthStore.setToken(`Bearer ${response.access_token}`)
       AuthStore.setUser(response.user)
       push.success(response.message)
+      
+      // Reset the order store
+      OrderStore.$reset()
       
       const role = response.user?.roles[0]?.name
       if(role === 'cashier' || role === 'Admin') {
@@ -280,5 +288,25 @@ const clearLastDigit = () => {
 const clearAllDigits = () => {
   otpDigits.value = Array(4).fill('')
   document.querySelectorAll('input')[0]?.focus()
+}
+
+const handlePaste = (event) => {
+  event.preventDefault()
+  const pastedText = event.clipboardData.getData('text')
+  const numbers = pastedText.replace(/[^0-9]/g, '').slice(0, 4)
+  
+  if (numbers.length) {
+    numbers.split('').forEach((num, index) => {
+      if (index < 4) {
+        otpDigits.value[index] = num
+      }
+    })
+    
+    if (otpDigits.value.every(digit => digit !== '')) {
+      setTimeout(() => {
+        onSubmit({ login_code: otpDigits.value.join('') })
+      }, 300)
+    }
+  }
 }
 </script>
