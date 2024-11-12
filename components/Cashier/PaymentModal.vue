@@ -154,10 +154,16 @@ const paymentMethods = [
 ];
 
 const quickAmounts = computed(() => {
-  const baseAmounts = [10, 20, 50, 100];
-  const roundedTotal = Math.ceil(props.total / 10) * 10;
-  return baseAmounts.map(amount => amount + roundedTotal).filter(amount => amount > props.total);
+  const baseAmounts = [5, 10, 15, 20];
+  const nearestTotal = props.total <= 5 
+    ? 5 
+    : Math.ceil(props.total / 5);
+
+  return baseAmounts
+    .map(amount => amount + nearestTotal)
+    .filter(amount => amount > props.total);
 });
+
 const selectedMethod = ref(1);
 const amountReceived = ref('');
 const change = ref(0);

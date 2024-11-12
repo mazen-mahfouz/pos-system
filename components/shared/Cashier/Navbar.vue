@@ -319,13 +319,14 @@ const canApplyDiscount = computed(() => {
 });
 
 const handlePermissionConfirm = (verified) => {
-  showPermissionModal.value = false; // Close permission modal first
+  showPermissionModal.value = false;
   
   if (!verified) return;
-  
-  if (permissionAction.value === 'discount') {
+  if (permissionAction.value === 'create discount') {
     showDiscountModal.value = true;
-  } else if (permissionAction.value === 'shift details') {
+  }else if (permissionAction.value === 'edit discount') {
+    showDiscountModal.value = true;
+  }else if (permissionAction.value === 'shift details') {
     showShiftModal.value = true;
   }
 };
@@ -367,7 +368,7 @@ const discountTypes = [
   }
 ];
 
-const applyDiscount = async () => {
+const applyDiscount = () => {
   if (!discountAmount.value || discountAmount.value <= 0) {
     push.error('Please enter a valid amount');
     return;
@@ -378,27 +379,22 @@ const applyDiscount = async () => {
     return;
   }
 
-  try {
-    // First, apply the discount
-    const discountResponse = await useApi(`orders/${OrderStore.currentOrder.id}/discount`, 'POST', {
-      type: 'object',
-      data: {
-        type: discountType.value,
-        amount: parseFloat(discountAmount.value)
-      }
-    });
-
-    // Then, fetch the updated order data
-    const orderResponse = await useApi(`orders/show/${OrderStore.currentOrder.id}`, 'GET');
-    
-    // Update the order with the latest data
+  useApi(`orders/${OrderStore.currentOrder.id}/discount`, 'POST', {
+    type: 'object',
+    data: {
+      type: discountType.value,
+      amount: parseFloat(discountAmount.value)
+    }
+  })
+  .then((orderResponse) => {
     OrderStore.updateOrderFromResponse(orderResponse.order);
     push.success('Discount applied successfully');
     closeDiscountModal();
-  } catch (error) {
+  })
+  .catch((error) => {
     console.error('Error applying discount:', error);
     push.error('Failed to apply discount');
-  }
+  });
 };
 
 // Watch for changes in discount type to reset amount

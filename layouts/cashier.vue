@@ -80,7 +80,7 @@ const openOrdersModal = () => {
 
 const selectOrder = (order) => {
   OrderStore.openExistingOrder(order.id);
-  showOpenOrdersModal.value = false;
+  // showOpenOrdersModal.value = false;
 };
 
 const editOrderType = () => {

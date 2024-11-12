@@ -157,6 +157,15 @@
     </div>
 
     <div class="p-3 pt-2 flex items-center gap-2 bg-white">
+      <button 
+        v-if="OrderStore.currentOrder.id"
+        @click="handleSplitOrder" 
+        class="flex-1 bg-gray-100 text-gray-700 py-1.5 lg:py-2 px-2 lg:px-3 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-200 text-xs lg:text-sm font-medium flex items-center justify-center space-x-1"
+      >
+        <Icon name="mdi:call-split" size="16" />
+        <span>Split</span>
+      </button>
+      
       <button @click="OrderStore.currentOrder.id ? updateOrder() : placeOrder()" 
               class="flex-1 bg-[#2b3c5e] text-white py-1.5 lg:py-2 px-2 lg:px-3 rounded-lg hover:bg-[#22407c] active:scale-95 transition-all duration-200 text-xs lg:text-sm font-medium flex items-center justify-center space-x-1">
         <Icon :name="OrderStore.currentOrder.id ? 'mdi:pencil' : 'mdi:check'" size="16" />
@@ -186,6 +195,16 @@
       ref="receiptRef"
       :order="OrderStore.currentOrder"
     />
+
+    <CashierDiscountModal
+      v-model="showDiscountModal"
+    />
+
+    <CashierSplitOrderModal
+      v-model="showSplitModal"
+      :order="OrderStore.currentOrder"
+      @split-complete="handleSplitComplete"
+    />
   </div>
 </template>
 
@@ -193,6 +212,8 @@
 import { ref, computed } from 'vue';
 import { useOrderStore } from '~/stores/orderStore';
 import ReceiptTemplate from './ReceiptTemplate.vue';
+import CashierDiscountModal from '~/components/Cashier/DiscountModal.vue';
+import CashierSplitOrderModal from './SplitOrderModal.vue';
 
 const OrderStore = useOrderStore();
 const receiptRef = ref(null);
@@ -204,6 +225,10 @@ const selectedItem = ref(null);
 const pendingAction = ref(null);
 
 const isButtonDisabled = ref(false);
+
+const showDiscountModal = ref(false);
+
+const showSplitModal = ref(false);
 
 const handlePermissionConfirm = async (verified) => {
   if (!verified) return;
@@ -236,10 +261,10 @@ const handlePermissionConfirm = async (verified) => {
         push.error('Failed to remove discount');
       }
       break;
-    default:
-      if (permissionAction.value.includes('discount')) {
-        emit('open-discount-modal');
-      }
+    case 'create discount':
+    case 'edit discount':
+      showDiscountModal.value = true;
+      break;
   }
   
   pendingAction.value = null;
@@ -272,10 +297,11 @@ const handleDecreaseQuantity = (item) => {
 };
 
 const handleIncreaseQuantity = (item) => {
+  console.log(item)
   if (isButtonDisabled.value) return;
   
   isButtonDisabled.value = true;
-  OrderStore.increaseQuantity(item.product_id);
+  OrderStore.increaseQuantity(item.id ? item.id : item.order_id);
   
   setTimeout(() => {
     isButtonDisabled.value = false;
@@ -453,11 +479,60 @@ const editOrderType = () => {
 const handleDiscountClick = () => {
   showPermissionModal.value = true;
   permissionAction.value = OrderStore.currentOrder.discount > 0 ? 'edit discount' : 'create discount';
+  pendingAction.value = OrderStore.currentOrder.discount > 0 ? 'edit discount' : 'create discount';
 };
 
 const handleRemoveDiscount = async () => {
   showPermissionModal.value = true;
   permissionAction.value = 'remove discount';
+};
+
+const handleSplitOrder = () => {
+  if (!OrderStore.currentOrder.items.length) {
+    push.error('No items to split');
+    return;
+  }
+  showSplitModal.value = true;
+};
+
+const handleSplitComplete = async ({ originalItems, splitItems }) => {
+  try {
+    // إنشاء طلب جديد للعناصر المقسمة
+    const newOrderResponse = await useApi('orders', 'POST', {
+      type: 'object',
+      data: {
+        guest: `${OrderStore.currentOrder.guest || 'Guest'} (Split)`,
+        type: OrderStore.currentOrder.type,
+        table_id: OrderStore.currentOrder.table_id,
+        items: splitItems.map(item => ({
+          product_id: item.product_id,
+          quantity: item.quantity
+        })),
+        shift_id: OrderStore.currentOrder.shift_id,
+      },
+    });
+
+    // تحديث الطلب الأصلي
+    await useApi(`orders/${OrderStore.currentOrder.id}`, 'PUT', {
+      type: 'object',
+      data: {
+        guest: OrderStore.currentOrder.guest,
+        type: OrderStore.currentOrder.type,
+        table_id: OrderStore.currentOrder.table_id,
+        items: originalItems.map(item => ({
+          product_id: item.product_id,
+          quantity: item.quantity
+        })),
+        shift_id: OrderStore.currentOrder.shift_id,
+      },
+    });
+
+    push.success('Order split successfully');
+    OrderStore.closeOrder();
+  } catch (error) {
+    console.error('Error splitting order:', error);
+    push.error('Failed to split order');
+  }
 };
 </script>
 

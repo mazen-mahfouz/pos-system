@@ -15,6 +15,7 @@ export const useOrderStore = defineStore('order', {
       sub_total: 0,
       tax: 0,
       discount: 0,
+      discount_type: null,
       total_amount: 0,
       service: 0,
     },
@@ -42,10 +43,8 @@ export const useOrderStore = defineStore('order', {
         table_id: table_id,
         items: [],
         shift_id: useCookie('PosUserData').value.shift,
-        discount: {
-          type: null,
-          amount: 0
-        }
+        discount: 0,
+        discount_type: null,
       };
       this.openOrder = true;
 
@@ -81,6 +80,7 @@ export const useOrderStore = defineStore('order', {
         sub_total: 0,
         tax: 0,
         discount: 0,
+        discount_type: null,
         total_amount: 0,
         service: 0,
       };
@@ -100,7 +100,8 @@ export const useOrderStore = defineStore('order', {
           quantity: 1,
           name: item.name,
           price: item.price,
-          image: item.image
+          image: item.image,
+          order_id: null
         });
         this.updateOrderTotals();
         if (!this.currentOrder.id) {
@@ -118,6 +119,10 @@ export const useOrderStore = defineStore('order', {
           }
         })
         .then(response => {
+          const updatedItem = this.currentOrder.items.find(i => i.product_id === item.id);
+          if (updatedItem) {
+            updatedItem.order_id = response.order_item.id;
+          }
           this.updateOrderFromResponse(response.order_item.order);
         })
         .catch(error => {
@@ -137,12 +142,12 @@ export const useOrderStore = defineStore('order', {
       this.currentOrder.discount = 0;
     },
     increaseQuantity(productId) {
-      const item = this.currentOrder.items.find(i => i.product_id === productId);
+      const item = this.currentOrder.items.find(i =>  i.id ? i.id : i.order_id === productId);
       if (!item) return;
 
       item.quantity++;
       this.updateOrderTotals();
-
+      console.log(productId)
       if (this.currentOrder.id) {
         useApi(`orderItem/${productId}`, 'PUT', {
           type: 'object',
@@ -151,8 +156,8 @@ export const useOrderStore = defineStore('order', {
           }
         })
         .then(response => {
-          if (response.order) {
-            this.updateOrderFromResponse(response.order);
+          if (response.order_item.order) {
+            this.updateOrderFromResponse(response.order_item.order);
           }
         })
         .catch(error => {
@@ -251,7 +256,18 @@ export const useOrderStore = defineStore('order', {
         data: orderData,
       })
         .then((response) => {
+          const updatedItems = response.order.order_items.map(orderItem => ({
+            product_id: orderItem.product_id,
+            quantity: orderItem.quantity,
+            price: parseFloat(orderItem.price),
+            order_id: orderItem.id,
+            name: orderItem.product.name,
+            image: orderItem.product.image
+          }));
+          
+          this.currentOrder.items = updatedItems;
           this.updateOrderFromResponse(response.order);
+          
           if (this.currentOrder.id) {
             this.editOrder(this.currentOrder.id, { ...this.currentOrder });
           } else {
@@ -280,6 +296,7 @@ export const useOrderStore = defineStore('order', {
         sub_total: orderData.sub_total,
         tax: orderData.tax,
         discount: orderData.discount,
+        discount_type: orderData.discount_type,
         total_amount: orderData.total_amount,
       };
     },
@@ -292,6 +309,7 @@ export const useOrderStore = defineStore('order', {
         tax: parseFloat(orderData.tax),
         service: parseFloat(orderData.service),
         discount: parseFloat(orderData.discount),
+        discount_type: orderData.discount_type,
         sub_total: parseFloat(orderData.sub_total),
         total_amount: parseFloat(orderData.total_amount),
       };

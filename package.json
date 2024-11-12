@@ -23,11 +23,14 @@
     "nuxt-swiper": "^1.2.2",
     "pinia": "^2.2.4",
     "sass": "^1.78.0",
+    "uuid": "^11.0.3",
     "v-calendar": "^3.1.2",
     "vee-validate": "^4.13.2",
     "vue": "latest",
+    "vue-draggable-next": "^2.2.1",
     "vue-router": "latest",
     "vue3-otp-input": "^0.5.21",
+    "vuedraggable": "^4.1.0",
     "xlsx": "^0.18.5",
     "yup": "^1.4.0"
   }
