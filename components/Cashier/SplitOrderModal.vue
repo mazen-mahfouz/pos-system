@@ -9,6 +9,7 @@
         <div class="bg-white rounded-lg w-full max-w-4xl h-[90vh] shadow-xl flex flex-col" 
              @click.stop>
           
+             
           <!-- Header -->
           <div class="bg-gradient-to-r from-[#2b3c5e] to-[#1a2744] p-3 rounded-t-lg">
             <div class="flex items-center justify-between">
