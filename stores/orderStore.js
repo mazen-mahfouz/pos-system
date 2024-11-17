@@ -87,35 +87,37 @@ export const useOrderStore = defineStore('order', {
       this.openOrder = false;
     },
     async addItemToOrder(item) {
-      const existingItem = this.currentOrder.items.find(i => i.product_id === item.id);
+      const existingItem = this.currentOrder.items.find(i => 
+        i.product_id === item.id || 
+        i.id === item.id || 
+        i.order_id === item.id
+      );
+
       if (existingItem) {
-        existingItem.quantity++;
-        this.updateOrderTotals();
-        if (!this.currentOrder.id) {
-          await this.placeOrder();
-        }
-      } else {
-        this.currentOrder.items.push({
-          product_id: item.id,
-          quantity: 1,
-          name: item.name,
-          price: item.price,
-          image: item.image,
-          order_id: null
-        });
-        this.updateOrderTotals();
-        if (!this.currentOrder.id) {
-          await this.placeOrder();
-        }
+        this.increaseQuantity(existingItem.id || existingItem.order_id);
+        return;
       }
 
-      if (this.currentOrder.id) {
+      this.currentOrder.items.push({
+        product_id: item.id,
+        quantity: 1,
+        name: item.name,
+        price: item.price,
+        image: item.image,
+        order_id: null
+      });
+
+      this.updateOrderTotals();
+      
+      if (!this.currentOrder.id) {
+        await this.placeOrder();
+      } else {
         useApi('orderItem', 'POST', {
           type: 'object',
           data: {
             order_id: this.currentOrder.id,
             product_id: item.id,
-            quantity: existingItem ? existingItem.quantity : 1
+            quantity: 1
           }
         })
         .then(response => {
