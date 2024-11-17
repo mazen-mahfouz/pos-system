@@ -3,8 +3,9 @@
     :model-value="modelValue"
     @update:model-value="$emit('update:modelValue', $event)"
     :ui="{ 
-      width: 'sm:max-w-[500px]',
+      width: 'sm:max-w-[600px]',
       overlay: { background: 'bg-gray-900/60 backdrop-blur-sm' },
+      height: 'auto',
       padding: 'p-0',
       background: 'bg-white dark:bg-gray-900',
       rounded: 'rounded-xl'
@@ -14,8 +15,8 @@
       <!-- Header -->
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center space-x-3">
-          <div class="bg-blue-50 p-2 rounded-lg">
-            <Icon name="mdi:note-text" class="text-blue-600" size="24" />
+          <div class="bg-[#2b3c5e]/10 p-2 rounded-lg">
+            <Icon name="mdi:note" class="text-[#2b3c5e]" size="24" />
           </div>
           <div>
             <h2 class="text-xl font-bold text-gray-800">
@@ -29,43 +30,35 @@
         </button>
       </div>
 
-      <!-- Quick Notes -->
-      <div class="mb-4">
-        <h3 class="text-sm font-medium text-gray-700 mb-2">Quick Notes</h3>
-        <div class="flex flex-wrap gap-2">
-          <button
-            v-for="quickNote in quickNotes"
-            :key="quickNote"
-            @click="addQuickNote(quickNote)"
-            class="px-3 py-1.5 text-sm rounded-full border-2 transition-all duration-200"
-            :class="note.includes(quickNote) 
-              ? 'border-blue-500 bg-blue-50 text-blue-700' 
-              : 'border-gray-200 hover:border-gray-300 text-gray-600'"
-          >
-            {{ quickNote }}
-          </button>
+      <!-- Note Input -->
+      <div class="bg-gray-50 p-5 rounded-xl mb-6">
+        <div class="relative">
+          <label class="text-[14px] text-gray-600 mb-2 block">
+            Special Instructions
+          </label>
+          <div class="relative">
+            <textarea
+              v-model="note"
+              rows="4"
+              class="w-full p-3 text-[15px] border-2 rounded-lg transition-all duration-200 focus:ring-[#2b3c5e] focus:border-[#2b3c5e]"
+              placeholder="Enter special instructions or notes for this item..."
+            ></textarea>
+          </div>
         </div>
       </div>
 
-      <!-- Note Input -->
+      <!-- Quick Notes -->
       <div class="mb-6">
-        <label class="text-sm font-medium text-gray-700 mb-2 block">
-          Custom Note
-        </label>
-        <textarea
-          v-model="note"
-          rows="4"
-          class="w-full px-4 py-2.5 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
-          :class="{ 'border-red-300': showError }"
-          placeholder="Enter special instructions or notes..."
-        ></textarea>
-        <div class="flex justify-between mt-1">
-          <p v-if="showError" class="text-red-500 text-xs">
-            {{ errorMessage }}
-          </p>
-          <p class="text-xs text-gray-500">
-            {{ note.length }}/200 characters
-          </p>
+        <h3 class="text-[14px] font-medium text-gray-700 mb-3">Quick Notes</h3>
+        <div class="grid grid-cols-2 gap-2">
+          <button
+            v-for="quickNote in quickNotes"
+            :key="quickNote"
+            @click="appendQuickNote(quickNote)"
+            class="p-2.5 text-[13px] border-2 rounded-lg transition-all duration-200 text-left hover:border-[#2b3c5e] hover:bg-[#f8faff]"
+          >
+            {{ quickNote }}
+          </button>
         </div>
       </div>
 
@@ -74,15 +67,23 @@
         <button
           v-if="item?.note"
           @click="removeNote"
-          class="flex-1 px-4 py-2.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium"
+          class="flex-1 px-4 py-2.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all duration-200 text-sm font-medium flex items-center justify-center space-x-2"
         >
-          Remove Note
+          <Icon name="mdi:delete" size="18" />
+          <span>Remove Note</span>
         </button>
         <button
-          @click="saveNote"
-          class="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+          @click="closeModal"
+          class="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-200 text-sm font-medium"
         >
-          {{ item?.note ? 'Update' : 'Save' }} Note
+          Cancel
+        </button>
+        <button
+          @click="applyNote"
+          class="flex-1 px-4 py-2.5 bg-[#2b3c5e] text-white rounded-lg hover:bg-[#1a2744] transition-all duration-200 text-sm font-medium flex items-center justify-center space-x-2"
+        >
+          <Icon name="mdi:check" size="18" />
+          <span>Apply Note</span>
         </button>
       </div>
     </div>
@@ -96,46 +97,29 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:modelValue', 'update']);
-
-const note = ref(props.item?.note || '');
-const showError = ref(false);
-const errorMessage = ref('');
+const note = ref('');
 
 const quickNotes = [
   'No onions',
   'Extra spicy',
-  'No garlic',
-  'Gluten free',
   'Well done',
-  'Medium rare',
+  'No sauce',
   'Extra sauce',
-  'No nuts'
+  'No garnish'
 ];
 
-const addQuickNote = (quickNote) => {
-  if (note.value.includes(quickNote)) {
-    note.value = note.value.replace(quickNote + '\n', '').trim();
+const appendQuickNote = (quickNote) => {
+  if (note.value) {
+    note.value += ', ' + quickNote.toLowerCase();
   } else {
-    note.value = (note.value + '\n' + quickNote).trim();
+    note.value = quickNote.toLowerCase();
   }
 };
 
-const validateNote = () => {
-  if (note.value.length > 200) {
-    errorMessage.value = 'Note cannot exceed 200 characters';
-    showError.value = true;
-    return false;
-  }
-  showError.value = false;
-  return true;
-};
-
-const saveNote = () => {
-  if (!validateNote()) return;
-
+const applyNote = () => {
   emit('update', {
     ...props.item,
-    note: note.value.trim() || null
+    note: note.value.trim()
   });
   closeModal();
 };
@@ -156,7 +140,6 @@ const closeModal = () => {
 watch(() => props.modelValue, (newValue) => {
   if (newValue) {
     note.value = props.item?.note || '';
-    showError.value = false;
   }
 });
 </script> 

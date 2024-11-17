@@ -60,46 +60,52 @@
             :key="item.product_id" 
             @click="openItemModal(item)"
             class="group bg-white rounded-lg p-2 shadow-sm hover:shadow transition-all duration-200 border border-gray-100/50 cursor-pointer">
-          <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg group">
-            <div class="flex items-center space-x-3">
-              <div class="relative">
-                <img :src="item.image" class="w-12 h-12 rounded-lg object-cover" />
-                <div class="absolute -top-1 -right-1 flex space-x-1">
-                  <div v-if="item.discount" 
-                       class="bg-green-500 text-white p-1 rounded-full shadow-sm"
-                       :title="`${item.discount}${item.discount_type === 'percentage' ? '%' : '£'} discount`">
-                    <Icon name="mdi:tag" size="12" />
-                  </div>
-                  <div v-if="item.note" 
-                       class="bg-blue-500 text-white p-1 rounded-full shadow-sm"
-                       :title="item.note">
-                    <Icon name="mdi:note" size="12" />
-                  </div>
-                </div>
+          <div class="flex items-center">
+            <div class="relative flex-shrink-0">
+              <NuxtImg
+                :src="item.product?.image || item.image || '/img/notfound.png'"
+                :alt="item.name"
+                class="w-10 h-10 xl:w-16 xl:h-16 object-cover rounded-lg shadow-sm !object-contain"
+              />
+              <div class="absolute -top-1 -right-1 bg-[#2b3c5e] text-white text-[10px] xl:text-sm w-4 h-4 xl:w-6 xl:h-6 rounded-full flex items-center justify-center shadow-sm">
+                {{ item.quantity }}
               </div>
-              
-              <div>
-                <h4 class="font-medium text-gray-800">{{ item.name }}</h4>
-                <div class="flex items-center space-x-2 text-sm">
-                  <span class="text-gray-600">£{{ formatPrice(item.price) }}</span>
-                  <span v-if="item.discount" class="text-green-600">
-                    -{{ item.discount }}{{ item.discount_type === 'percentage' ? '%' : '£' }}
-                  </span>
+              <div class="absolute -bottom-1 -right-1 flex space-x-1">
+                <div v-if="item.discount" 
+                     class="bg-green-500 text-white p-1 rounded-full shadow-sm"
+                     @click.stop="openDiscountModal(item)">
+                  <Icon name="mdi:tag" size="12" />
+                </div>
+                <div v-if="item.note" 
+                     class="bg-blue-500 text-white p-1 rounded-full shadow-sm"
+                     @click.stop="openNoteModal(item)">
+                  <Icon name="mdi:note" size="12" />
                 </div>
               </div>
             </div>
+            
+            <div class="ml-2 lg:ml-3 flex-grow">
+              <p class="text-xs lg:text-sm font-medium text-gray-700 line-clamp-1">
+                {{ item.product?.name || item.name }} 
+              </p>
+              <p class="text-xs lg:text-sm text-gray-500">£{{ formatPrice(item.price) }}</p>
+            </div>
 
-            <div class="flex items-center space-x-2">
-              <button @click="handleDecreaseQuantity(item)" 
+            <div class="flex items-center space-x-1">
+              <!-- <button @click="handleDecreaseQuantity(item)" 
                       :disabled="isButtonDisabled"
                       class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 <Icon name="mdi:minus" size="18" />
-              </button>
+              </button> -->
               <button @click="handleIncreaseQuantity(item)" 
                       :disabled="isButtonDisabled"
                       class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 <Icon name="mdi:plus" size="18" />
               </button>
+              <!-- <button @click="confirmRemoveItem(item)" 
+                      class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 transition-colors">
+                <Icon name="mdi:delete" size="18" />
+              </button> -->
             </div>
           </div>
         </li>
@@ -220,7 +226,7 @@
     />
 
     <ItemDiscountModal
-      v-model="showDiscountModal"
+      v-model="showItemDiscountModal"
       :item="selectedItem"
       @update="handleDiscountUpdate"
     />
@@ -241,8 +247,8 @@ import CashierDiscountModal from '~/components/Cashier/DiscountModal.vue';
 import CashierSplitOrderModal from './SplitOrderModal.vue';
 import CashierCancelOrderModal from './CancelOrderModal.vue';
 import ItemActionModal from './ItemActionModal.vue';
-import ItemDiscountModal from './ItemDiscountModal.vue';
-import ItemNoteModal from './ItemNoteModal.vue';
+  import ItemDiscountModal from './ItemDiscountModal.vue';
+  import ItemNoteModal from './ItemNoteModal.vue';
 
 const OrderStore = useOrderStore();
 const receiptRef = ref(null);
@@ -262,6 +268,8 @@ const showSplitModal = ref(false);
 const showCancelModal = ref(false);
 
 const showItemModal = ref(false);
+
+const showItemDiscountModal = ref(false);
 
 const showNoteModal = ref(false);
 
@@ -592,7 +600,7 @@ const openItemModal = (item) => {
 
 const openDiscountModal = (item) => {
   selectedItem.value = item;
-  showDiscountModal.value = true;
+  showItemDiscountModal.value = true;
   showItemModal.value = false;
 };
 
