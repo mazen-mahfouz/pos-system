@@ -29,7 +29,9 @@
         </div>
         
         <div class="flex space-x-1">
-          <div @click="editOrderType" class="flex-1 bg-gray-50/50 rounded-lg p-1.5 cursor-pointer hover:bg-gray-100 transition-colors">
+          <div @click="editOrderType" 
+               :class="{ 'opacity-50 cursor-not-allowed': isButtonDisabled }"
+               class="flex-1 bg-gray-50/50 rounded-lg p-1.5 cursor-pointer hover:bg-gray-100 transition-colors">
             <div class="flex items-center space-x-1">
               <Icon :name="getOrderTypeIcon(OrderStore.currentOrder.type)" size="16" class="text-gray-500" />
               <span class="text-[10px] lg:text-sm text-gray-600">{{ OrderStore.currentOrder.type || 'Type' }}</span>
@@ -56,25 +58,38 @@
       <TransitionGroup name="list" tag="ul" class="space-y-2">
         <li v-for="item in OrderStore.currentOrder.items" 
             :key="item.product_id" 
-            class="group bg-white rounded-lg p-2 shadow-sm hover:shadow transition-all duration-200 border border-gray-100/50">
-          <div class="flex items-center">
-            <div class="relative flex-shrink-0">
-              <img :src="item.product?.image || item.image" 
-                   :alt="item.name" 
-                   class="w-10 h-10 xl:w-16 xl:h-16 object-cover rounded-lg shadow-sm">
-              <div class="absolute -top-1 -right-1 bg-[#2b3c5e] text-white text-[10px] xl:text-sm w-4 h-4 xl:w-6 xl:h-6 rounded-full flex items-center justify-center shadow-sm">
-                {{ item.quantity }}
+            @click="openItemModal(item)"
+            class="group bg-white rounded-lg p-2 shadow-sm hover:shadow transition-all duration-200 border border-gray-100/50 cursor-pointer">
+          <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg group">
+            <div class="flex items-center space-x-3">
+              <div class="relative">
+                <img :src="item.image" class="w-12 h-12 rounded-lg object-cover" />
+                <div class="absolute -top-1 -right-1 flex space-x-1">
+                  <div v-if="item.discount" 
+                       class="bg-green-500 text-white p-1 rounded-full shadow-sm"
+                       :title="`${item.discount}${item.discount_type === 'percentage' ? '%' : '£'} discount`">
+                    <Icon name="mdi:tag" size="12" />
+                  </div>
+                  <div v-if="item.note" 
+                       class="bg-blue-500 text-white p-1 rounded-full shadow-sm"
+                       :title="item.note">
+                    <Icon name="mdi:note" size="12" />
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h4 class="font-medium text-gray-800">{{ item.name }}</h4>
+                <div class="flex items-center space-x-2 text-sm">
+                  <span class="text-gray-600">£{{ formatPrice(item.price) }}</span>
+                  <span v-if="item.discount" class="text-green-600">
+                    -{{ item.discount }}{{ item.discount_type === 'percentage' ? '%' : '£' }}
+                  </span>
+                </div>
               </div>
             </div>
-            
-            <div class="ml-2 lg:ml-3 flex-grow">
-              <p class="text-xs lg:text-sm font-medium text-gray-700 line-clamp-1">
-                {{ item.product?.name || item.name }}
-              </p>
-              <p class="text-xs lg:text-sm text-gray-500">£{{ formatPrice(item.price) }}</p>
-            </div>
 
-            <div class="flex items-center space-x-1">
+            <div class="flex items-center space-x-2">
               <button @click="handleDecreaseQuantity(item)" 
                       :disabled="isButtonDisabled"
                       class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
@@ -84,10 +99,6 @@
                       :disabled="isButtonDisabled"
                       class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 <Icon name="mdi:plus" size="18" />
-              </button>
-              <button @click="confirmRemoveItem(item)" 
-                      class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 transition-colors">
-                <Icon name="mdi:delete" size="18" />
               </button>
             </div>
           </div>
@@ -157,21 +168,12 @@
     </div>
 
     <div class="p-3 pt-2 flex items-center gap-2 bg-white">
-      <button 
-        v-if="OrderStore.currentOrder.id"
-        @click="handleSplitOrder" 
-        class="flex-1 bg-gray-100 text-gray-700 py-1.5 lg:py-2 px-2 lg:px-3 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-200 text-xs lg:text-sm font-medium flex items-center justify-center space-x-1"
-      >
-        <Icon name="mdi:call-split" size="16" />
-        <span>Split</span>
-      </button>
-      
       <button @click="OrderStore.currentOrder.id ? updateOrder() : placeOrder()" 
               class="flex-1 bg-[#2b3c5e] text-white py-1.5 lg:py-2 px-2 lg:px-3 rounded-lg hover:bg-[#22407c] active:scale-95 transition-all duration-200 text-xs lg:text-sm font-medium flex items-center justify-center space-x-1">
         <Icon :name="OrderStore.currentOrder.id ? 'mdi:pencil' : 'mdi:check'" size="16" />
         <span>{{ OrderStore.currentOrder.id ? 'Update' : 'Place' }}</span>
       </button>
-      <button @click="OrderStore.cancelOrder" 
+      <button @click="handleCancelOrder" 
               class="flex-1 bg-red-50 text-red-600 py-1.5 lg:py-2 px-2 lg:px-3 rounded-lg hover:bg-red-100 active:scale-95 transition-all duration-200 text-xs lg:text-sm font-medium flex items-center justify-center space-x-1">
         <Icon name="mdi:close" size="12" />
         <span>Cancel</span>
@@ -205,6 +207,29 @@
       :order="OrderStore.currentOrder"
       @split-complete="handleSplitComplete"
     />
+
+    <CashierCancelOrderModal
+      v-model="showCancelModal"
+    />
+
+    <ItemActionModal
+      v-model="showItemModal"
+      :item="selectedItem"
+      @open-discount="openDiscountModal"
+      @open-note="openNoteModal"
+    />
+
+    <ItemDiscountModal
+      v-model="showDiscountModal"
+      :item="selectedItem"
+      @update="handleDiscountUpdate"
+    />
+
+    <ItemNoteModal
+      v-model="showNoteModal"
+      :item="selectedItem"
+      @update="handleNoteUpdate"
+    />
   </div>
 </template>
 
@@ -214,6 +239,10 @@ import { useOrderStore } from '~/stores/orderStore';
 import ReceiptTemplate from './ReceiptTemplate.vue';
 import CashierDiscountModal from '~/components/Cashier/DiscountModal.vue';
 import CashierSplitOrderModal from './SplitOrderModal.vue';
+import CashierCancelOrderModal from './CancelOrderModal.vue';
+import ItemActionModal from './ItemActionModal.vue';
+import ItemDiscountModal from './ItemDiscountModal.vue';
+import ItemNoteModal from './ItemNoteModal.vue';
 
 const OrderStore = useOrderStore();
 const receiptRef = ref(null);
@@ -224,16 +253,22 @@ const permissionAction = ref('');
 const selectedItem = ref(null);
 const pendingAction = ref(null);
 
-const isButtonDisabled = ref(false);
+const isButtonDisabled = computed(() => OrderStore.isButtonDisabled);
 
 const showDiscountModal = ref(false);
 
 const showSplitModal = ref(false);
 
+const showCancelModal = ref(false);
+
+const showItemModal = ref(false);
+
+const showNoteModal = ref(false);
+
 const handlePermissionConfirm = async (verified) => {
   if (!verified) return;
 
-  switch (pendingAction.value) {
+  switch (permissionAction.value) {
     case 'remove':
       if (selectedItem.value) {
         console.log('removing item', selectedItem.value);
@@ -250,29 +285,21 @@ const handlePermissionConfirm = async (verified) => {
     case 'edit-type':
       emit('edit-type');
       break;
-    case 'remove-discount':
-      try {
-        await useApi(`orders/${OrderStore.currentOrder.id}/discount`, 'DELETE');
-        const orderResponse = await useApi(`orders/${OrderStore.currentOrder.id}`, 'GET');
-        OrderStore.updateOrderFromResponse(orderResponse.order);
-        push.success('Discount removed successfully');
-      } catch (error) {
-        console.error('Error removing discount:', error);
-        push.error('Failed to remove discount');
-      }
-      break;
     case 'create discount':
     case 'edit discount':
       showDiscountModal.value = true;
       break;
+    case 'cancel order':
+      showCancelModal.value = true;
+      break;
   }
   
-  pendingAction.value = null;
+  showPermissionModal.value = false;
 };
 
 const confirmRemoveItem = (item) => {
   selectedItem.value = item;
-  permissionAction.value = 'remove discount';
+  permissionAction.value = 'remove';
   pendingAction.value = 'remove';
   showPermissionModal.value = true;
 };
@@ -473,7 +500,14 @@ const getOrderTypeIcon = (type) => {
 const emit = defineEmits(['edit-type', 'edit-table']);
 
 const editOrderType = () => {
+  if (isButtonDisabled.value) return;
+  
+  isButtonDisabled.value = true;
   emit('edit-type');
+  
+  setTimeout(() => {
+    isButtonDisabled.value = false;
+  }, 500); // 500ms cooldown
 };
 
 const handleDiscountClick = () => {
@@ -483,8 +517,14 @@ const handleDiscountClick = () => {
 };
 
 const handleRemoveDiscount = async () => {
-  showPermissionModal.value = true;
-  permissionAction.value = 'remove discount';
+  try {
+    const orderResponse = await useApi(`orders/${OrderStore.currentOrder.id}/discount`, 'GET');
+    OrderStore.updateOrderFromResponse(orderResponse.order);
+    push.success('Discount removed successfully');
+  } catch (error) {
+    console.error('Error removing discount:', error);
+    push.error('Failed to remove discount');
+  }
 };
 
 const handleSplitOrder = () => {
@@ -495,7 +535,7 @@ const handleSplitOrder = () => {
   showSplitModal.value = true;
 };
 
-const handleSplitComplete = async ({ originalItems, splitItems }) => {
+const handleSplitComplete = async ({ splitItems }) => {
   try {
     // إنشاء طلب جديد للعناصر المقسمة
     const newOrderResponse = await useApi('orders', 'POST', {
@@ -533,6 +573,63 @@ const handleSplitComplete = async ({ originalItems, splitItems }) => {
     console.error('Error splitting order:', error);
     push.error('Failed to split order');
   }
+};
+
+const handleCancelOrder = () => {
+  if (!OrderStore.currentOrder.id) {
+    OrderStore.closeOrder();
+    return;
+  }
+  
+  permissionAction.value = 'cancel order';
+  showPermissionModal.value = true;
+};
+
+const openItemModal = (item) => {
+  selectedItem.value = item;
+  showItemModal.value = true;
+};
+
+const openDiscountModal = (item) => {
+  selectedItem.value = item;
+  showDiscountModal.value = true;
+  showItemModal.value = false;
+};
+
+const openNoteModal = (item) => {
+  selectedItem.value = item;
+  showNoteModal.value = true;
+  showItemModal.value = false;
+};
+
+const handleDiscountUpdate = (updatedItem) => {
+  useApi(`orderItem/${updatedItem.id}/discount`, 'POST', {
+    type: 'object',
+    data: {
+      discount: updatedItem.discount
+    }
+  }).then(response => {
+    OrderStore.updateItemDiscount(updatedItem.id, response.discount);
+    push.success('Discount updated successfully');
+  }).catch(error => {
+    console.error('Error updating discount:', error);
+    push.error('Failed to update discount');
+  });
+};
+
+const handleNoteUpdate = (updatedItem) => {
+  useApi(`orderItem/${updatedItem.id}/note`, 'POST', {
+    type: 'object',
+    data: {
+      note: updatedItem.note
+    }
+  }).then(response => {
+    OrderStore.updateItemNote(updatedItem.id, response.note);
+    push.success('Note updated successfully');
+  }).catch(error => {
+    console.error('Error updating note:', error);
+    push.error('Failed to update note');
+  });
 };
 </script>
 

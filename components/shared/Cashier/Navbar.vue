@@ -39,6 +39,18 @@
 
     <div class="flex items-center gap-[10px] lg:gap-[15px] xl:gap-[20px]">
       <!-- Print Button -->
+
+      <div @click="handleSplitClick" 
+       class="bg-[#ffffff] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in rounded-full"
+       :class="canSplitOrder ? 'hover:bg-[#f2f2f2] text-[#1e8370]' : 'opacity-50 cursor-not-allowed text-gray-400'">
+        <div class="flex items-center justify-between gap-[10px]">
+          <div class="bg-[#f5f9ff] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
+            <Icon name="mdi:call-split" class="text-[15px] lg:text-[17px] xl:text-[19px]" />
+          </div>
+          <h1 class="text-[10px] lg:text-[12px] xl:text-[14px] font-[600]">Split</h1>
+        </div>
+      </div>
+
       <div @click="handlePrintClick" 
            class="bg-[#ffffff] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in rounded-full"
            :class="canPrintOrder ? 'hover:bg-[#f2f2f2] text-[#1e8370]' : 'opacity-50 cursor-not-allowed text-gray-400'">
@@ -216,6 +228,15 @@
   :action="permissionAction"
   @confirm="handlePermissionConfirm"
 />
+
+<!-- Add this inside the template, next to other modals -->
+<CashierSplitOrderModal
+  v-model="showSplitModal"
+  v-if="showSplitModal"
+  :order="OrderStore.currentOrder"
+  @split-complete="handleSplitComplete"
+/>
+
 </template>
 
 <script setup>
@@ -225,6 +246,7 @@ import { inject, ref, onMounted, computed, watch, h } from 'vue';
 import { useAuthStore } from "~/stores/auth";
 import CashierPermissionModal from '~/components/Cashier/PermissionModal.vue'
 import CashierShiftDetailsModal from '~/components/Cashier/ShiftDetailsModal.vue';
+import CashierSplitOrderModal from '~/components/Cashier/SplitOrderModal.vue';
 
 const emit = defineEmits(['open-discount-modal']);
 
@@ -322,12 +344,15 @@ const handlePermissionConfirm = (verified) => {
   showPermissionModal.value = false;
   
   if (!verified) return;
+  
   if (permissionAction.value === 'create discount') {
     showDiscountModal.value = true;
-  }else if (permissionAction.value === 'edit discount') {
+  } else if (permissionAction.value === 'edit discount') {
     showDiscountModal.value = true;
-  }else if (permissionAction.value === 'shift details') {
+  } else if (permissionAction.value === 'shift details') {
     showShiftModal.value = true;
+  } else if (permissionAction.value === 'split order') {
+    showSplitModal.value = true;
   }
 };
 
@@ -460,9 +485,54 @@ const savedDiscounts = ref([
   // Add more saved discounts as needed
 ]);
 
+const canSplitOrder = computed(() => {
+  return OrderStore.$state.openOrder && 
+         OrderStore.currentOrder.id && 
+         OrderStore.currentOrder.items.length > 0;
+});
+
+const handleSplitClick = () => {
+  if (!canSplitOrder.value) {
+    push.error('Cannot split order. Please ensure there is an active order with items.');
+    return;
+  }
+  
+  showPermissionModal.value = true;
+  permissionAction.value = 'split order';
+};
+
 // Add permission modal handling
 const showPermissionModal = ref(false);
 const permissionAction = ref('');
+
+const showSplitModal = ref(false);
+
+const handleSplitComplete = async (splitData) => {
+  try {
+    const response = await useApi(`orders/${OrderStore.currentOrder.id}/split`, 'POST', {
+      type: 'object',
+      data: {
+        items: splitData.splitItems.map(item => ({
+          id: item.id,  // Changed from product_id to id
+          quantity: item.quantity
+        }))
+      }
+    });
+
+    // Update the current order with the new items
+    OrderStore.updateOrderFromResponse(response.original_order);
+    
+    // Add the new split order to the orders list
+    if (response.split_order) {
+      OrderStore.addOrder(response.split_order);
+    }
+
+    push.success('Order split successfully');
+  } catch (error) {
+    console.error('Error splitting order:', error);
+    push.error('Failed to split order');
+  }
+};
 
 </script>
 

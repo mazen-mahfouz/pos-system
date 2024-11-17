@@ -5,6 +5,7 @@ export const useAuthStore = defineStore("auth", {
     state: () => ({
         token: null,
         user: null,
+        role_name: null,
     }),
     actions: {
         /**
@@ -27,9 +28,15 @@ export const useAuthStore = defineStore("auth", {
         setUser(user) {
             // Set the user in the store
             this.user = user;
+            
+            // Set the role name
+            this.role_name = user.roles?.[0]?.name || null;
 
             // Set the user in local storage as a JSON string
-            localStorage.setItem("PosUserData", JSON.stringify(user));
+            localStorage.setItem("PosUserData", JSON.stringify({
+                ...user,
+                role_name: this.role_name
+            }));
         },
         /**
          * Logs out the user by clearing the token and user data from the store
@@ -62,18 +69,42 @@ export const useAuthStore = defineStore("auth", {
         initializeStore() {
             // Retrieve the authentication token from local storage
             const token = localStorage.getItem("PosUserToken");
-
-            // Retrieve the user data from local storage and parse it as a JSON object
             const user = localStorage.getItem("PosUserData");
 
-            // Set the token in the store if it exists
             if (token) {
                 this.token = token;
+                // Check token expiration on initialization
+                if (!this.checkTokenExpiration()) {
+                    return;
+                }
             }
 
-            // Set the user object in the store if it exists
             if (user) {
-                this.user = JSON.parse(user);
+                const userData = JSON.parse(user);
+                this.user = userData;
+                this.role_name = userData.role_name;
+            }
+        },
+        checkTokenExpiration() {
+            const token = this.token;
+            if (!token) return false;
+            
+            try {
+                // Extract payload from JWT token
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const expirationTime = payload.exp * 1000; // Convert to milliseconds
+                
+                // Check if token is expired
+                if (Date.now() >= expirationTime) {
+                    this.logout();
+                    return false;
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Error checking token expiration:', error);
+                this.logout();
+                return false;
             }
         },
     },

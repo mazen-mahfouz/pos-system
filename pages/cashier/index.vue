@@ -14,7 +14,7 @@
         name="item"
         tag="div"
         class="grid gap-[10px]"
-        :class="{'grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-8': OrderStore.$state.openOrder, 'grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-12': !OrderStore.$state.openOrder }"
+        :class="{'grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7': OrderStore.$state.openOrder, 'grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-9': !OrderStore.$state.openOrder }"
       >
         <div
           v-for="item in items"
@@ -23,7 +23,12 @@
           :class="{'pointer-events-none opacity-50': isItemDisabled}"
           class="bg-white rounded-[12px] h-fit active border border-transparent transition-all duration-300 ease-out cursor-pointer shadow-sm p-[5px] pb-[12px] gap-[5px] flex flex-col items-start text-start justify-start hover:scale-102 hover:shadow-md"
         >
-          <img :src="item.image || 'assets/img/item-img.png'" loading="eager" alt="" class="w-full h-[60px] lg:h-[70px] xl:h-[90px] mb-[8px] rounded-[12px]" />
+          <NuxtImg
+            :src="item.image || '/img/notfound.png'"
+            loading="eager"
+            alt=""
+            class="w-full h-[60px] lg:h-[70px] xl:h-[90px] mb-[8px] rounded-[12px] !object-contain"
+          />
           <h2 class="text-[9px] lg:text-[12px] xl:text-[14px] h-[25px] lg:h-[40px] xl:h-[40px] font-[500] text-[#555555] mb-[8px] px-[3px]">{{ item.name }}</h2>
           <div class="flex justify-between items-center w-full px-[5px]">
             <span :class="categoryColor(item.category)" class="text-[7px] lg:text-[10px] xl:text-[11px] px-1.5 py-0.5 rounded-full font-[400]">
@@ -94,10 +99,11 @@ const onSearchChanged = (query) => {
 
 const isItemDisabled = ref(false);
 
+// استخدام computed property
+const isButtonDisabled = computed(() => OrderStore.isButtonDisabled);
+
 const handleProductClick = (item) => {
-  if (isItemDisabled.value) return;
-  
-  isItemDisabled.value = true;
+  if (OrderStore.isButtonDisabled) return;
   
   if (!OrderStore.$state.openOrder) {
     OrderStore.setPendingItem(item);
@@ -105,10 +111,6 @@ const handleProductClick = (item) => {
   } else {
     OrderStore.addItemToOrder(item);
   }
-  
-  setTimeout(() => {
-    isItemDisabled.value = false;
-  }, 1000);
 };
 
 const fetchProducts = () => {

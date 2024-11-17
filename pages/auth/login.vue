@@ -73,9 +73,8 @@
               v-for="(digit, index) in 4"
               :key="index"
               v-model="otpDigits[index]"
-              type="password"
+              type="text"
               maxlength="1"
-              readonly
               @paste="handlePaste"
               class="w-[45px] h-[45px] text-center text-xl font-bold border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2b365a] focus:border-[#2b365a] transition-all duration-300 bg-white shadow-sm"
               :class="{ 'border-[#2b365a] bg-[#f8faff] transform scale-[1.05]': otpDigits[index] }"
@@ -293,14 +292,14 @@ const clearAllDigits = () => {
 const handlePaste = (event) => {
   event.preventDefault()
   const pastedText = event.clipboardData.getData('text')
-  const numbers = pastedText.replace(/[^0-9]/g, '').slice(0, 4)
+  const currentIndex = parseInt(event.target.getAttribute('data-index'))
+  const number = pastedText.replace(/[^0-9]/g, '').charAt(0)
   
-  if (numbers.length) {
-    numbers.split('').forEach((num, index) => {
-      if (index < 4) {
-        otpDigits.value[index] = num
-      }
-    })
+  if (number) {
+    otpDigits.value[currentIndex] = number
+    if (currentIndex < 3) {
+      document.querySelectorAll('input')[currentIndex + 1]?.focus()
+    }
     
     if (otpDigits.value.every(digit => digit !== '')) {
       setTimeout(() => {

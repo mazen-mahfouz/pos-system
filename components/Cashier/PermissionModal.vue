@@ -129,8 +129,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
+import { useAuthStore } from '~/stores/auth';
 
+const AuthStore = useAuthStore();
 const props = defineProps({
   modelValue: Boolean,
   action: {
@@ -156,6 +158,20 @@ const emit = defineEmits(['update:modelValue', 'confirm']);
 const codeDigits = ref(Array(4).fill(''));
 const codeInputs = ref([]);
 const isLoading = ref(false);
+
+// Check if user is admin
+const isAdmin = computed(() => {
+  return JSON.parse(localStorage.getItem('PosUserData')).role_name === 'Admin';
+});
+
+// Watch for modal opening
+watch(() => props.modelValue, (newValue) => {
+  if (newValue && isAdmin.value) {
+    // If user is admin, auto-confirm and close modal
+    emit('confirm', true);
+    emit('update:modelValue', false);
+  }
+});
 
 const actionMessage = computed(() => {
   const messages = {

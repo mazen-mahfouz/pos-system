@@ -66,11 +66,11 @@
                   >
                     <!-- Item Image -->
                     <div class="relative flex-shrink-0">
-                      <img 
-                        :src="getItemImage(element)" 
-                        :alt="getItemName(element)" 
-                        class="w-10 h-10 rounded-lg object-cover shadow-sm"
-                      >
+                      <NuxtImg
+                        :src="getItemImage(element) || '/img/notfound.png'"
+                        :alt="getItemName(element)"
+                        class="w-10 h-10 rounded-lg shadow-sm !object-contain"
+                      />
                       <div class="absolute -top-1.5 -right-1.5 bg-[#2b3c5e] text-white w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-medium shadow-md">
                         {{ element.quantity }}
                       </div>
@@ -129,11 +129,11 @@
                   >
                     <!-- نفس محتوى العنصر كما في الأصل -->
                     <div class="relative flex-shrink-0">
-                      <img 
-                        :src="getItemImage(element)" 
-                        :alt="getItemName(element)" 
-                        class="w-10 h-10 rounded-lg object-cover shadow-sm"
-                      >
+                      <NuxtImg
+                        :src="getItemImage(element) || '/img/notfound.png'"
+                        :alt="getItemName(element)"
+                        class="w-10 h-10 rounded-lg shadow-sm !object-contain"
+                      />
                       <div class="absolute -top-1.5 -right-1.5 bg-[#2b3c5e] text-white w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-medium shadow-md">
                         {{ element.quantity }}
                       </div>
@@ -217,6 +217,27 @@ const splitItems = ref([]);
 const isDragging = ref(false);
 const draggedItem = ref(null);
 
+const getItemImage = (item) => {
+  if (item.product?.image) {
+    return item.product.image;
+  }
+  return item.image;
+};
+
+const getItemName = (item) => {
+  if (item.product?.name) {
+    return item.product.name;
+  }
+  return item.name;
+};
+
+const getItemPrice = (item) => {
+  if (item.product?.price) {
+    return parseFloat(item.product.price);
+  }
+  return parseFloat(item.price);
+};
+
 watch(() => props.order, (newOrder) => {
   if (newOrder?.items) {
     originalItems.value = newOrder.items.flatMap((item) => {
@@ -289,12 +310,12 @@ const confirmSplit = () => {
 
 const groupItemsByProductId = (items) => {
   const groupedItems = items.reduce((acc, item) => {
-    const existingItem = acc.find(i => i.product_id === item.product_id);
+    const existingItem = acc.find(i => i.id === item.id);
     if (existingItem) {
       existingItem.quantity += 1;
     } else {
       acc.push({
-        product_id: item.product_id,
+        id: item.id,
         quantity: 1
       });
     }
@@ -302,27 +323,6 @@ const groupItemsByProductId = (items) => {
   }, []);
   
   return groupedItems;
-};
-
-const getItemImage = (item) => {
-  if (item.product?.image) {
-    return item.product.image;
-  }
-  return item.image;
-};
-
-const getItemName = (item) => {
-  if (item.product?.name) {
-    return item.product.name;
-  }
-  return item.name;
-};
-
-const getItemPrice = (item) => {
-  if (item.product?.price) {
-    return parseFloat(item.product.price);
-  }
-  return parseFloat(item.price);
 };
 </script>
 

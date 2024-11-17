@@ -5,6 +5,43 @@ export default defineNuxtConfig({
     '@': resolve(__dirname, '/'),
   },
 
+  // pwa: {
+  //   manifest: {
+  //     name: "Nuxt3 PWA",
+  //     short_name: "Nuxt3 PWA",
+  //     description: "Testing Nuxt3 PWA",
+  //     icons: [
+  //       {
+  //         src: "icons/icon_64x64.png",
+  //         sizes: "64x64",
+  //         type: "image/png",
+  //       },
+  //       {
+  //         src: "icons/icon_144x144.png",
+  //         sizes: "144x144",
+  //         type: "image/png",
+  //       },
+  //       {
+  //         src: "icons/icon_192x192.png",
+  //         sizes: "192x192",
+  //         type: "image/png",
+  //       },
+  //       {
+  //         src: "icons/icon_512x512.png",
+  //         sizes: "512x512",
+  //         type: "image/png",
+  //       },
+  //     ],
+  //   },
+  //   workbox: {
+  //     navigateFallback: "/",
+  //   },
+  //   devOptions: {
+  //     enabled: true,
+  //     type: "module",
+  //   },
+  // },
+
   css: [
     '~/assets/css/main.scss',
     'notivue/notification.css',
@@ -12,7 +49,14 @@ export default defineNuxtConfig({
   ],
 
   devtools: { enabled: true },
-  modules: ['@nuxt/ui', 'nuxt-swiper', '@pinia/nuxt','notivue/nuxt'],
+  modules: [
+    '@nuxt/ui',
+    'nuxt-swiper',
+    '@pinia/nuxt',
+    'notivue/nuxt',
+    "@vite-pwa/nuxt",
+    "@nuxt/image",
+  ],
 
   swiper: {
     prefix: 'Swiper',
@@ -22,7 +66,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // Keys within public, will be also exposed to the client-side
     public: {
-        apiBase: "https://resturant-pos-production.up.railway.app/api",
+        apiBase: "http://127.0.0.1:8000/api",
         headers: {
             Accept: "application/json",
             "Content-Type": "application/json",

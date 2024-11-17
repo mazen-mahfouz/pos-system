@@ -5,6 +5,7 @@ export const useOrderStore = defineStore('order', {
     openOrder: false,
     orders: [],
     pendingItem: null,
+    isButtonDisabled: false,
     currentOrder: {
       id: null,
       guest: '',
@@ -87,53 +88,87 @@ export const useOrderStore = defineStore('order', {
       this.openOrder = false;
     },
     async addItemToOrder(item) {
-      const existingItem = this.currentOrder.items.find(i => i.product_id === item.id);
-      if (existingItem) {
-        existingItem.quantity++;
-        this.updateOrderTotals();
-        if (!this.currentOrder.id) {
-          await this.placeOrder();
-        }
-      } else {
-        this.currentOrder.items.push({
-          product_id: item.id,
-          quantity: 1,
-          name: item.name,
-          price: item.price,
-          image: item.image,
-          order_id: null
-        });
-        this.updateOrderTotals();
-        if (!this.currentOrder.id) {
-          await this.placeOrder();
-        }
-      }
-
-      if (this.currentOrder.id) {
-        useApi('orderItem', 'POST', {
-          type: 'object',
-          data: {
-            order_id: this.currentOrder.id,
+      if (this.isButtonDisabled) return;
+      
+      this.setButtonDisabled(true);
+      try {
+        const existingItem = this.currentOrder.items.find(i => i.product_id === item.id);
+        if (existingItem) {
+          existingItem.quantity++;
+          this.updateOrderTotals();
+          if (!this.currentOrder.id) {
+            await this.placeOrder();
+          }
+        } else {
+          this.currentOrder.items.push({
             product_id: item.id,
-            quantity: existingItem ? existingItem.quantity : 1
+            quantity: 1,
+            name: item.name,
+            price: item.price,
+            image: item.image,
+            order_id: null
+          });
+          this.updateOrderTotals();
+          if (!this.currentOrder.id) {
+            await this.placeOrder();
           }
-        })
-        .then(response => {
-          const updatedItem = this.currentOrder.items.find(i => i.product_id === item.id);
-          if (updatedItem) {
-            updatedItem.order_id = response.order_item.id;
-          }
-          this.updateOrderFromResponse(response.order_item.order);
-        })
-        .catch(error => {
-          console.error('Error adding item to order:', error);
-        });
+        }
+
+        if (this.currentOrder.id) {
+          useApi('orderItem', 'POST', {
+            type: 'object',
+            data: {
+              order_id: this.currentOrder.id,
+              product_id: item.id,
+              quantity: existingItem ? existingItem.quantity : 1
+            }
+          })
+          .then(response => {
+            const updatedItem = this.currentOrder.items.find(i => i.product_id === item.id);
+            if (updatedItem) {
+              updatedItem.order_id = response.order_item.id;
+            }
+            this.updateOrderFromResponse(response.order_item.order);
+          })
+          .catch(error => {
+            console.error('Error adding item to order:', error);
+          });
+        }
+      } finally {
+        setTimeout(() => {
+          this.setButtonDisabled(false);
+        }, 500);
       }
     },
     updateOrderTotals() {
-      this.currentOrder.sub_total = this.subtotal;
-      this.currentOrder.tax = this.tax;
-      this.currentOrder.total_amount = this.total;
+      let subtotal = 0;
+      
+      // Calculate subtotal including item-level discounts
+      this.currentOrder.items.forEach(item => {
+        const itemTotal = item.price * item.quantity;
+        if (item.discount) {
+          if (item.discount_type === 'percentage') {
+            subtotal += itemTotal * (1 - item.discount / 100);
+          } else {
+            subtotal += Math.max(itemTotal - item.discount, 0);
+          }
+        } else {
+          subtotal += itemTotal;
+        }
+      });
+
+      // Apply order-level discount if exists
+      if (this.currentOrder.discount) {
+        if (this.currentOrder.discount_type === 'percentage') {
+          subtotal *= (1 - this.currentOrder.discount / 100);
+        } else {
+          subtotal = Math.max(subtotal - this.currentOrder.discount, 0);
+        }
+      }
+
+      this.currentOrder.sub_total = subtotal;
+      this.currentOrder.tax = subtotal * 0.20; // Assuming 20% tax rate
+      this.currentOrder.total_amount = subtotal + this.currentOrder.tax;
     },
     updateDiscount(discountData) {
       this.currentOrder.discount = discountData;
@@ -142,29 +177,38 @@ export const useOrderStore = defineStore('order', {
       this.currentOrder.discount = 0;
     },
     increaseQuantity(productId) {
-      const item = this.currentOrder.items.find(i =>  i.id ? i.id : i.order_id === productId);
-      if (!item) return;
+      if (this.isButtonDisabled) return;
+      
+      this.setButtonDisabled(true);
+      try {
+        const item = this.currentOrder.items.find(i =>  i.id ? i.id : i.order_id === productId);
+        if (!item) return;
 
-      item.quantity++;
-      this.updateOrderTotals();
-      console.log(productId)
-      if (this.currentOrder.id) {
-        useApi(`orderItem/${productId}`, 'PUT', {
-          type: 'object',
-          data: {
-            quantity: item.quantity
-          }
-        })
-        .then(response => {
-          if (response.order_item.order) {
-            this.updateOrderFromResponse(response.order_item.order);
-          }
-        })
-        .catch(error => {
-          item.quantity--;
-          this.updateOrderTotals();
-          console.error('Failed to update quantity:', error);
-        });
+        item.quantity++;
+        this.updateOrderTotals();
+        console.log(productId)
+        if (this.currentOrder.id) {
+          useApi(`orderItem/${productId}`, 'PUT', {
+            type: 'object',
+            data: {
+              quantity: item.quantity
+            }
+          })
+          .then(response => {
+            if (response.order_item.order) {
+              this.updateOrderFromResponse(response.order_item.order);
+            }
+          })
+          .catch(error => {
+            item.quantity--;
+            this.updateOrderTotals();
+            console.error('Failed to update quantity:', error);
+          });
+        }
+      } finally {
+        setTimeout(() => {
+          this.setButtonDisabled(false);
+        }, 500);
       }
     },
     decreaseQuantity(productId) {
@@ -231,22 +275,18 @@ export const useOrderStore = defineStore('order', {
     },
     placeOrder() {
       const orderData = {
-        table_id: this.currentOrder.table_id || null,
-        type: this.currentOrder.type,
         guest: this.currentOrder.guest,
+        type: this.currentOrder.type,
+        table_id: this.currentOrder.table_id,
         shift_id: this.currentOrder.shift_id,
         items: this.currentOrder.items.map(item => ({
           product_id: item.product_id,
-          quantity: item.quantity
+          quantity: item.quantity,
+          discount: item.discount,
+          discount_type: item.discount_type,
+          note: item.note
         }))
       };
-
-      if (this.currentOrder.discount && this.currentOrder.discount.type && this.currentOrder.discount.amount > 0) {
-        orderData.discount = {
-          type: this.currentOrder.discount.type,
-          amount: this.currentOrder.discount.amount
-        };
-      }
 
       const method = this.currentOrder.id ? 'PUT' : 'POST';
       const endpoint = this.currentOrder.id ? `orders/${this.currentOrder.id}` : 'orders';
@@ -317,6 +357,23 @@ export const useOrderStore = defineStore('order', {
     },
     setPendingItem(item) {
       this.pendingItem = item;
+    },
+    setButtonDisabled(value) {
+      this.isButtonDisabled = value;
+    },
+    updateItemDiscount(itemId, discountData) {
+      const item = this.currentOrder.items.find(item => item.product_id === itemId);
+      if (item) {
+        item.discount = discountData?.discount || null;
+        item.discount_type = discountData?.discount_type || null;
+        this.updateOrderTotals();
+      }
+    },
+    updateItemNote(itemId, note) {
+      const item = this.currentOrder.items.find(item => item.product_id === itemId);
+      if (item) {
+        item.note = note;
+      }
     },
   },
 });

@@ -31,6 +31,10 @@ export default async function useApiHandler(apiBase, method, payload) {
         method: method,
         body: method === "GET" || !payload ? null : payload.type === "object" ? form_obj : form_data,
         headers: headers,
+        ignoreHTTPSErrors: true,
+        https: {
+            rejectUnauthorized: false
+        }
     });
 
     return response;
