@@ -48,68 +48,113 @@
     </div>
 
     <div class="flex-grow overflow-y-auto px-3 py-2">
-      <div class="flex items-center justify-between mb-2">
-        <h3 class="text-xs xl:text-base font-medium text-gray-500">ORDER ITEMS</h3>
-        <span class="text-xs xl:text-base bg-[#2b3c5e]/10 text-[#2b3c5e] px-2 py-0.5 rounded-full">
-          {{ OrderStore.currentOrder.items.length }} items
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-xs xl:text-sm font-medium text-gray-500">ORDER ITEMS</h3>
+        <span class="text-xs xl:text-sm bg-[#2b3c5e]/10 text-[#2b3c5e] px-2 py-0.5 rounded-full font-medium">
+          {{ OrderStore.currentOrder?.items?.length || 0 }} items
         </span>
       </div>
 
       <TransitionGroup name="list" tag="ul" class="space-y-2">
-        <li v-for="item in OrderStore.currentOrder.items" 
+        <li v-for="item in OrderStore.currentOrder?.items" 
             :key="item.product_id" 
-            @click="openItemModal(item)"
-            class="group bg-white rounded-lg p-2 shadow-sm hover:shadow transition-all duration-200 border border-gray-100/50 cursor-pointer">
-          <div class="flex items-center">
-            <div class="relative flex-shrink-0">
+            @click="handleItemClick(item)"
+            class="group relative bg-white rounded-lg p-2.5 shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100/50">
+          <div class="flex items-center space-x-2">
+            <div class="relative w-12 h-12 xl:w-14 xl:h-14 flex-shrink-0">
               <NuxtImg
                 :src="item.product?.image || item.image || '/img/notfound.png'"
-                :alt="item.name"
-                class="w-10 h-10 xl:w-16 xl:h-16 object-cover rounded-lg shadow-sm !object-contain"
+                :alt="item?.name"
+                class="w-full h-full object-cover rounded-lg shadow-sm border border-gray-100"
               />
-              <div class="absolute -top-1 -right-1 bg-[#2b3c5e] text-white text-[10px] xl:text-sm w-4 h-4 xl:w-6 xl:h-6 rounded-full flex items-center justify-center shadow-sm">
+              <div class="absolute -top-1.5 -right-1.5 bg-[#2b3c5e] text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium shadow-sm">
                 {{ item.quantity }}
-              </div>
-              <div class="absolute -bottom-1 -right-1 flex space-x-1">
-                <div v-if="item.discount" 
-                     class="bg-green-500 text-white p-1 rounded-full shadow-sm"
-                     @click.stop="openDiscountModal(item)">
-                  <Icon name="mdi:tag" size="12" />
-                </div>
-                <div v-if="item.note" 
-                     class="bg-blue-500 text-white p-1 rounded-full shadow-sm"
-                     @click.stop="openNoteModal(item)">
-                  <Icon name="mdi:note" size="12" />
-                </div>
               </div>
             </div>
             
-            <div class="ml-2 lg:ml-3 flex-grow">
-              <p class="text-xs lg:text-sm font-medium text-gray-700 line-clamp-1">
-                {{ item.product?.name || item.name }} 
-              </p>
-              <p class="text-xs lg:text-sm text-gray-500">£{{ formatPrice(item.price) }}</p>
+            <div class="flex-grow min-w-0">
+              <div class="flex items-start justify-between">
+                <div class="min-w-0">
+                  <p class="text-sm font-medium text-gray-800 truncate pr-2">
+                    {{ item.product?.name || item?.name }}
+                  </p>
+                  <div class="flex items-center space-x-2 mt-0.5">
+                    <span class="text-xs text-gray-500">£{{ formatPrice(item.price) }}</span>
+                    
+                    <div class="flex items-center space-x-1">
+                      <div v-if="item.discount" 
+                           @click.stop="openDiscountModal(item)"
+                           class="flex items-center space-x-0.5 px-1.5 py-0.5 bg-green-50 text-green-600 rounded-full text-[10px] hover:bg-green-100 transition-colors">
+                        <Icon name="mdi:tag" size="10" />
+                        <span>{{ item.discount_type === 'percentage' ? `${item.discount}%` : `£${item.discount}` }}</span>
+                      </div>
+                      
+                      <div v-if="item.notes" 
+                           @click.stop="openNoteModal(item)"
+                           class="flex items-center space-x-0.5 px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded-full text-[10px] hover:bg-blue-100 transition-colors">
+                        <Icon name="mdi:note" size="10" />
+                        <span class="truncate max-w-[50px]">{{ item.notes }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-center">
+                  <button @click.stop="handleIncreaseQuantity(item)" 
+                          :disabled="isButtonDisabled"
+                          class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors disabled:opacity-50">
+                    <Icon name="mdi:plus" size="16" />
+                  </button>
+                </div>
+              </div>
             </div>
 
-            <div class="flex items-center space-x-1">
-              <!-- <button @click="handleDecreaseQuantity(item)" 
-                      :disabled="isButtonDisabled"
-                      class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                <Icon name="mdi:minus" size="18" />
-              </button> -->
-              <button @click="handleIncreaseQuantity(item)" 
-                      :disabled="isButtonDisabled"
-                      class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                <Icon name="mdi:plus" size="18" />
-              </button>
-              <!-- <button @click="confirmRemoveItem(item)" 
-                      class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 transition-colors">
-                <Icon name="mdi:delete" size="18" />
-              </button> -->
-            </div>
+            <Transition name="fade">
+              <div v-if="selectedItem?.product_id === item.product_id"
+                   class="fixed z-50 left-[10px] translate-y-[-70px] bg-white rounded-xl shadow-lg border border-gray-100 "
+                   :style="getDropdownPosition(item)">
+                <!-- Arrow pointing down -->
+                <div class="absolute bottom-0 left-6 transform translate-y-full">
+                  <svg width="16" height="8" viewBox="0 0 16 8">
+                    <path d="M8 8L0 0h16L8 8z" fill="white"/>
+                    <path d="M8 8L0 0h16L8 8z" fill="none" stroke="#e5e7eb"/>
+                  </svg>
+                </div>
+                
+                <div class="flex items-center divide-x divide-gray-100">
+                  <!-- Discount Button -->
+                  <button @click.stop="openDiscountModal(item)"
+                          class="flex flex-col items-center py-2.5 px-4 hover:bg-gray-50 transition-colors min-w-[100px]">
+                    <div class="mb-1">
+                      <Icon name="mdi:tag" size="20" class="text-gray-900" />
+                    </div>
+                    <span class="text-[12px] font-medium text-gray-900">
+                      {{ item.discount ? 'Edit Discount' : 'Discount' }}
+                    </span>
+                  </button>
+                  
+                  <!-- Note Button -->
+                  <button @click.stop="openNoteModal(item)"
+                          class="flex flex-col items-center py-2.5 px-4 hover:bg-gray-50 transition-colors min-w-[100px]">
+                    <div class="mb-1">
+                      <Icon name="mdi:note" size="20" class="text-gray-900" />
+                    </div>
+                    <span class="text-[12px] font-medium text-gray-900">
+                      {{ item.notes ? 'Edit Note' : 'Note' }}
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </Transition>
           </div>
         </li>
       </TransitionGroup>
+
+      <div v-if="!OrderStore.currentOrder?.items?.length" 
+           class="flex flex-col items-center justify-center py-6 text-center">
+        <Icon name="mdi:cart-outline" size="40" class="text-gray-300 mb-2" />
+        <p class="text-gray-500 text-xs">No items in order yet</p>
+      </div>
     </div>
 
     <div class="bg-gray-50/50 p-3 space-y-2">
@@ -218,13 +263,6 @@
       v-model="showCancelModal"
     />
 
-    <ItemActionModal
-      v-model="showItemModal"
-      :item="selectedItem"
-      @open-discount="openDiscountModal"
-      @open-note="openNoteModal"
-    />
-
     <ItemDiscountModal
       v-model="showItemDiscountModal"
       :item="selectedItem"
@@ -232,23 +270,22 @@
     />
 
     <ItemNoteModal
+      v-if="selectedItem && showNoteModal"
       v-model="showNoteModal"
       :item="selectedItem"
-      @update="handleNoteUpdate"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useOrderStore } from '~/stores/orderStore';
 import ReceiptTemplate from './ReceiptTemplate.vue';
 import CashierDiscountModal from '~/components/Cashier/DiscountModal.vue';
 import CashierSplitOrderModal from './SplitOrderModal.vue';
 import CashierCancelOrderModal from './CancelOrderModal.vue';
-import ItemActionModal from './ItemActionModal.vue';
-  import ItemDiscountModal from './ItemDiscountModal.vue';
-  import ItemNoteModal from './ItemNoteModal.vue';
+import ItemDiscountModal from './ItemDiscountModal.vue';
+import ItemNoteModal from './ItemNoteModal.vue';
 
 const OrderStore = useOrderStore();
 const receiptRef = ref(null);
@@ -266,8 +303,6 @@ const showDiscountModal = ref(false);
 const showSplitModal = ref(false);
 
 const showCancelModal = ref(false);
-
-const showItemModal = ref(false);
 
 const showItemDiscountModal = ref(false);
 
@@ -306,9 +341,8 @@ const handlePermissionConfirm = async (verified) => {
 };
 
 const confirmRemoveItem = (item) => {
-  selectedItem.value = item;
+  selectedItem.value = null;
   permissionAction.value = 'remove';
-  pendingAction.value = 'remove';
   showPermissionModal.value = true;
 };
 
@@ -331,25 +365,29 @@ const handleDecreaseQuantity = (item) => {
   }, 500); // 500ms cooldown
 };
 
-const handleIncreaseQuantity = (item) => {
-  console.log(item)
+const handleIncreaseQuantity = async (item) => {
   if (isButtonDisabled.value) return;
   
-  isButtonDisabled.value = true;
-  OrderStore.increaseQuantity(item.id ? item.id : item.order_id);
-  
-  setTimeout(() => {
-    isButtonDisabled.value = false;
-  }, 500); // 500ms cooldown
+  try {
+    isButtonDisabled.value = true;
+    await OrderStore.increaseQuantity(item.id);
+  } catch (error) {
+    console.error('Error increasing quantity:', error);
+    push.error('Failed to increase quantity');
+  } finally {
+    setTimeout(() => {
+      isButtonDisabled.value = false;
+    }, 500);
+  }
 };
 
 const checkout = () => {
-  if (!OrderStore.currentOrder || !OrderStore.currentOrder.items) {
+  if (!OrderStore.currentOrder || !OrderStore.currentOrder.items ) {
     push.error('Cannot proceed with payment. No order exists.');
     return;
   }
   
-  if (OrderStore.currentOrder.items.length === 0) {
+  if (OrderStore.currentOrder?.items?.length === 0) {
     push.error('Cannot proceed with payment. Please add items to the order first.');
     return;
   }
@@ -423,7 +461,7 @@ const formatPrice = (price) => {
 };
 
 const placeOrder = async () => {
-  if (OrderStore.currentOrder.items.length === 0) {
+  if (OrderStore.currentOrder?.items?.length === 0) {
     return;
   }
 
@@ -459,7 +497,7 @@ const placeOrder = async () => {
 };
 
 const updateOrder = async () => {
-  if (OrderStore.currentOrder.items.length === 0) {
+  if (OrderStore.currentOrder?.items?.length === 0) {
     return;
   }
 
@@ -536,7 +574,7 @@ const handleRemoveDiscount = async () => {
 };
 
 const handleSplitOrder = () => {
-  if (!OrderStore.currentOrder.items.length) {
+  if (!OrderStore.currentOrder?.items?.length) {
     push.error('No items to split');
     return;
   }
@@ -593,28 +631,23 @@ const handleCancelOrder = () => {
   showPermissionModal.value = true;
 };
 
-const openItemModal = (item) => {
-  selectedItem.value = item;
-  showItemModal.value = true;
-};
-
 const openDiscountModal = (item) => {
   selectedItem.value = item;
   showItemDiscountModal.value = true;
-  showItemModal.value = false;
 };
 
 const openNoteModal = (item) => {
+  if (!item) return;
   selectedItem.value = item;
   showNoteModal.value = true;
-  showItemModal.value = false;
 };
 
 const handleDiscountUpdate = (updatedItem) => {
   useApi(`orderItem/${updatedItem.id}/discount`, 'POST', {
     type: 'object',
     data: {
-      discount: updatedItem.discount
+      type: updatedItem.discount.type,
+      amount: updatedItem.discount.amount
     }
   }).then(response => {
     OrderStore.updateItemDiscount(updatedItem.id, response.discount);
@@ -626,7 +659,7 @@ const handleDiscountUpdate = (updatedItem) => {
 };
 
 const handleNoteUpdate = (updatedItem) => {
-  useApi(`orderItem/${updatedItem.id}/note`, 'POST', {
+  useApi(`orderItem/${updatedItem.id}/add_note`, 'PUT', {
     type: 'object',
     data: {
       note: updatedItem.note
@@ -639,15 +672,60 @@ const handleNoteUpdate = (updatedItem) => {
     push.error('Failed to update note');
   });
 };
+
+// Handle item click
+const handleItemClick = (item) => {
+  if (selectedItem.value?.product_id === item.product_id) {
+    selectedItem.value = null;
+  } else {
+    selectedItem.value = item;
+  }
+};
+
+// Close menu when clicking outside
+onMounted(() => {
+  document.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!target.closest('.group')) {
+      selectedItem.value = null;
+    }
+  });
+});
+
+const getDropdownPosition = (item) => {
+  const element = document.querySelector(`[data-product-id="${item.product_id}"]`);
+  if (!element) return {};
+
+  const rect = element.getBoundingClientRect();
+  const dropdownHeight = 80; // تقدير ارتفاع القائمة المنبثقة
+  const arrowOffset = 8; // ارتفاع السهم
+
+  return {
+    left: `${rect.left}px`,
+    top: `${rect.top - dropdownHeight - arrowOffset}px`,
+    width: '180px'
+  };
+};
 </script>
 
 <style scoped>
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.5s ease;
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.list-leave-to {
+
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
-  transform: translateX(30px);
+  transform: translateY(-10px);
+}
+
+/* Improve button interactions */
+button {
+  transition: all 0.2s ease;
+}
+
+button:active {
+  transform: scale(0.98);
 }
 </style>

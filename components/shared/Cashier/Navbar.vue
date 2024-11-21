@@ -337,7 +337,7 @@ onMounted(() => {
 
 const canApplyDiscount = computed(() => {
   return OrderStore.$state.openOrder && 
-         OrderStore.currentOrder.items.length > 0;
+         OrderStore.currentOrder?.items ? OrderStore.currentOrder?.items?.length : OrderStore.currentOrder?.order_items?.length  > 0;
 });
 
 const handlePermissionConfirm = (verified) => {
@@ -430,7 +430,7 @@ watch(discountType, () => {
 // Add computed property for print button
 const canPrintOrder = computed(() => {
   return OrderStore.$state.openOrder && 
-         OrderStore.currentOrder.items.length > 0;
+    OrderStore.currentOrder?.items ? OrderStore.currentOrder?.items?.length : OrderStore.currentOrder?.order_items?.length > 0;
 });
 
 const receiptTemplateRef = ref(null);
@@ -488,7 +488,7 @@ const savedDiscounts = ref([
 const canSplitOrder = computed(() => {
   return OrderStore.$state.openOrder && 
          OrderStore.currentOrder.id && 
-         OrderStore.currentOrder.items.length > 0;
+         OrderStore.currentOrder?.items ? OrderStore.currentOrder?.items?.length : OrderStore.currentOrder?.order_items?.length > 0;
 });
 
 const handleSplitClick = () => {

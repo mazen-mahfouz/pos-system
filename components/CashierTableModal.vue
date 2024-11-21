@@ -73,6 +73,7 @@
 <script setup>
 import { format } from 'date-fns';
 import HandleReqErrors from "~/helpers/HandleReqErrors.js"
+import { useTableStore } from '~/stores/tableStore';
 
 const props = defineProps({
   modelValue: Boolean,
@@ -96,19 +97,10 @@ const close = () => {
   emit('update:modelValue', false);
 };
 
-const tables = ref([]);
+const TableStore = useTableStore();
 
-watch(() => props.modelValue, (newValue) => {
-  if (newValue) {
-    useApi('tables', 'GET')
-      .then(response => {
-        tables.value = response;
-      })
-      .catch(error => {
-        HandleReqErrors(error);
-      });
-  }
-});
+// استخدام tables من الـ store بدلاً من التحميل في المكون
+const tables = computed(() => TableStore.tables);
 </script>
 
 <style lang="scss" scoped>

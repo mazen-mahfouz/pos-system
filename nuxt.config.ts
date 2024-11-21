@@ -75,6 +75,22 @@ export default defineNuxtConfig({
     },
 },
 
+plugins: [
+  { src: '~/plugins/echo.client.js', mode: 'client' },
+],
+
+vite: {
+  server: {
+    proxy: {
+      '/app': {
+        target: 'http://127.0.0.1:6001',
+        changeOrigin: true,
+        ws: true
+      }
+    }
+  }
+},
+
   notivue: {
     limit: 4,
     enqueue: true,

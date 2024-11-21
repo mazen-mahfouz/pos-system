@@ -116,9 +116,10 @@ const dateFrom = ref(null);
 const dateTo = ref(null);
 const selected = ref(null);
 const selectedFilter = ref('all'); // تعيين القيمة الافتراضية
-const orders = ref([]);
-const orders_length = ref(0);
 const isLoading = ref(true);
+
+// استخدام ref للطلبات بدلاً من computed مباشرة
+const orders = computed(() => OrderStore.orders);
 
 const types = [
   { value: 'dine-in', label: 'Dine in' },
@@ -132,59 +133,52 @@ const filtersList = ref([
   { value: 'canceled', name: 'canceled', count: 0 },
 ]);
 
-const fetchOrders = async () => {
-  try {
-    isLoading.value = true;
-    const response = await useApi('orders', 'GET');
-    orders.value = response || [];
-    updateFilterCounts();
-  } catch (error) {
-    console.error('Error fetching orders:', error);
-    orders.value = []; // Ensure orders is always an array
-  } finally {
-    isLoading.value = false;
-  }
-};
-
+// تحديث filteredOrders
 const filteredOrders = computed(() => {
-  if (isLoading.value || !orders.value) return [];
-  console.log(selectedFilter.value);
+  if (isLoading.value || !orders.value?.length) return [];
+  
   return orders.value.filter(order => {
     const matchesSearch = order.code.toLowerCase().includes(searchQuery.value.toLowerCase());
     const matchesType = !selected.value || order.type === selected.value;
-    const matchesFilter = selectedFilter.value === 'all' || order.status.toString() === selectedFilter.value;
+    const matchesFilter = selectedFilter.value === 'all' || order.status === selectedFilter.value;
     const orderDate = new Date(order.created_at);
-    const matchesDate = (!dateFrom.value || !dateTo.value) || (orderDate >= dateFrom.value && orderDate <= dateTo.value);
+    const matchesDate = (!dateFrom.value || !dateTo.value) || 
+                       (orderDate >= dateFrom.value && orderDate <= dateTo.value);
     return matchesSearch && matchesType && matchesFilter && matchesDate;
   });
 });
 
+// تحديث updateFilterCounts
 const updateFilterCounts = () => {
+  if (!orders.value?.length) return;
+  
   const counts = {
     all: orders.value.length,
-    completed: 0,
-    live: 0,
-    canceled: 0
+    completed: orders.value.filter(order => order.status === 'completed').length,
+    live: orders.value.filter(order => order.status === 'live').length,
+    canceled: orders.value.filter(order => order.status === 'canceled').length
   };
-
-  orders.value.forEach(order => {
-    if (order.status === 'completed') counts.completed++;
-    else if (order.status === 'live') counts.live++;
-    else if (order.status === 'canceled') counts.canceled++;
-  });
-
-  orders.value.forEach(order => {
-    if (order.status === 'completed') counts.completed++;
-    else if (order.status === 'live') counts.live++;
-    else if (order.status === 'canceled') counts.canceled++;
-  });
 
   filtersList.value = filtersList.value.map(filter => ({
     ...filter,
-    count: counts[filter.name.toLowerCase()] || 0
+    count: counts[filter.value.toLowerCase()] || 0
   }));
 };
 
+// تحديث watch للـ orders
+watch(() => orders.value, (newOrders) => {
+  if (newOrders?.length) {
+    isLoading.value = false;
+    updateFilterCounts();
+  }
+}, { immediate: true });
+
+// تحديث watch للـ modelValue
+watch(() => props.modelValue, (newValue) => {
+  if (newValue && orders.value?.length) {
+    updateFilterCounts();
+  }
+});
 
 const getStatusClass = (status) => {
   switch (status.toLowerCase()) {
@@ -241,7 +235,7 @@ const closeModal = () => {
 };
 
 const receiptRef = ref(null);
-const selectedOrderForPrint = ref(null);
+const selectedOrderForPrint = ref({});
 
 const printOrder = (order) => {
   selectedOrderForPrint.value = {
@@ -251,21 +245,21 @@ const printOrder = (order) => {
     type: order.type,
     table_id: order.table_id,
     guest: order.guest || 'Walk-in Customer',
-    items: order.order_items.map(item => ({
+    items: order.order_items?.map(item => ({
       id: item.id,
       quantity: item.quantity,
       name: item.product?.name || item.name,
       price: parseFloat(item.price)
-    })),
-    sub_total: parseFloat(order.sub_total),
-    tax: parseFloat(order.tax),
-    service_charge: parseFloat(order.service),
-    discount: parseFloat(order.discount),
-    total_amount: parseFloat(order.total_amount),
+    })) || [],
+    sub_total: parseFloat(order.sub_total || 0),
+    tax: parseFloat(order.tax || 0),
+    service_charge: parseFloat(order.service || 0),
+    discount: parseFloat(order.discount || 0),
+    total_amount: parseFloat(order.total_amount || 0),
     ...(order.status !== 'live' && {
       payments: [{
         method: order.payment_method || 'Unknown',
-        amount: parseFloat(order.total_amount),
+        amount: parseFloat(order.total_amount || 0),
         change_amount: 0
       }]
     })
@@ -275,13 +269,6 @@ const printOrder = (order) => {
     receiptRef.value?.printReceipt();
   });
 };
-
-// Add watch for modelValue
-watch(() => props.modelValue, (newValue) => {
-  if (newValue) {
-    fetchOrders();
-  }
-});
 
 </script>
 

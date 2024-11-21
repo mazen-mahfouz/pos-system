@@ -99,11 +99,10 @@ const onSearchChanged = (query) => {
 
 const isItemDisabled = ref(false);
 
-// استخدام computed property
-const isButtonDisabled = computed(() => OrderStore.isButtonDisabled);
-
 const handleProductClick = (item) => {
-  if (OrderStore.isButtonDisabled) return;
+  if (isItemDisabled.value) return;
+  
+  isItemDisabled.value = true;
   
   if (!OrderStore.$state.openOrder) {
     OrderStore.setPendingItem(item);
@@ -111,6 +110,10 @@ const handleProductClick = (item) => {
   } else {
     OrderStore.addItemToOrder(item);
   }
+  
+  setTimeout(() => {
+    isItemDisabled.value = false;
+  }, 1000);
 };
 
 const fetchProducts = () => {

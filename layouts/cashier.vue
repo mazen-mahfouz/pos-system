@@ -40,12 +40,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useOrderStore } from '~/stores/orderStore';
 import { useAuthStore } from '~/stores/auth';
+import { useTableStore } from '~/stores/tableStore';
+const { $echo } = useNuxtApp();
+
 
 const OrderStore = useOrderStore();
 const AuthStore = useAuthStore();
+const TableStore = useTableStore();
 const showNewOrderModal = ref(false);
 const showTableModal = ref(false);
 const showOpenOrdersModal = ref(false);
@@ -55,6 +59,8 @@ const showEditTypeModal = ref(false);
 const showEditTableModal = ref(false);
 const showPermissionModal = ref(false);
 const permissionAction = ref('');
+const isLoading = ref(true);
+
 
 const selectOrderType = (type) => {
   if (type === 'dine-in') {
@@ -130,6 +136,23 @@ const handlePermissionConfirm = (verified) => {
 
 provide('openNewOrderModal', openNewOrderModal);
 provide('openOrdersModal', openOrdersModal);
+
+onMounted(async () => {
+  isLoading.value = true;
+  try {
+    await Promise.all([
+      OrderStore.fetchInitialOrders(),
+      TableStore.fetchInitialTables()
+    ]);
+  } catch (error) {
+    console.error('Error loading initial data:', error);
+  } finally {
+    isLoading.value = false;
+  }
+  
+  OrderStore.initializeWebSocket();
+  TableStore.initializeWebSocket();
+});
 </script>
 
 <style lang="scss" scoped>
