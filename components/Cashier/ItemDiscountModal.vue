@@ -138,14 +138,14 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'update']);
 
-const discountType = ref(props.item?.discount_type || 'amount');
+const discountType = ref(props.item?.discount_type || 'cash');
 const amount = ref(props.item?.discount || '');
 const showError = ref(false);
 const errorMessage = ref('');
 
 const discountTypes = [
   { 
-    value: 'amount', 
+    value: 'cash', 
     label: 'Fixed Amount',
     icon: 'mdi:currency-gbp',
     description: 'Apply fixed cash discount'
@@ -219,7 +219,7 @@ const closeModal = () => {
 watch(() => props.modelValue, (newValue) => {
   if (newValue) {
     console.log(props.item);
-    discountType.value = props.item?.discount_type || 'amount';
+    discountType.value = props.item?.discount_type || 'cash';
     amount.value = props.item?.discount || '';
     showError.value = false;
   }

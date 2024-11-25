@@ -113,6 +113,8 @@ export const itemManagement = {
   },
 
   async updateItemNote(itemId, note) {
+    console.log('sadas')
+
     try {
       await useApi(`orderItem/${itemId}/add_note`, 'PUT', {
         type: 'object',

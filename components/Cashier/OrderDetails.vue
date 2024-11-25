@@ -659,6 +659,7 @@ const handleDiscountUpdate = (updatedItem) => {
 };
 
 const handleNoteUpdate = (updatedItem) => {
+  console.log('sadas')
   useApi(`orderItem/${updatedItem.id}/add_note`, 'PUT', {
     type: 'object',
     data: {

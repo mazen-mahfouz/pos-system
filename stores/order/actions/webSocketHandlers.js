@@ -59,17 +59,23 @@ export const webSocketHandlers = {
       // إذا كان الأوردر موجود، نحدث فقط الـ items
       this.orders[index] = {
         ...this.orders[index],
+        ...formattedOrder,
         items: formattedOrder.items
       };
     } else {
       // إذا كان أوردر جديد، نضيفه كاملاً
-      this.orders.push(formattedOrder);
+      this.orders.unshift(formattedOrder);
     }
 
     // Update current order if it's open
     if (this.currentOrder.id === formattedOrder.id) {
       this.currentOrder = {
         ...this.currentOrder,
+        ...formattedOrder,
+        items: formattedOrder.items
+      };
+      this.orders[index] = {
+        ...this.orders[index],
         ...formattedOrder,
         items: formattedOrder.items
       };

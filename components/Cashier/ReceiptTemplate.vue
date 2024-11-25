@@ -154,7 +154,7 @@ const printReceipt = () => {
           body {
             margin: 0;
             padding: 10px;
-            font-family: 'Courier New', monospace;
+            font-family: 'arial';
             font-size: 12px;
             line-height: 1.4;
             font-weight: bold;
