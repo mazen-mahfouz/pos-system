@@ -208,15 +208,30 @@ const applyDiscount = () => {
   closeModal();
 };
 
-const removeDiscount = () => {
-  emit('update', {
-    ...props.item,
-    discount: {
-      type: discountType.value,
-      amount: 0
-    }
-  });
-  closeModal();
+const removeDiscount = async () => {
+  try {
+    // إرسال طلب API لحذف الخصم مع البيانات المطلوبة
+    await useApi(`orderItem/${props.item.id}/discount`, 'POST', {
+      amount: 0,
+      type: discountType.value
+    });
+    
+    // تحديث الواجهة
+    emit('update', {
+      ...props.item,
+      discount: null,
+      discount_type: null
+    });
+    
+    // إغلاق النافذة المنبثقة
+    closeModal();
+    
+    // إظهار رسالة نجاح
+    push.success('Discount removed successfully');
+  } catch (error) {
+    console.error('Error removing discount:', error);
+    push.error('Failed to remove discount');
+  }
 };
 
 const closeModal = () => {
