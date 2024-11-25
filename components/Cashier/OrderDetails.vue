@@ -89,11 +89,11 @@
                         <span>{{ item.discount_type === 'percentage' ? `${item.discount}%` : `£${item.discount}` }}</span>
                       </div>
                       
-                      <div v-if="item.notes" 
+                      <div v-if="item.note || item.notes" 
                            @click.stop="openNoteModal(item)"
                            class="flex items-center space-x-0.5 px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded-full text-[10px] hover:bg-blue-100 transition-colors">
                         <Icon name="mdi:note" size="10" />
-                        <span class="truncate max-w-[50px]">{{ item.notes }}</span>
+                        <span class="truncate max-w-[50px]">{{ item.note || item.notes }}</span>
                       </div>
                     </div>
                   </div>

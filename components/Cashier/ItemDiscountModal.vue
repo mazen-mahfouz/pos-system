@@ -119,6 +119,12 @@
           <Icon name="mdi:close" size="18" />
           <span>Cancel</span>
         </button>
+        <button v-if="props.item?.discount"
+                @click="removeDiscount"
+                class="flex-1 px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200 flex items-center justify-center space-x-2 text-[14px] font-medium">
+          <Icon name="mdi:delete" size="18" />
+          <span>Remove Discount</span>
+        </button>
         <button @click="applyDiscount"
                 :disabled="!isValidAmount"
                 class="flex-1 px-6 py-3 bg-[#2b3c5e] text-white rounded-lg hover:bg-[#22407c] disabled:opacity-50 disabled:hover:bg-[#2b3c5e] transition-all duration-200 flex items-center justify-center space-x-2 text-[14px] font-medium">
@@ -205,8 +211,10 @@ const applyDiscount = () => {
 const removeDiscount = () => {
   emit('update', {
     ...props.item,
-    discount: null,
-    discount_type: null
+    discount: {
+      type: discountType.value,
+      amount: 0
+    }
   });
   closeModal();
 };
