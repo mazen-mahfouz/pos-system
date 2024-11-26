@@ -31,7 +31,7 @@
         
         <div class="bg-gray-50 p-4 rounded-xl">
           <div class="space-y-4">
-            <div class="text-center mb-2">
+            <div class="text-center mb-4">
               <h3 class="text-base font-semibold text-gray-800">Manager Code</h3>
               <p class="text-xs text-gray-500 mt-1">Please enter the 4-digit authorization code</p>
             </div>
@@ -41,13 +41,13 @@
                 v-for="(digit, index) in 4"
                 :key="index"
                 v-model="codeDigits[index]"
-                type="password"
+                type="text"
                 maxlength="1"
                 readonly
                 @paste="handlePaste"
                 :disabled="isLoading"
-                class="w-[45px] h-[45px] text-center text-xl font-bold border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2b3c5e]/20 focus:border-[#2b3c5e] transition-all duration-300 bg-white shadow-sm disabled:opacity-50"
-                :class="{ 'border-[#2b3c5e] bg-[#f8faff] transform scale-[1.05]': codeDigits[index] }"
+                class="w-[45px] h-[45px] text-center text-xl font-bold border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2b365a] focus:border-[#2b365a] transition-all duration-300 bg-white shadow-sm disabled:opacity-50"
+                :class="{ 'border-[#2b365a] bg-[#f8faff] transform scale-[1.05]': codeDigits[index] }"
                 @input="onCodeInput(index)"
                 @keydown="onCodeKeydown($event, index)"
                 ref="codeInputs"
@@ -62,7 +62,7 @@
                 type="button"
                 @click="appendDigit(n)"
                 :disabled="isLoading"
-                class="w-full h-12 rounded-lg bg-white border-2 border-gray-200 text-gray-700 font-semibold text-lg hover:bg-[#f8faff] hover:border-[#2b3c5e] hover:scale-[1.02] transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                class="w-full h-12 rounded-lg bg-white border-2 border-gray-200 text-gray-700 font-semibold text-lg hover:bg-[#f8faff] hover:border-[#2b365a] hover:scale-[1.02] transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {{ n }}
               </button>
@@ -70,7 +70,7 @@
                 type="button"
                 @click="clearLastDigit"
                 :disabled="isLoading"
-                class="w-full h-12 rounded-lg bg-white border-2 border-gray-200 text-gray-700 font-semibold hover:bg-[#f8faff] hover:border-[#2b3c5e] hover:scale-[1.02] transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                class="w-full h-12 rounded-lg bg-white border-2 border-gray-200 text-gray-700 font-semibold hover:bg-[#f8faff] hover:border-[#2b365a] hover:scale-[1.02] transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Icon name="material-symbols:backspace-outline" size="20" />
               </button>
@@ -78,7 +78,7 @@
                 type="button"
                 @click="appendDigit(0)"
                 :disabled="isLoading"
-                class="w-full h-12 rounded-lg bg-white border-2 border-gray-200 text-gray-700 font-semibold text-lg hover:bg-[#f8faff] hover:border-[#2b3c5e] hover:scale-[1.02] transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                class="w-full h-12 rounded-lg bg-white border-2 border-gray-200 text-gray-700 font-semibold text-lg hover:bg-[#f8faff] hover:border-[#2b365a] hover:scale-[1.02] transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 0
               </button>
@@ -86,7 +86,7 @@
                 type="button"
                 @click="clearAllDigits"
                 :disabled="isLoading"
-                class="w-full h-12 rounded-lg bg-white border-2 border-gray-200 text-gray-700 font-semibold hover:bg-[#f8faff] hover:border-[#2b3c5e] hover:scale-[1.02] transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                class="w-full h-12 rounded-lg bg-white border-2 border-gray-200 text-gray-700 font-semibold hover:bg-[#f8faff] hover:border-[#2b365a] hover:scale-[1.02] transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Clear
               </button>
@@ -109,19 +109,21 @@
         <button
           @click="handleConfirm"
           :disabled="!codeDigits.some(digit => digit !== '') || isLoading"
-          class="px-6 py-2.5 bg-[#2b3c5e] text-white rounded-lg hover:bg-[#1a2744] active:bg-[#2b3c5e] disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 text-sm font-medium flex items-center space-x-2"
+          class="w-32 flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#2b365a] hover:bg-[#22407c] transform hover:scale-[1.02] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2b365a] disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          <template v-if="isLoading">
-            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span>Verifying...</span>
-          </template>
-          <template v-else>
-            <Icon name="mdi:shield-check" size="18" />
-            <span>Authorize</span>
-          </template>
+          <div class="flex items-center space-x-1.5">
+            <template v-if="isLoading">
+              <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>Verifying...</span>
+            </template>
+            <template v-else>
+              <Icon name="mdi:shield-check" size="16" />
+              <span>Authorize</span>
+            </template>
+          </div>
         </button>
       </div>
     </div>
@@ -149,7 +151,8 @@ const props = defineProps({
       'edit discount',
       'delete discount',
       'reprint receipt',
-      'shift details'
+      'shift details',
+      'order item discount'
     ].includes(value)
   }
 });
@@ -161,13 +164,12 @@ const isLoading = ref(false);
 
 // Check if user is admin
 const isAdmin = computed(() => {
-  return JSON.parse(localStorage.getItem('PosUserData')).role_name === 'Admin';
+  return JSON.parse(localStorage.getItem('PosUserData')).role_name !== 'Admin';
 });
 
 // Watch for modal opening
 watch(() => props.modelValue, (newValue) => {
   if (newValue && isAdmin.value) {
-    // If user is admin, auto-confirm and close modal
     emit('confirm', true);
     emit('update:modelValue', false);
   }
@@ -185,7 +187,8 @@ const actionMessage = computed(() => {
     'edit discount': 'Manager authorization is required to edit the discount.',
     'delete discount': 'Manager authorization is required to delete the discount.',
     'reprint receipt': 'Manager authorization is required to reprint the receipt.',
-    'shift details': 'Manager authorization is required to view shift details.'
+    'shift details': 'Manager authorization is required to view shift details.',
+    'order item discount': 'Manager authorization is required to add/edit item discount.'
   };
   return messages[props.action] || 'Manager authorization is required to perform this action.';
 });

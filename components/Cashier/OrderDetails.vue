@@ -219,7 +219,7 @@
     </div>
 
     <div class="p-3 pt-2 flex items-center gap-2 bg-white">
-      <button @click="OrderStore.currentOrder.id ? updateOrder() : placeOrder()" 
+      <button @click="OrderStore.currentOrder.id ?       OrderStore.closeOrder() : placeOrder()" 
               class="flex-1 bg-[#2b3c5e] text-white py-1.5 lg:py-2 px-2 lg:px-3 rounded-lg hover:bg-[#22407c] active:scale-95 transition-all duration-200 text-xs lg:text-sm font-medium flex items-center justify-center space-x-1">
         <Icon :name="OrderStore.currentOrder.id ? 'mdi:pencil' : 'mdi:check'" size="16" />
         <span>{{ OrderStore.currentOrder.id ? 'Update' : 'Place' }}</span>
@@ -334,6 +334,9 @@ const handlePermissionConfirm = async (verified) => {
       break;
     case 'cancel order':
       showCancelModal.value = true;
+      break;
+    case 'order item discount':
+      showItemDiscountModal.value = true;
       break;
   }
   
@@ -462,6 +465,7 @@ const formatPrice = (price) => {
 
 const placeOrder = async () => {
   if (OrderStore.currentOrder?.items?.length === 0) {
+    push.error('Add items');
     return;
   }
 
@@ -633,7 +637,8 @@ const handleCancelOrder = () => {
 
 const openDiscountModal = (item) => {
   selectedItem.value = item;
-  showItemDiscountModal.value = true;
+  permissionAction.value = 'order item discount';
+  showPermissionModal.value = true;
 };
 
 const openNoteModal = (item) => {

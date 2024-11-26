@@ -93,7 +93,7 @@ const tables = computed(() => TableStore.tables);
 // إزالة watch القديم لأننا نستخدم الآن Store
 watch(() => props.modelValue, (newValue) => {
   if (newValue) {
-    TableStore.fetchInitialTables();
+    // TableStore.fetchInitialTables();
   }
 });
 </script>

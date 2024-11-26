@@ -3,7 +3,7 @@
     <h1 class="text-3xl font-bold mb-8 text-start text-gray-800">Cafe Tables</h1>
     
     <div class="bg-white rounded-lg shadow-md p-6">
-      <div class="flex justify-between items-center mb-6">
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-[20px]">
         <div class="flex items-center space-x-4">
           <UInput
             v-model="searchQuery"

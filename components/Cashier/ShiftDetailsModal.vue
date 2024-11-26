@@ -8,7 +8,7 @@
     <Transition name="fade">
       <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-30 p-4"
            @click="handleClose">
-        <div class="bg-white py-3 px-2 rounded-xl w-full md:w-[95%] lg:w-[60%] xl:max-w-[50%] h-[95vh] md:h-[90vh] flex flex-col shadow-xl"
+        <div class="bg-white py-3 px-2 rounded-xl w-full md:w-[95%] lg:w-[60%] xl:max-w-[550px] md:max-h-[90vh] flex flex-col shadow-xl"
              @click.stop>
           <!-- Modal Header -->
           <div class="px-4 py-2 md:py-3 flex justify-between items-center border-b sticky top-0 bg-white z-10">
@@ -176,6 +176,7 @@
 import { ref, onMounted, watch, computed } from 'vue'
 import ShiftReceiptTemplate from './ShiftReceiptTemplate.vue'
 import { useAuthStore } from "~/stores/auth";
+import HandleReqErrors from "~/helpers/HandleReqErrors.js"
 
 const AuthStore = useAuthStore()
 const loading = ref(false)
@@ -251,9 +252,7 @@ const closeShift = async () => {
     AuthStore.logout()
     router.push('/auth/login')
   } catch (err) {
-    const errorMessage = err.message || 'Failed to close shift'
-    push.error(errorMessage)
-    console.error('Error closing shift:', err)
+    push.error(err.data.message)
   } finally {
     loading.value = false
   }

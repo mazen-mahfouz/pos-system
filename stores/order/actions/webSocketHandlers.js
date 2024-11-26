@@ -18,6 +18,15 @@ export const webSocketHandlers = {
           this.handleOrderUpdate(e.order);
         });
 
+
+        const channel_users = $echo.channel('users-channel');
+        
+        // Only listen for order-updated events
+        channel_users.listen('.user-log ged-out', (e) => {
+          console.log('user-logged-out:', e);
+        });
+        
+
         console.log('WebSocket listeners attached');
       } catch (error) {
         console.error('WebSocket initialization error:', error);
