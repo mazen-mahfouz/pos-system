@@ -80,17 +80,20 @@ const close = () => {
   emit('update:modelValue', false);
 };
 
-const tables = ref([]);
+const TableStore = useTableStore();
 
+onMounted(() => {
+  TableStore.initializeWebSocket();
+  TableStore.fetchInitialTables();
+});
+
+// استخدام tables من الـ store بدلاً من التحميل المباشر
+const tables = computed(() => TableStore.tables);
+
+// إزالة watch القديم لأننا نستخدم الآن Store
 watch(() => props.modelValue, (newValue) => {
   if (newValue) {
-    useApi('tables', 'GET')
-      .then(response => {
-        tables.value = response;
-      })
-      .catch(error => {
-        HandleReqErrors(error);
-      });
+    TableStore.fetchInitialTables();
   }
 });
 </script>

@@ -19,7 +19,15 @@ export const useTableStore = defineStore('table', {
     handleTableUpdate(updatedTable) {
       const index = this.tables.findIndex(table => table.id === updatedTable.id);
       if (index !== -1) {
-        this.tables[index] = updatedTable;
+        this.tables[index] = {
+          ...this.tables[index],
+          ...updatedTable,
+          is_free: updatedTable.is_free,
+          waiter: updatedTable.waiter,
+          created_at: updatedTable.created_at
+        };
+      } else {
+        this.tables.push(updatedTable);
       }
     },
 
@@ -33,15 +41,18 @@ export const useTableStore = defineStore('table', {
         }
 
         try {
-          const channel = $echo.channel('tables-channel');
+          console.log('Attempting to connect to Tables WebSocket...');
+          
+          const channel = $echo.channel('table-channel');
           
           channel.listen('.table-updated', (e) => {
             console.log('Table updated via WebSocket:', e);
             this.handleTableUpdate(e.table);
           });
 
+          console.log('Table WebSocket listener attached');
         } catch (error) {
-          console.error('WebSocket initialization error:', error);
+          console.error('Table WebSocket initialization error:', error);
         }
       }
     }

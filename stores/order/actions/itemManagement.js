@@ -127,5 +127,9 @@ export const itemManagement = {
       console.error('Error updating item note:', error);
       throw error;
     }
+  },
+
+  setPendingItem(item) {
+    this.pendingItem = item;
   }
 }; 

@@ -99,7 +99,14 @@ const close = () => {
 
 const TableStore = useTableStore();
 
-// استخدام tables من الـ store بدلاً من التحميل في المكون
+onMounted(() => {
+  // تهيئة WebSocket عند تحميل المكون
+  TableStore.initializeWebSocket();
+  // تحميل البيانات الأولية
+  TableStore.fetchInitialTables();
+});
+
+// استخدام tables من الـ store
 const tables = computed(() => TableStore.tables);
 </script>
 
