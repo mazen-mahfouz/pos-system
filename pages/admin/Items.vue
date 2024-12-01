@@ -20,6 +20,21 @@
         </div>
         <div class="flex items-center space-x-2">
           <UButton
+            color="blue"
+            variant="soft"
+            icon="i-heroicons-document-arrow-up"
+            @click="$refs.excelInput.click()"
+          >
+            Import from Excel
+          </UButton>
+          <input
+            type="file"
+            ref="excelInput"
+            class="hidden"
+            accept=".xlsx,.xls"
+            @change="handleExcelUpload"
+          />
+          <UButton
             color="green"
             variant="soft"
             icon="i-heroicons-document-arrow-down"
@@ -391,6 +406,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import HandleReqErrors from "~/helpers/HandleReqErrors.js";
 import { useAuthStore } from "~/stores/auth";
+import { read, utils } from 'xlsx';
 
 definePageMeta({
   layout: 'admin',
@@ -637,6 +653,47 @@ const printItemDetails = () => {
     doc.text(`Price: $${selectedItem.value.price.toFixed(2)}`, 20, 150);
     doc.text(`Description: ${selectedItem.value.description}`, 20, 160, { maxWidth: 170 });
     doc.save(`${selectedItem.value.name}_details.pdf`);
+  }
+};
+
+const handleExcelUpload = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  try {
+    const data = await file.arrayBuffer();
+    const workbook = read(data);
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+    const items = utils.sheet_to_json(worksheet);
+
+    // التحقق من صحة البيانات
+    const validItems = items.filter(item => 
+      item.name && 
+      item.category_id && 
+      item.price && 
+      item.description
+    );
+
+    if (validItems.length === 0) {
+      push.error('No valid items found in Excel file');
+      return;
+    }
+
+    // إرسال البيانات إلى الخادم
+    const response = await useApi('products/bulk-import', 'POST', {
+      type: 'json',
+      data: { items: validItems }
+    });
+
+    if (response) {
+      await fetchItems();
+      push.success(`Successfully imported ${validItems.length} items`);
+    }
+  } catch (error) {
+    console.error('Failed to import Excel file:', error);
+    HandleReqErrors(error);
+  } finally {
+    event.target.value = ''; // إعادة تعيين input الملف
   }
 };
 </script>
