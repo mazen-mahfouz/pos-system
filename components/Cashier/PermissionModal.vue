@@ -167,11 +167,25 @@ const isAdmin = computed(() => {
   return JSON.parse(localStorage.getItem('PosUserData')).role_name !== 'Admin';
 });
 
-// Watch for modal opening
+// Add function to check permissions
+const checkUserPermission = (action) => {
+  const userData = JSON.parse(localStorage.getItem('PosUserData'));
+  if (!userData?.roles?.[0]?.permissions) return false;
+  
+  return userData.roles[0].permissions.some(permission => 
+    permission.name === action
+  );
+};
+
+// Modify the watch to include permission check
 watch(() => props.modelValue, (newValue) => {
-  if (newValue && isAdmin.value) {
-    emit('confirm', true);
-    emit('update:modelValue', false);
+  if (newValue) {
+    // Check if current user has permission
+    if (checkUserPermission(props.action)) {
+      emit('confirm', true);
+      emit('update:modelValue', false);
+    }
+    // If not, modal will stay open for manager code
   }
 });
 
@@ -193,6 +207,7 @@ const actionMessage = computed(() => {
   return messages[props.action] || 'Manager authorization is required to perform this action.';
 });
 
+// Modify handleConfirm to check manager permissions
 const handleConfirm = () => {
   const code = codeDigits.value.join('');
   if (!code) return;

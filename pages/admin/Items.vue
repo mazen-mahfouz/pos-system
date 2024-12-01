@@ -25,7 +25,7 @@
             icon="i-heroicons-document-arrow-up"
             @click="$refs.excelInput.click()"
           >
-            Import from Excel
+            Import Items
           </UButton>
           <input
             type="file"
@@ -661,39 +661,25 @@ const handleExcelUpload = async (event) => {
   if (!file) return;
 
   try {
-    const data = await file.arrayBuffer();
-    const workbook = read(data);
-    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-    const items = utils.sheet_to_json(worksheet);
+    const formData = new FormData();
+    formData.append('file', file);
 
-    // التحقق من صحة البيانات
-    const validItems = items.filter(item => 
-      item.name && 
-      item.category_id && 
-      item.price && 
-      item.description
-    );
-
-    if (validItems.length === 0) {
-      push.error('No valid items found in Excel file');
-      return;
-    }
-
-    // إرسال البيانات إلى الخادم
-    const response = await useApi('products/bulk-import', 'POST', {
-      type: 'json',
-      data: { items: validItems }
+    const response = await useApi('products/import', 'POST', {
+      type: 'formData',
+      data: {
+        'file': file
+      }
     });
 
     if (response) {
       await fetchItems();
-      push.success(`Successfully imported ${validItems.length} items`);
+      push.success('Items imported successfully');
     }
   } catch (error) {
-    console.error('Failed to import Excel file:', error);
+    console.error('Failed to import file:', error);
     HandleReqErrors(error);
   } finally {
-    event.target.value = ''; // إعادة تعيين input الملف
+    event.target.value = ''; // reset file input
   }
 };
 </script>
