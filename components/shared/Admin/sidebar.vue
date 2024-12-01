@@ -21,7 +21,8 @@ const navLinks = [
   { name: 'Items', path: '/admin/items' },
   { name: 'Tables', path: '/admin/table' },
   { name: 'Orders History', path: '/admin/order-history' },
-  { name: 'Coupons', path: '/admin/coupons' },
+  { name: 'Users', path: '/admin/users' },
+  // { name: 'Coupons', path: '/admin/coupons' },
 
 ];
 

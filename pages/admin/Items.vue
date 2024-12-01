@@ -61,11 +61,21 @@
         :sort="{ column: 'name', direction: 'asc' }"
       >
         <template #image-data="{ row }">
-          <img :src="row.image" :alt="row.name" class="w-16 h-16 object-cover rounded-md">
+          <NuxtImg
+            :src="row.image || '/img/notfound.png'"
+            loading="eager"
+            alt=""
+            class="w-full h-[60px] lg:h-[70px] xl:h-[60px] xl:w-[60px] mb-[8px] rounded-[12px] !object-contain"
+          />
         </template>
         <template #category-data="{ row }">
           <UBadge :color="getCategoryColor(row.category.name)">
             {{ row.category.name }}
+          </UBadge>
+        </template>
+        <template #status-data="{ row }">
+          <UBadge :color="row.status === 'true' ? 'green' : 'red'">
+            {{ row.status === 'true' ? 'Active' : 'Inactive' }}
           </UBadge>
         </template>
         <template #action-data="{ row }">
@@ -87,7 +97,7 @@
           <UButton
             color="red"
             variant="soft"
-            @click="deleteItem(row.id)"
+            @click="deleteItem(row)"
           >
             Delete
           </UButton>
@@ -95,15 +105,28 @@
       </UTable>
     </div>
 
-    <UModal v-model="isAddEditModalOpen">
+    <UModal v-model="isAddEditModalOpen" :prevent-close="true">
       <UCard class="w-full max-w-2xl">
         <template #header>
           <div class="flex justify-between items-center">
-            <h3 class="text-xl font-semibold text-gray-800">{{ isEditing ? 'Edit Item' : 'Add New Item' }}</h3>
-            <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark" @click="closeAddEditModal" />
+            <h3 class="text-xl font-semibold text-gray-800">
+              {{ isEditing ? 'Edit Item' : 'Add New Item' }}
+            </h3>
+            <UButton 
+              color="gray" 
+              variant="ghost" 
+              icon="i-heroicons-x-mark" 
+              @click="closeAddEditModal" 
+            />
           </div>
         </template>
-        <Form @submit="submitItem" :validation-schema="itemSchema" v-slot="{ errors }">
+        
+        <Form 
+          @submit="submitItem" 
+          :validation-schema="itemSchema" 
+          :initial-values="selectedItem"
+          v-slot="{ errors }"
+        >
           <div class="space-y-6">
             <div>
               <label for="name" class="text-md font-medium gap-[5px] text-gray-700 flex items-start flex-col !border-b !border-b-[#cdcdcd]">
@@ -218,20 +241,141 @@
     </UModal>
 
     <UModal v-model="isDetailsModalOpen">
-      <UCard class="w-full max-w-2xl">
+      <UCard v-if="selectedItem" class="w-full max-w-4xl">
         <template #header>
-          <div class="flex justify-between items-center">
-            <h3 class="text-xl font-semibold text-gray-800">Item Details</h3>
+          <div class="px-4 py-1 flex justify-between items-center">
+            <h3 class="text-[18px] font-[500] text-gray-800">Item Details</h3>
             <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark" @click="closeDetailsModal" />
           </div>
         </template>
-        <div v-if="selectedItem" class="space-y-4">
-          <img :src="selectedItem.image" :alt="selectedItem.name" class="w-full h-64 object-cover rounded-lg mb-4">
-          <p class="text-2xl font-bold text-gray-800">{{ selectedItem.name }}</p>
-          <p class="text-lg"><strong>Category:</strong> <UBadge :color="getCategoryColor(selectedItem.category.name)">{{ selectedItem.category.name }}</UBadge></p>
-          <p class="text-lg"><strong>Price:</strong> ${{ selectedItem.price.toFixed(2) }}</p>
-          <p class="text-lg"><strong>Description:</strong> {{ selectedItem.description }}</p>
-          <UButton color="pink" @click="printItemDetails">Print Details</UButton>
+
+        <div class="py-1 px-4 space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+          <!-- Item Info Cards -->
+          <div class="grid grid-cols-2 md:grid-cols-2 gap-2">
+            <div class="bg-[#fafafa] p-3 rounded-lg">
+              <div class="flex items-center gap-2">
+                <div class="bg-[#e1e1e100]">
+                  <Icon name="mdi:food" size="14" class="text-[#2b3c5e]" />
+                </div>
+                <span class="text-[13px] text-gray-600">Item Name</span>
+              </div>
+              <p class="mt-1.5 text-[13px] font-bold text-[#2b3c5e]">{{ selectedItem.name }}</p>
+            </div>
+
+            <div class="bg-[#fafafa] p-3 rounded-lg">
+              <div class="flex items-center gap-2">
+                <div class="bg-[#e1e1e100]">
+                  <Icon name="mdi:category" size="14" class="text-[#2b3c5e]" />
+                </div>
+                <span class="text-[13px] text-gray-600">Category</span>
+              </div>
+              <UBadge 
+                :color="getCategoryColor(selectedItem.category.name)"
+                class="mt-1.5"
+                size="xs"
+              >
+                {{ selectedItem.category.name }}
+              </UBadge>
+            </div>
+
+            <div class="bg-[#fafafa] p-3 rounded-lg">
+              <div class="flex items-center gap-2">
+                <div class="bg-[#e1e1e100]">
+                  <Icon name="mdi:currency-gbp" size="14" class="text-[#2b3c5e]" />
+                </div>
+                <span class="text-[13px] text-gray-600">Price</span>
+              </div>
+              <p class="mt-1.5 text-[13px] font-medium text-gray-900">£{{ selectedItem.price }}</p>
+            </div>
+
+            <div class="bg-[#fafafa] p-3 rounded-lg">
+              <div class="flex items-center gap-2">
+                <div class="bg-[#e1e1e100]">
+                  <Icon name="mdi:text-description" size="14" class="text-[#2b3c5e]" />
+                </div>
+                <span class="text-[13px] text-gray-600">Description</span>
+              </div>
+              <p class="mt-1.5 text-[13px] font-medium text-gray-900 truncate">{{ selectedItem.description }}</p>
+            </div>
+          </div>
+
+          <!-- Item Image -->
+          <div class="bg-[#fafafa] p-4 rounded-lg">
+            <div class="flex items-center gap-2 mb-2">
+              <Icon name="mdi:image" size="14" class="text-[#2b3c5e]" />
+              <span class="text-[13px] text-gray-600">Item Image</span>
+            </div>
+            <img 
+              :src="selectedItem.image || '/img/notfound.png'" 
+              :alt="selectedItem.name" 
+              class="w-full h-64 object-contain rounded-lg"
+            >
+          </div>
+
+          <!-- Recipe Section (if available) -->
+          <div v-if="selectedItem.recipe && selectedItem.recipe.length > 0" class="bg-[#fafafa] p-4 rounded-lg">
+            <div class="flex items-center gap-2 mb-2">
+              <Icon name="mdi:book-open" size="14" class="text-[#2b3c5e]" />
+              <span class="text-[13px] text-gray-600">Recipe</span>
+            </div>
+            <ul class="list-disc pl-5">
+              <li v-for="item in selectedItem.recipe" :key="item.id" class="text-[13px] text-gray-900">
+                {{ item.name }}
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <template #footer>
+          <div class="flex justify-between items-center pt-3">
+            <div class="flex gap-2">
+              <!-- <UButton
+                color="gray"
+                variant="soft"
+                size="xs"
+                @click="printItemDetails"
+              >
+                <Icon name="mdi:printer" size="16" class="mr-1" />
+                Print
+              </UButton> -->
+            </div>
+            <UButton
+              color="gray"
+              variant="solid"
+              size="xs"
+              @click="closeDetailsModal"
+            >
+              Close
+            </UButton>
+          </div>
+        </template>
+      </UCard>
+    </UModal>
+
+    <UModal v-model="isDeleteModalOpen">
+      <UCard class="w-full">
+        <div class="text-center">
+          <Icon name="mdi:alert-circle" class="text-red-500 text-5xl mb-4" />
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Confirm Deletion</h3>
+          <p class="text-sm text-gray-500 mb-6">
+            Are you sure you want to delete this item? This action cannot be undone.
+          </p>
+          <div class="flex justify-center space-x-4">
+            <UButton
+              color="gray"
+              variant="soft"
+              @click="isDeleteModalOpen = false"
+            >
+              Cancel
+            </UButton>
+            <UButton
+              color="red"
+              variant="soft"
+              @click="confirmDelete"
+            >
+              Delete
+            </UButton>
+          </div>
         </div>
       </UCard>
     </UModal>
@@ -261,6 +405,7 @@ const columns = [
   { key: 'name', label: 'Name' },
   { key: 'category', label: 'Category' },
   { key: 'price', label: 'Price' },
+  { key: 'status', label: 'Status' },
   { key: 'action', label: 'Actions' },
 ];
 
@@ -276,6 +421,7 @@ const isAddEditModalOpen = ref(false);
 const selectedItem = ref(null);
 const isEditing = ref(false);
 const imagePreview = ref(null);
+const file = ref(null);
 
 const itemSchema = object({
   name: string().required('Item name is required'),
@@ -350,25 +496,22 @@ const fetchProductById = (productId) => {
 };
 
 const openItemDetails = (item) => {
-  fetchProductById(item.id)
-    .then(fullItemDetails => {
-      if (fullItemDetails) {
-        selectedItem.value = fullItemDetails;
-        isDetailsModalOpen.value = true;
-      }
-    });
+  selectedItem.value = item;
+  isDetailsModalOpen.value = true;
 };
 
 const openEditModal = (item) => {
-  fetchProductById(item.id)
-    .then(fullItemDetails => {
-      if (fullItemDetails) {
-        isEditing.value = true;
-        selectedItem.value = { ...fullItemDetails, category_id: fullItemDetails.category.id };
-        imagePreview.value = fullItemDetails.image;
-        isAddEditModalOpen.value = true;
-      }
-    });
+  isEditing.value = true;
+  selectedItem.value = {
+    id: item.id,
+    name: item.name,
+    category_id: item.category.id.toString(),
+    price: item.price,
+    description: item.description,
+    image: item.image
+  };
+  imagePreview.value = item.image || null;
+  isAddEditModalOpen.value = true;
 };
 
 const closeDetailsModal = () => {
@@ -387,9 +530,10 @@ const closeAddEditModal = () => {
   isAddEditModalOpen.value = false;
   selectedItem.value = null;
   imagePreview.value = null;
+  isEditing.value = false;
+  file.value = null;
 };
 
-const file = ref(null);
 const handleImageUpload = (event) => {
   file.value = event.target.files[0];
   console.log(file.value);
@@ -403,55 +547,58 @@ const handleImageUpload = (event) => {
   }
 };
 
-const submitItem = (values) => {
-  console.log(values);
-  const formData = new FormData();
-  Object.keys(values).forEach(key => {
-    if (key === 'image' && values[key] instanceof File) {
-      formData.append(key, values[key]);
-    } else {
-      formData.append(key, values[key]);
+const submitItem = async (values) => {
+  try {
+    const formData = new FormData();
+    const dataToSend = {
+      name: values.name,
+      category_id: values.category_id,
+      price: values.price,
+      description: values.description,
+    };
+
+    if (file.value) {
+      formData.append('image', file.value);
     }
-  });
 
-  const apiEndpoint = isEditing.value ? `products/${selectedItem.value.id}` : 'products';
-  const method = isEditing.value ? 'POST' : 'POST';
+    const apiEndpoint = isEditing.value ? `products/${selectedItem.value.id}` : 'products';
+    const method = isEditing.value ? 'PUT' : 'POST';
 
-  useApi(apiEndpoint, method, {
-    type: 'json',
-    data: { ...values, image: file.value }
-  })
-    .then(response => {
-      if (isEditing.value) {
-        const index = items.value.findIndex(i => i.id === selectedItem.value.id);
-        if (index !== -1) {
-          items.value[index] = response;
-        }
-        push.success('Item updated successfully');
-      } else {
-        items.value.push(response);
-        push.success('Item added successfully');
-      }
+    const response = await useApi(apiEndpoint, method, {
+      type: 'json',
+      data: dataToSend
+    });
+
+    if (response) {
+      await fetchItems();
       closeAddEditModal();
-      fetchItems();
-    })
-    .catch(error => {
-      console.error('Failed to submit item:', error);
-      HandleReqErrors(error);
-    });
+      push.success(isEditing.value ? 'Item updated successfully' : 'Item added successfully');
+    }
+  } catch (error) {
+    console.error('Failed to submit item:', error);
+    HandleReqErrors(error);
+  }
 };
 
-const deleteItem = (itemId) => {
-  useApi(`products/${itemId}`, 'DELETE')
+const isDeleteModalOpen = ref(false);
+const itemToDelete = ref(null);
+
+const deleteItem = (item) => {
+  itemToDelete.value = item;
+  isDeleteModalOpen.value = true;
+};
+
+const confirmDelete = () => {
+  useApi(`products/${itemToDelete.value.id}`, 'DELETE')
     .then(() => {
-      items.value = items.value.filter(i => i.id !== itemId);
+      items.value = items.value.filter(i => i.id !== itemToDelete.value.id);
       push.success('Item deleted successfully');
+      isDeleteModalOpen.value = false;
     })
     .catch(error => {
       HandleReqErrors(error);
     });
 };
-
 
 const exportToExcel = () => {
   const worksheet = XLSX.utils.json_to_sheet(filteredItems.value.map(item => ({

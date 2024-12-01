@@ -67,24 +67,10 @@
         </template>
         <template #action-data="{ row }">
           <UButton
-            color="blue"
-            variant="soft"
-            class="mr-2"
-            @click="openEditModal(row)"
-          >
-            Edit
-          </UButton>
-          <UButton
-            color="gray"
-            variant="soft"
-            @click="openTableDetails(row)"
-          >
-            Details
-          </UButton>
-          <UButton
             color="red"
             variant="soft"
-            @click="deleteTable(row.id)"
+            :disabled="row.is_free === 0"
+            @click="openDeleteModal(row)"
           >
             Delete
           </UButton>
@@ -138,24 +124,6 @@
               <ErrorMessage name="capacity" class="text-red-500 text-xs mt-1" />
             </div>
 
-            <div>
-              <label for="is_free" class="flex items-center space-x-2">
-                <Field
-                  name="is_free"
-                  type="checkbox"
-                  v-slot="{ field }"
-                >
-                  <input
-                    type="checkbox"
-                    v-bind="field"
-                    :checked="field.value === 1"
-                    @input="field.handleChange($event.target.checked ? 1 : 0)"
-                    class="form-checkbox h-5 w-5 text-pink-500"
-                  />
-                </Field>
-                <span class="text-gray-700">Available</span>
-              </label>
-            </div>
 
             <div class="flex justify-end">
               <UButton type="submit" color="pink" class="px-6 py-3">
@@ -167,33 +135,29 @@
       </UCard>
     </UModal>
 
-    <UModal v-model="isDetailsModalOpen">
-      <UCard class="w-full max-w-2xl">
-        <template #header>
-          <div class="flex justify-between items-center">
-            <h3 class="text-xl font-semibold text-gray-800">Table Details</h3>
-            <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark" @click="closeDetailsModal" />
-          </div>
-        </template>
-        <div v-if="selectedTable" class="space-y-6">
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <p class="text-sm text-gray-600">Table Number</p>
-              <p class="text-lg font-medium text-gray-900">{{ selectedTable.number }}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-600">Capacity</p>
-              <p class="text-lg font-medium text-gray-900">{{ selectedTable.capacity }}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-600">Status</p>
-              <UBadge :color="selectedTable.is_free ? 'green' : 'red'">
-                {{ selectedTable.is_free ? 'Available' : 'Occupied' }}
-              </UBadge>
-            </div>
-          </div>
-          <div class="flex justify-end">
-            <UButton color="blue" @click="printTableDetails">Print Details</UButton>
+    <UModal v-model="isDeleteModalOpen">
+      <UCard class="w-full">
+        <div class="text-center">
+          <Icon name="mdi:alert-circle" class="text-red-500 text-5xl mb-4" />
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Confirm Deletion</h3>
+          <p class="text-sm text-gray-500 mb-6">
+            Are you sure you want to delete this table? This action cannot be undone.
+          </p>
+          <div class="flex justify-center space-x-4">
+            <UButton
+              color="gray"
+              variant="soft"
+              @click="closeDeleteModal"
+            >
+              Cancel
+            </UButton>
+            <UButton
+              color="red"
+              variant="soft"
+              @click="confirmDelete"
+            >
+              Delete
+            </UButton>
           </div>
         </div>
       </UCard>
@@ -232,9 +196,7 @@ const filterStatus = ref('All');
 const isLoading = ref(false);
 const error = ref(null);
 
-const isDetailsModalOpen = ref(false);
 const isAddEditModalOpen = ref(false);
-const selectedTable = ref(null);
 const isEditing = ref(false);
 
 const tableSchema = object({
@@ -287,31 +249,7 @@ const fetchTableById = (tableId) => {
     });
 };
 
-const openTableDetails = (table) => {
-  fetchTableById(table.id)
-    .then(fullTableDetails => {
-      if (fullTableDetails) {
-        selectedTable.value = fullTableDetails;
-        isDetailsModalOpen.value = true;
-      }
-    });
-};
-
-const openEditModal = (table) => {
-  fetchTableById(table.id)
-    .then(fullTableDetails => {
-      if (fullTableDetails) {
-        isEditing.value = true;
-        selectedTable.value = { ...fullTableDetails };
-        isAddEditModalOpen.value = true;
-      }
-    });
-};
-
-const closeDetailsModal = () => {
-  isDetailsModalOpen.value = false;
-  selectedTable.value = null;
-};
+const selectedTable = ref(null);
 
 const openAddModal = () => {
   isEditing.value = false;
@@ -328,10 +266,9 @@ const submitTable = (values) => {
   const apiEndpoint = isEditing.value ? `tables/${selectedTable.value.id}` : 'tables';
   const method = isEditing.value ? 'PUT' : 'POST';
 
-  // Convert is_free to 1 or 0
   const dataToSubmit = {
     ...values,
-    is_free: values.is_free ? 1 : 0
+    is_free: 1
   };
 
   useApi(apiEndpoint, method, { data: dataToSubmit })
@@ -355,11 +292,27 @@ const submitTable = (values) => {
     });
 };
 
-const deleteTable = (tableId) => {
-  useApi(`tables/${tableId}`, 'DELETE')
+const isDeleteModalOpen = ref(false);
+const tableToDelete = ref(null);
+
+const openDeleteModal = (table) => {
+  tableToDelete.value = table;
+  isDeleteModalOpen.value = true;
+};
+
+const closeDeleteModal = () => {
+  isDeleteModalOpen.value = false;
+  tableToDelete.value = null;
+};
+
+const confirmDelete = () => {
+  if (!tableToDelete.value) return;
+  
+  useApi(`tables/${tableToDelete.value.id}`, 'DELETE')
     .then(() => {
-      tables.value = tables.value.filter(t => t.id !== tableId);
+      tables.value = tables.value.filter(t => t.id !== tableToDelete.value.id);
       push.success('Table deleted successfully');
+      closeDeleteModal();
     })
     .catch(error => {
       HandleReqErrors(error);
