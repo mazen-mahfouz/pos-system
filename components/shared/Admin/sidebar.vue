@@ -6,7 +6,6 @@
             </nuxt-link>
         </div>
         <div>
-          {{ openSidebar }}
         </div>
     </div>
 </template>
@@ -15,6 +14,7 @@
 
 const pageTitle = useState("pageTitle");
 const openSidebar = useState("openSidebar");
+openSidebar.value = true;
 
 const navLinks = [
   { name: 'Home', path: '/admin' },

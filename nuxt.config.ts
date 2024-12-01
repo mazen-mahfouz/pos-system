@@ -48,7 +48,7 @@ export default defineNuxtConfig({
     'notivue/animations.css'
   ],
 
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   modules: [
     '@nuxt/ui',
     'nuxt-swiper',

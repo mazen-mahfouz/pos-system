@@ -16,18 +16,25 @@
                     <Icon name="material-symbols:calendar-month-outline-rounded" class="text-[#6b9bfa] text-[20px]" />
                 </div>
             </div>
-            <UDropdown v-model:open="open" :items="items" :ui="{  width: 'w-48',  container: '!inset-[0px_auto_auto_25px]', item: { disabled: 'cursor-text select-text' } }" :popper="{ placement: 'bottom-start' }">
-                <div class="bg-[#f8f8f8] p-[5px_20px] flex justify-between items-center rounded-full gap-[15px]">
-                    <div class="flex justify-center items-center rounded-full">
-                        <img src="/assets/img/avatar.jpg" class="w-[35px] h-[35px] rounded-full"  alt="" />
+            <UDropdown :items="items" :ui="{ item: { disabled: 'cursor-text select-text' } }" :popper="{ placement: 'bottom-start' }">
+                <div class="bg-[#ffffff] shadow-md p-[5px_8px] lg:p-[6px_10px] xl:p-[8px_12px] flex justify-between items-center rounded-full gap-[10px]">
+                    <img src="/assets/img/avatar.png" class="w-[32px] h-[32px] lg:w-[40px] lg:h-[40px] xl:w-[48px] xl:h-[48px] rounded-full" alt="" />
+                </div>
+
+                <template #account="{ item }">
+                    <div class="text-left">
+                        <h1 class="text-[#262626] text-[14px] lg:text-[16px] xl:text-[18px] font-medium">{{ AuthStore?.user?.first_name }} {{ AuthStore?.user?.last_name }}</h1>
+                        <p class="truncate font-medium text-[11px] lg:text-[13px] xl:text-[14px] text-gray-900 dark:text-white">
+                            {{ AuthStore?.user?.roles?.[0]?.name }}
+                        </p>
                     </div>
-                    <h1 class="text-[#040404] text-[14px] font-[400] flex gap-[10px]">Mazen mahfouz
-                        <Icon name="material-symbols:keyboard-arrow-down" class="text-[18px] mt-[4px]" />
-                    </h1>
-                </div>                
+                </template>
+
                 <template #item="{ item }">
-                    <span class="text-[#ff0a0a] text-[13px] font-[400]">{{ item.label }}</span>
-                    <UIcon :name="item.icon" class="flex-shrink-0 h-4 w-4 ms-auto text-[#ff1f1f] text-[22px]" />
+                    <NuxtLink @click="logout(), AuthStore.logout()" class="w-full flex items-center justify-between">
+                        <span class="text-[#ff0a0a] text-[13px] font-[400]">{{ item.label }}</span>
+                        <UIcon :name="item.icon" class="flex-shrink-0 h-4 w-4 ms-auto text-[#ff1f1f] text-[22px]" />
+                    </NuxtLink>
                 </template>
             </UDropdown>
         </div>
@@ -39,13 +46,32 @@ const pageTitle = useState("pageTitle");
 const openSidebar = useState("openSidebar");
 openSidebar.value = false;
 
+import { useAuthStore } from "~/stores/auth";
+
+const AuthStore = useAuthStore();
+
 const items = [
-  [{
-    label: 'Logout',
-    icon: 'mdi:location-exit'
-  }]
-]
-const open = ref(false)
+    [{
+        label: 'ben@example.com',
+        slot: 'account',
+        disabled: true
+    }],
+    [{
+        label: 'Logout',
+        icon: 'mdi:location-exit'
+    }]
+];
+
+const logout = () => {
+    useApi(`logout`, "POST")
+        .then(response => {
+            push.success(response.message)
+            router.push('/auth/login')
+        })
+        .catch(error => {
+            HandleReqErrors(error);
+        });
+};
 
 const formattedDate = ref('');
 const formatDate = () => {
