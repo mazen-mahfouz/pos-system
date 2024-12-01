@@ -499,7 +499,7 @@ const closeDetailsModal = () => {
 const submitUser = async (values) => {
   try {
     const endpoint = isEditing.value ? `users/${selectedUser.value.id}` : 'users';
-    const method = isEditing.value ? 'PUT' : 'POST';
+    const method = isEditing.value ? 'POST' : 'POST';
 
     const userData = {
       first_name: values.first_name,

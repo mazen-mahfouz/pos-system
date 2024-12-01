@@ -562,7 +562,7 @@ const submitItem = async (values) => {
     }
 
     const apiEndpoint = isEditing.value ? `products/${selectedItem.value.id}` : 'products';
-    const method = isEditing.value ? 'PUT' : 'POST';
+    const method = isEditing.value ? 'POST' : 'POST';
 
     const response = await useApi(apiEndpoint, method, {
       type: 'json',

@@ -20,6 +20,8 @@ const navLinks = [
   { name: 'Home', path: '/admin' },
   { name: 'Items', path: '/admin/items' },
   { name: 'Tables', path: '/admin/table' },
+  { name: 'Categories', path: '/admin/categories' },
+  { name: 'Materials', path: '/admin/materials' },
   { name: 'Orders History', path: '/admin/order-history' },
   { name: 'Users', path: '/admin/users' },
   // { name: 'Coupons', path: '/admin/coupons' },

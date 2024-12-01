@@ -264,7 +264,7 @@ const closeAddEditModal = () => {
 
 const submitTable = (values) => {
   const apiEndpoint = isEditing.value ? `tables/${selectedTable.value.id}` : 'tables';
-  const method = isEditing.value ? 'PUT' : 'POST';
+  const method = isEditing.value ? 'POST' : 'POST';
 
   const dataToSubmit = {
     ...values,
