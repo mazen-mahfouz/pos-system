@@ -11,19 +11,6 @@ export default function handlePickFile(file) {
         url: null,
     };
 
-    // Initialize an upload operation
-    // const initializeUpload = () => {
-    //     if (Object.keys(returnedFileData).length > 0) {
-    //         useApi("media/initialize-upload", "POST", { media_capable_type: "user", media_capable_id: AuthStore.token })
-    //             .then((res) => {
-    //                 console.log(res);
-    //             })
-    //             .catch((err) => {
-    //                 console.log(err.reponse);
-    //             });
-    //     }
-    // };
-
     const imageExt = ["png", "jpg", "jpeg"];
     if (file) {
         const extension = file.name.split(".").pop().toLowerCase();

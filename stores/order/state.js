@@ -1,5 +1,5 @@
 export const state = () => ({
-  openOrder: false,
+  openOrder: true,
   orders: [],
   pendingItem: null,
   currentOrder: {

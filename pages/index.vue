@@ -18,11 +18,9 @@ onMounted(() => {
   
   // Log connection status
   $echo.connector.pusher.connection.bind('connected', () => {
-    console.log('Successfully connected to WebSocket');
   });
 
   $echo.connector.pusher.connection.bind('error', (error) => {
-    console.error('WebSocket connection error:', error);
   });
 
   // Subscribe to channel

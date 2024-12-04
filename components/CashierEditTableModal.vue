@@ -84,7 +84,7 @@ const TableStore = useTableStore();
 
 onMounted(() => {
   TableStore.initializeWebSocket();
-  TableStore.fetchInitialTables();
+  // TableStore.fetchInitialTables();
 });
 
 // استخدام tables من الـ store بدلاً من التحميل المباشر

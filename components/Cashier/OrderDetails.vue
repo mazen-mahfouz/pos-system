@@ -11,7 +11,7 @@
           <h2 class="text-white text-sm xl:text-xl font-semibold">Order Details</h2>
         </div>
         <span class="bg-white/20 px-2 py-1 rounded-full text-xs xl:text-base text-white">
-          #{{ OrderStore.currentOrder.id || 'New' }}
+          #{{ OrderStore.currentOrder.code || 'New' }}
         </span>
       </div>
     </div>
@@ -314,7 +314,6 @@ const handlePermissionConfirm = async (verified) => {
   switch (permissionAction.value) {
     case 'remove':
       if (selectedItem.value) {
-        console.log('removing item', selectedItem.value);
         OrderStore.removeItem(selectedItem.value.product_id);
         selectedItem.value = null;
       }
@@ -664,7 +663,6 @@ const handleDiscountUpdate = (updatedItem) => {
 };
 
 const handleNoteUpdate = (updatedItem) => {
-  console.log('sadas')
   useApi(`orderItem/${updatedItem.id}/add_note`, 'PUT', {
     type: 'object',
     data: {

@@ -275,10 +275,6 @@ onMounted(() => {
   }
 });
 
-onMounted(() => {
-  console.log(AuthStore.user)
-})
-
 // إضافة دالة handleClose
 const handleClose = () => {
   // تنظيف البيانات

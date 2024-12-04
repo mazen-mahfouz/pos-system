@@ -15,7 +15,7 @@
       <div class="order-details">
         <div class="detail-row">
           <span class="label">Order #:</span>
-          <span class="value">{{ order?.id }}</span>
+          <span class="value">{{ order?.code }}</span>
         </div>
         <div class="detail-row">
           <span class="label">Date:</span>

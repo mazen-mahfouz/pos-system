@@ -103,7 +103,7 @@ onMounted(() => {
   // تهيئة WebSocket عند تحميل المكون
   TableStore.initializeWebSocket();
   // تحميل البيانات الأولية
-  TableStore.fetchInitialTables();
+  // TableStore.fetchInitialTables();
 });
 
 // استخدام tables من الـ store

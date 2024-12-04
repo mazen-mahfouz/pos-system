@@ -38,36 +38,48 @@
     </div>
 
     <div class="flex items-center gap-[10px] lg:gap-[15px] xl:gap-[20px]">
-      <!-- Print Button -->
-
-      <div @click="handleSplitClick" 
-       class="bg-[#ffffff] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in rounded-full"
-       :class="canSplitOrder ? 'hover:bg-[#f2f2f2] text-[#1e8370]' : 'opacity-50 cursor-not-allowed text-gray-400'">
+      <!-- Kitchen Print Button -->
+      <div @click="handleKitchenPrintClick" 
+           class="bg-[#ffffff] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in rounded-full"
+           :class="canPrintOrder ? 'hover:bg-[#f2f2f2] text-[#ff6b00]' : 'opacity-50 cursor-not-allowed text-gray-400'">
         <div class="flex items-center justify-between gap-[10px]">
-          <div class="bg-[#f5f9ff] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
+          <div class="bg-[#fff5f0] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
+            <Icon name="mdi:silverware-fork-knife" class="text-[15px] lg:text-[17px] xl:text-[19px]" />
+          </div>
+          <h1 class="text-[10px] lg:text-[12px] xl:text-[14px] font-[600]">Kitchen</h1>
+        </div>
+      </div>
+
+      <!-- Split Button -->
+      <div @click="handleSplitClick" 
+           class="bg-[#ffffff] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in rounded-full"
+           :class="canSplitOrder ? 'hover:bg-[#f2f2f2] text-[#9c27b0]' : 'opacity-50 cursor-not-allowed text-gray-400'">
+        <div class="flex items-center justify-between gap-[10px]">
+          <div class="bg-[#fdf2ff] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
             <Icon name="mdi:call-split" class="text-[15px] lg:text-[17px] xl:text-[19px]" />
           </div>
           <h1 class="text-[10px] lg:text-[12px] xl:text-[14px] font-[600]">Split</h1>
         </div>
       </div>
 
+      <!-- Print Button -->
       <div @click="handlePrintClick" 
            class="bg-[#ffffff] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in rounded-full"
-           :class="canPrintOrder ? 'hover:bg-[#f2f2f2] text-[#1e8370]' : 'opacity-50 cursor-not-allowed text-gray-400'">
+           :class="canPrintOrder ? 'hover:bg-[#f2f2f2] text-[#2196f3]' : 'opacity-50 cursor-not-allowed text-gray-400'">
         <div class="flex items-center justify-between gap-[10px]">
-          <div class="bg-[#f5f9ff] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
+          <div class="bg-[#f0f7ff] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
             <Icon name="mdi:printer" class="text-[15px] lg:text-[17px] xl:text-[19px]" />
           </div>
           <h1 class="text-[10px] lg:text-[12px] xl:text-[14px] font-[600]">Print</h1>
         </div>
       </div>
 
-      <!-- Discount Button (existing) -->
+      <!-- Discount Button -->
       <div @click="handleDiscountClick" 
            class="bg-[#ffffff] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in rounded-full"
-           :class="canApplyDiscount ? 'hover:bg-[#f2f2f2] text-[#1e8370]' : 'opacity-50 cursor-not-allowed text-gray-400'">
+           :class="canApplyDiscount ? 'hover:bg-[#f2f2f2] text-[#4caf50]' : 'opacity-50 cursor-not-allowed text-gray-400'">
         <div class="flex items-center justify-between gap-[10px]">
-          <div class="bg-[#f5f9ff] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
+          <div class="bg-[#f0fff1] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
             <Icon name="mdi:tag-outline" class="text-[15px] lg:text-[17px] xl:text-[19px]" />
           </div>
           <h1 class="text-[10px] lg:text-[12px] xl:text-[14px] font-[600]">Discount</h1>
@@ -78,27 +90,33 @@
       <div @click="openShiftModal" 
            class="bg-[#ffffff] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in hover:bg-[#f2f2f2] rounded-full">
         <div class="flex items-center justify-between gap-[10px]">
-          <div class="bg-[#f5f9ff] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
-            <Icon name="mdi:cash-register" class="text-[#1e8370] text-[15px] lg:text-[17px] xl:text-[19px]" />
+          <div class="bg-[#fff8e1] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
+            <Icon name="mdi:cash-register" class="text-[#ffa000] text-[15px] lg:text-[17px] xl:text-[19px]" />
           </div>
-          <h1 class="text-[10px] lg:text-[12px] xl:text-[14px] font-[600]">Shift</h1>
+          <h1 class="text-[10px] lg:text-[12px] xl:text-[14px] font-[600] text-[#ffa000]">Shift</h1>
         </div>
       </div>
 
-      <div @click="openOrdersModal" class="bg-[#ffffff] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in hover:bg-[#f2f2f2] flex justify-between items-center rounded-full gap-[10px]">
-        <div class="flex items-center justify-between gap-[10px]" >
-          <div class="bg-[#f5f9ff] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
-            <Icon name="line-md:list" class="text-[#1e8370] text-[15px] lg:text-[17px] xl:text-[19px]" />
+      <!-- Orders Button -->
+      <div @click="openOrdersModal" 
+           class="bg-[#ffffff] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in hover:bg-[#f2f2f2] rounded-full">
+        <div class="flex items-center justify-between gap-[10px]">
+          <div class="bg-[#e8eaf6] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
+            <Icon name="line-md:list" class="text-[#3f51b5] text-[15px] lg:text-[17px] xl:text-[19px]" />
           </div>
-          <h1 class="text-[#040404] text-[10px] lg:text-[12px] xl:text-[14px] font-[600]">Orders</h1>
+          <h1 class="text-[#3f51b5] text-[10px] lg:text-[12px] xl:text-[14px] font-[600]">Orders</h1>
         </div>
       </div>
-      <div @click="openNewOrder" v-if="!OrderStore.$state.openOrder" class="bg-[#1ca84f] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in hover:bg-[#299751] flex justify-between items-center rounded-full gap-[10px]">
-        <div class="flex items-center justify-between gap-[10px]" >
-        <div class="bg-[#f1f6ff] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
-          <Icon name="i-heroicons-plus" class="text-[#125b2d] text-[13px] lg:text-[15px] xl:text-[17px]" />
-        </div>          
-        <h1 class="text-[#fff] text-[10px] lg:text-[12px] xl:text-[14px] font-[600]">New order</h1>
+
+      <!-- New Order Button -->
+      <div @click="openNewOrder" 
+           v-if="!OrderStore.$state.openOrder" 
+           class="bg-[#1ca84f] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in hover:bg-[#299751] rounded-full">
+        <div class="flex items-center justify-between gap-[10px]">
+          <div class="bg-[#f1f6ff] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
+            <Icon name="i-heroicons-plus" class="text-[#125b2d] text-[13px] lg:text-[15px] xl:text-[17px]" />
+          </div>
+          <h1 class="text-[#fff] text-[10px] lg:text-[12px] xl:text-[14px] font-[600]">New order</h1>
         </div>
       </div>
     </div>
@@ -237,6 +255,12 @@
   @split-complete="handleSplitComplete"
 />
 
+<!-- Add Kitchen Receipt Template -->
+<KitchenReceiptTemplate
+  ref="kitchenReceiptRef"
+  :order="OrderStore.currentOrder"
+/>
+
 </template>
 
 <script setup>
@@ -247,6 +271,7 @@ import { useAuthStore } from "~/stores/auth";
 import CashierPermissionModal from '~/components/Cashier/PermissionModal.vue'
 import CashierShiftDetailsModal from '~/components/Cashier/ShiftDetailsModal.vue';
 import CashierSplitOrderModal from '~/components/Cashier/SplitOrderModal.vue';
+import KitchenReceiptTemplate from './KitchenReceiptTemplate.vue';
 
 const emit = defineEmits(['open-discount-modal']);
 
@@ -260,7 +285,6 @@ const discountType = ref('cash');
 const discountAmount = ref('');
 
 const openNewOrder = () => {
-  console.log(OrderStore.$state.openOrder)
   if(OrderStore.$state.openOrder){
     push.error('There is an open order now.');
   }else{
@@ -269,7 +293,6 @@ const openNewOrder = () => {
 };
 
 const openOrders = () => {
-  console.log(OrderStore.$state.openOrder)
   if(OrderStore.$state.openOrder){
     push.error('There is an open order now.');
   }else{
@@ -332,7 +355,6 @@ const toggleSidebar = () => {
 
 onMounted(() => {
   formatDate();
-  console.log(useCookie('PosUserData'))
 });
 
 const canApplyDiscount = computed(() => {
@@ -532,6 +554,18 @@ const handleSplitComplete = async (splitData) => {
     console.error('Error splitting order:', error);
     push.error('Failed to split order');
   }
+};
+
+const kitchenReceiptRef = ref(null);
+
+// Add kitchen print handler
+const handleKitchenPrintClick = () => {
+  if (!canPrintOrder.value) {
+    push.error('Please add items to the order first');
+    return;
+  }
+  
+  kitchenReceiptRef.value?.printReceipt();
 };
 
 </script>

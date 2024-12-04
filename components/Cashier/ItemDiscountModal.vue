@@ -241,7 +241,6 @@ const closeModal = () => {
 // Reset form when modal opens
 watch(() => props.modelValue, (newValue) => {
   if (newValue) {
-    console.log(props.item);
     discountType.value = props.item?.discount_type || 'cash';
     amount.value = props.item?.discount || '';
     showError.value = false;

@@ -283,8 +283,6 @@ const submitForm = async (values) => {
       })
     };
 
-    // طباعة للتأكد من شكل البيانات قبل الإرسال
-    console.log('Formatted Values:', formattedValues);
     
     emit('submit', formattedValues);
   } catch (error) {

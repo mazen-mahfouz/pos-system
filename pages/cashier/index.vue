@@ -161,7 +161,7 @@ onMounted(() => {
 .item-move,
 .item-enter-active,
 .item-leave-active {
-  transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: all 0.1s ease-out;
 }
 
 .item-enter-from {
@@ -203,6 +203,6 @@ onMounted(() => {
 }
 
 .item-enter-active {
-  animation: fadeInUp 0.5s ease-out both;
+  animation: fadeInUp 0.1s ease-out both;
 }
 </style>

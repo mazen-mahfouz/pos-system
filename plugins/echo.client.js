@@ -19,6 +19,6 @@ export default defineNuxtPlugin(() => {
   return {
     provide: {
       echo
-    }
-  };
+    }
+  };
 });
