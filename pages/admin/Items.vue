@@ -152,7 +152,7 @@
                     name="name"
                     type="text"
                     required
-                    class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
                     :class="{ 'border-red-500': errors.name }"
                     placeholder="Enter item name"
                   />
@@ -170,7 +170,7 @@
                     as="select"
                     name="category_id"
                     required
-                    class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input custom-select"
+                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input custom-select"
                     :class="{ 'border-red-500': errors.category_id }"
                   >
                     <option value="">Select a category</option>
@@ -193,7 +193,7 @@
                     type="number"
                     step="0.01"
                     required
-                    class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
                     :class="{ 'border-red-500': errors.price }"
                     placeholder="Enter item price"
                   />
@@ -210,7 +210,7 @@
                   <Field
                     name="description"
                     as="textarea"
-                    class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
                     :class="{ 'border-red-500': errors.description }"
                     placeholder="Enter item description"
                   />

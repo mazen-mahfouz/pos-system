@@ -2,6 +2,7 @@ export const state = () => ({
   openOrder: true,
   orders: [],
   pendingItem: null,
+  isProcessing: false,
   currentOrder: {
     id: null,
     guest: '',

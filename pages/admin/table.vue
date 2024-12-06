@@ -97,7 +97,7 @@
                     name="number"
                     type="text"
                     required
-                    class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
                     :class="{ 'border-red-500': errors.number }"
                     placeholder="Enter table number"
                   />
@@ -115,7 +115,7 @@
                     name="capacity"
                     type="number"
                     required
-                    class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
                     :class="{ 'border-red-500': errors.capacity }"
                     placeholder="Enter table capacity"
                   />

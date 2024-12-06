@@ -19,15 +19,24 @@ export const orderManagement = {
   },
 
   async placeOrder() {
+    if (this.currentOrder?.items?.length === 0) {
+      push.error('Add items');
+      return;
+    }
+
+    this.isProcessing = true;
     try {
       const orderData = {
+        guest: this.currentOrder.guest,
         type: this.currentOrder.type,
         table_id: this.currentOrder.table_id,
-        guest: this.currentOrder.guest,
+        items: this.currentOrder.items.map(item => ({
+          product_id: item.product_id,
+          quantity: item.quantity
+        })),
         shift_id: this.currentOrder.shift_id,
       };
 
-      // Add discount if exists
       if (this.currentOrder.discount && this.currentOrder.discount_type) {
         orderData.discount = {
           type: this.currentOrder.discount_type,
@@ -35,15 +44,6 @@ export const orderManagement = {
         };
       }
 
-      // Add items only for new orders
-      if (!this.currentOrder.id) {
-        orderData.items = this.currentOrder.items.map(item => ({
-          product_id: item.product_id,
-          quantity: item.quantity
-        }));
-      }
-
-      // Choose endpoint and method based on whether it's an update or new order
       const endpoint = this.currentOrder.id ? `orders/${this.currentOrder.id}` : 'orders';
       const method = this.currentOrder.id ? 'PUT' : 'POST';
 
@@ -52,7 +52,6 @@ export const orderManagement = {
         data: orderData
       });
 
-      // تحديث الـ currentOrder بالريسبونس في حالة الأوردر الجديد
       if (!this.currentOrder.id && response) {
         this.updateOrderFromResponse(response.order);
       }
@@ -61,6 +60,8 @@ export const orderManagement = {
     } catch (error) {
       console.error('Order placement/update error:', error);
       throw error;
+    } finally {
+      this.isProcessing = false;
     }
   },
 

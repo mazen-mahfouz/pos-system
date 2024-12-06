@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full rounded-lg flex justify-between py-[10px] shadow-[0px_2px_6px_#c4c4c470]">
+    <div class="w-full rounded-lg flex justify-between p-[10px] shadow-[0px_2px_6px_#c4c4c470]">
         <div class="flex items-center justify-between gap-[30px]">
             <div @click="openSidebar = !openSidebar" class="bg-[#f8f8f8] p-[10px] flex justify-center items-center cursor-pointer rounded-full">
                 <Icon name="humbleicons:align-text-justify" class="text-[#2d71f8] text-[28px]" />

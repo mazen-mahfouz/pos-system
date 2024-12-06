@@ -116,7 +116,7 @@
                     name="name"
                     type="text"
                     required
-                    class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
                     placeholder="Enter material name"
                   />
                 </div>
@@ -134,7 +134,7 @@
                     name="quantity"
                     type="number"
                     required
-                    class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
                     placeholder="Enter quantity"
                   />
                 </div>
@@ -152,7 +152,7 @@
                     name="unit"
                     type="text"
                     required
-                    class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
                     placeholder="Enter unit (e.g., kg, g, l)"
                   />
                 </div>
@@ -171,7 +171,7 @@
                     type="number"
                     step="0.01"
                     required
-                    class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
                     placeholder="Enter purchase price"
                   />
                 </div>

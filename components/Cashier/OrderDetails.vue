@@ -296,7 +296,7 @@ const permissionAction = ref('');
 const selectedItem = ref(null);
 const pendingAction = ref(null);
 
-const isButtonDisabled = computed(() => OrderStore.isButtonDisabled);
+const isButtonDisabled = computed(() => OrderStore.isProcessing);
 
 const showDiscountModal = ref(false);
 
@@ -371,15 +371,10 @@ const handleIncreaseQuantity = async (item) => {
   if (isButtonDisabled.value) return;
   
   try {
-    isButtonDisabled.value = true;
     await OrderStore.increaseQuantity(item.id);
   } catch (error) {
     console.error('Error increasing quantity:', error);
     push.error('Failed to increase quantity');
-  } finally {
-    setTimeout(() => {
-      isButtonDisabled.value = false;
-    }, 500);
   }
 };
 

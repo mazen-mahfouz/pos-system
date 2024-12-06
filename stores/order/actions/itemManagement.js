@@ -1,32 +1,33 @@
 export const itemManagement = {
   async addItemToOrder(item) {
-    const existingItem = this.currentOrder.items.find(i => 
-      i.product_id === item.id || 
-      i.id === item.id || 
-      i.order_id === item.id
-    );
+    this.isProcessing = true;
+    try {
+      const existingItem = this.currentOrder.items.find(i => 
+        i.product_id === item.id || 
+        i.id === item.id || 
+        i.order_id === item.id
+      );
 
-    if (existingItem) {
-      this.increaseQuantity(existingItem.id || existingItem.order_id);
-      return;
-    }
+      if (existingItem) {
+        await this.increaseQuantity(existingItem.id || existingItem.order_id);
+        return;
+      }
 
-    // إضافة العنصر الجديد للطلب الحالي
-    this.currentOrder.items.push({
-      product_id: item.id,
-      quantity: 1,
-      name: item.name,
-      price: item.price,
-      image: item.image,
-      order_id: null
-    });
+      // إضافة العنصر الجديد للطلب الحالي
+      this.currentOrder.items.push({
+        product_id: item.id,
+        quantity: 1,
+        name: item.name,
+        price: item.price,
+        image: item.image,
+        order_id: null
+      });
 
-    // إذا لم يكن هناك طلب حالي، قم بإنشاء طلب جديد
-    if (!this.currentOrder.id) {
-      await this.placeOrder();
-    } else {
-      // إذا كان هناك طلب حالي، أضف العنصر فقط
-      try {
+      // إذا لم يكن هناك طلب حالي، قم بإنشاء طلب جديد
+      if (!this.currentOrder.id) {
+        await this.placeOrder();
+      } else {
+        // إذا كان هناك طلب حالي، أضف العنصر فقط
         const response = await useApi('orderItem', 'POST', {
           type: 'object',
           data: {
@@ -35,31 +36,38 @@ export const itemManagement = {
             quantity: 1
           }
         });
-        
-        // WebSocket سيقوم بتحديث البيانات تلقائياً من خلال order-updated
-      } catch (error) {
-        console.error('Error adding item to order:', error);
       }
+    } catch (error) {
+      console.error('Error adding item to order:', error);
+      throw error;
+    } finally {
+      this.isProcessing = false;
     }
   },
 
-  increaseQuantity(itemId) {
-    const item = this.currentOrder.items.find(i => i.id === itemId || i.order_id === itemId);
-    if (!item) return;
+  async increaseQuantity(itemId) {
+    this.isProcessing = true;
+    try {
+      const item = this.currentOrder.items.find(i => i.id === itemId || i.order_id === itemId);
+      if (!item) return;
 
-    item.quantity++;
-    
-    if (this.currentOrder.id) {
-      useApi(`orderItem/${itemId}`, 'PUT', {
-        type: 'object',
-        data: {
-          quantity: item.quantity
-        }
-      })
-      .catch(error => {
-        item.quantity--;
-        console.error('Failed to update quantity:', error);
-      });
+      item.quantity++;
+      
+      if (this.currentOrder.id) {
+        await useApi(`orderItem/${itemId}`, 'PUT', {
+          type: 'object',
+          data: {
+            quantity: item.quantity
+          }
+        });
+      }
+    } catch (error) {
+      const item = this.currentOrder.items.find(i => i.id === itemId || i.order_id === itemId);
+      if (item) item.quantity--;
+      console.error('Failed to update quantity:', error);
+      throw error;
+    } finally {
+      this.isProcessing = false;
     }
   },
 

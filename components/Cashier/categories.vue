@@ -1,5 +1,26 @@
 <template>
+  <!-- Skeleton Loader -->
+  <div v-if="isLoading" class="px-[5px]">
+    <Swiper :slides-per-view="'auto'" :space-between="7">
+      <SwiperSlide v-for="n in 10" :key="n" class="swiper-slide-auto bg-white rounded-[12px] p-[5px] ml-[10px] ">
+        <ContentLoader 
+          viewBox="0 0 140 140"
+          :speed="2"
+          backgroundColor="#f3f3f3"
+          foregroundColor="#ecebeb"
+          class="w-full h-full"
+        >
+          <rect x="10" y="10" rx="50" ry="50" width="40" height="40" />
+          <rect x="10" y="60" rx="4" ry="4" width="80" height="12" />
+          <rect x="10" y="80" rx="3" ry="3" width="60" height="8" />
+        </ContentLoader>
+      </SwiperSlide>
+    </Swiper>
+  </div>
+
+  <!-- Actual Content -->
   <Swiper
+    v-else
     :slides-per-view="'auto'"
     :space-between="7"
   >
@@ -37,11 +58,13 @@
 
 <script setup>
 import HandleReqErrors from "~/helpers/HandleReqErrors.js";
+import { ContentLoader } from 'vue-content-loader'
 
 const emit = defineEmits(['categoryChanged']);
 
 const categories = ref({});
 const activeCategoryId = ref(null);
+const isLoading = ref(true);
 
 const setActiveCategory = (id) => {
   activeCategoryId.value = id;
@@ -52,16 +75,22 @@ onMounted(() => {
   fetchCategories();
 });
 
-const fetchCategories = () => {
-  useApi(`categories`, "GET")
-    .then(response => {
+const fetchCategories = async () => {
+  try {
+    isLoading.value = true;
+    const response = await useApi(`categories`, "GET");
+    
+    // استخدام requestAnimationFrame للتحسين
+    requestAnimationFrame(() => {
       categories.value = response;
       // Set the initial active category to null (All)
       setActiveCategory(null);
-    })
-    .catch(error => {
-      HandleReqErrors(error);
+      isLoading.value = false;
     });
+  } catch (error) {
+    HandleReqErrors(error);
+    isLoading.value = false;
+  }
 };
 </script>
 
@@ -71,9 +100,14 @@ const fetchCategories = () => {
   border-radius: 12px;
   box-shadow: 0 0px 15px #d0d0d011;
   cursor: pointer;
-  transition: 0.5s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid #fff;
+  will-change: transform, box-shadow;
 }
+
+/* .category-box:hover {
+  transform: translateY(-2px);
+} */
 
 .category-box.active {
   border: 1px solid #2d71f8b8;
@@ -109,6 +143,8 @@ const fetchCategories = () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: background-color;
 }
 
 /* Scrollbar Styling */

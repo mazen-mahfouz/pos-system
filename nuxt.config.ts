@@ -205,8 +205,15 @@ export default defineNuxtConfig({
 		keepalive: true,
 		head: {
 			htmlAttrs: {
-				lang: 'ar'
-			}
+				lang: 'en'
+			},
+			title: 'maresto',
+			link: [
+				{ rel: 'icon', type: 'image/x-icon', href: '/img/small-logo.png' },
+				{ rel: 'apple-touch-icon', sizes: '180x180', href: '/img/small-logo.png' },
+				{ rel: 'icon', type: 'image/png', sizes: '32x32', href: '/img/small-logo.png' },
+				{ rel: 'icon', type: 'image/png', sizes: '16x16', href: '/img/small-logo.png' }
+			]
 		}
 	},
 });

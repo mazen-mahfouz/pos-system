@@ -111,7 +111,7 @@
                     name="code"
                     type="text"
                     required
-                    class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
                     :class="{ 'border-red-500': errors.code }"
                     placeholder="Enter coupon code"
                   />
@@ -129,7 +129,7 @@
                     name="discount"
                     type="number"
                     required
-                    class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
                     :class="{ 'border-red-500': errors.discount }"
                     placeholder="Enter discount percentage"
                   />
@@ -147,7 +147,7 @@
                     name="expiryDate"
                     type="date"
                     required
-                    class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
                     :class="{ 'border-red-500': errors.expiryDate }"
                   />
                 </div>

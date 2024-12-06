@@ -3,14 +3,33 @@
     <CashierCategories @categoryChanged="onCategoryChanged" />
     <CashierSearch @searchChanged="onSearchChanged" />
     
-    <section class="h-[calc(100vh-238px)] lg:h-[calc(100vh-275px)] xl:h-[calc(100vh-310px)]  pb-[10px] overflow-auto grid content-start gap-[5px] mt-[10px] transition-all duration-300 ease-in-out">
-      <!-- إضافة شاشة التحميل -->
-      <div v-if="isLoading" class="col-span-full flex justify-center items-center">
-        <div class="loader"></div>
-      </div>
-      
-      <!-- استخدام TransitionGroup للانتقالات -->
+    <section class="h-[calc(100vh-240px)] lg:h-[calc(100vh-295px)] xl:h-[calc(100vh-315px)]  pb-[10px] overflow-auto grid content-start gap-[5px] mt-[10px] transition-all duration-300 ease-in-out">
+      <!-- Content Loader Skeleton -->
       <TransitionGroup
+        v-if="isLoading"
+        name="item"
+        tag="div"
+        class="grid gap-[10px]"
+        :class="{'grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7': OrderStore.$state.openOrder, 'grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-9': !OrderStore.$state.openOrder }"
+      >
+        <div v-for="n in 20" :key="n" class="bg-white rounded-[12px] p-[5px]">
+          <ContentLoader 
+            viewBox="0 0 200 200"
+            :speed="2"
+            backgroundColor="#f3f3f3"
+            foregroundColor="#ecebeb"
+          >
+            <rect x="0" y="0" rx="8" ry="8" width="200" height="120" />
+            <rect x="0" y="130" rx="4" ry="4" width="170" height="15" />
+            <rect x="0" y="155" rx="3" ry="3" width="80" height="10" />
+            <rect x="140" y="155" rx="3" ry="3" width="60" height="10" />
+          </ContentLoader>
+        </div>
+      </TransitionGroup>
+
+      <!-- Actual Content -->
+      <TransitionGroup
+        v-else
         name="item"
         tag="div"
         class="grid gap-[10px]"
@@ -45,6 +64,7 @@
 <script setup>
 import HandleReqErrors from "~/helpers/HandleReqErrors.js";
 import { useOrderStore } from '~/stores/orderStore';
+import { ContentLoader } from 'vue-content-loader'
 
 const OrderStore = useOrderStore();
 
@@ -97,52 +117,50 @@ const onSearchChanged = (query) => {
   filterItems();
 };
 
-const isItemDisabled = ref(false);
+const isItemDisabled = computed(() => OrderStore.isProcessing);
 
-const handleProductClick = (item) => {
+const handleProductClick = async (item) => {
   if (isItemDisabled.value) return;
   
-  isItemDisabled.value = true;
-  
-  if (!OrderStore.$state.openOrder) {
+  if (!OrderStore.currentOrder.id) {
     OrderStore.setPendingItem(item);
     openNewOrder();
   } else {
-    OrderStore.addItemToOrder(item);
+    try {
+      await OrderStore.addItemToOrder(item);
+    } catch (error) {
+      console.error('Error adding item:', error);
+      push.error('Failed to add item');
+    }
   }
-  
-  setTimeout(() => {
-    isItemDisabled.value = false;
-  }, 1000);
 };
 
-const fetchProducts = () => {
-  isLoading.value = true;
-  useApi('products', "GET")
-    .then(response => {
-      allItems.value = response;
-      filterItems();
-    })
-    .catch(error => {
-      HandleReqErrors(error);
-    })
-    .finally(() => {
-      isLoading.value = false;
-    });
-};
-
+// تحسين أداء الفلترة
 const filterItems = () => {
-  items.value = [];
-  nextTick(() => {
-    setTimeout(() => {
-      items.value = allItems.value.filter(item => {
-        const matchesCategory = selectedCategoryId.value === null || item.category_id === selectedCategoryId.value;
-        const matchesSearch = searchQuery.value === '' || item.name.toLowerCase().includes(searchQuery.value.toLowerCase());
-        return matchesCategory && matchesSearch;
-      });
-      isLoading.value = false;
-    }, 300);
+  isLoading.value = true;
+  
+  // استخدام requestAnimationFrame للتحسين
+  requestAnimationFrame(() => {
+    items.value = allItems.value.filter(item => {
+      const matchesCategory = selectedCategoryId.value === null || item.category_id === selectedCategoryId.value;
+      const matchesSearch = searchQuery.value === '' || item.name.toLowerCase().includes(searchQuery.value.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+    
+    isLoading.value = false;
   });
+};
+
+// تحسين أداء جلب المنتجات
+const fetchProducts = async () => {
+  try {
+    isLoading.value = true;
+    const response = await useApi('products', "GET");
+    allItems.value = response;
+    await filterItems();
+  } catch (error) {
+    HandleReqErrors(error);
+  }
 };
 
 onMounted(() => {
@@ -157,21 +175,22 @@ onMounted(() => {
   box-shadow: 0 0px 10px #2d71f81a;
 }
 
-/* تحسين أنماط الانتقال */
+/* تحسين أداء الانيميشن */
 .item-move,
 .item-enter-active,
 .item-leave-active {
-  transition: all 0.1s ease-out;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
 }
 
 .item-enter-from {
   opacity: 0;
-  transform: translateY(30px) scale(0.9);
+  transform: translateY(20px);
 }
 
 .item-leave-to {
   opacity: 0;
-  transform: translateY(-30px) scale(0.9);
+  transform: translateY(-20px);
 }
 
 /* أنماط شاشة التحميل */

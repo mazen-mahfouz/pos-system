@@ -136,7 +136,7 @@
                     name="first_name"
                     type="text"
                     required
-                    class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
                     :class="{ 'border-red-500': errors.first_name }"
                     placeholder="Enter first name"
                   />
@@ -155,7 +155,7 @@
                     name="last_name"
                     type="text"
                     required
-                    class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
                     :class="{ 'border-red-500': errors.last_name }"
                     placeholder="Enter last name"
                   />
@@ -174,7 +174,7 @@
                     name="username"
                     type="text"
                     required
-                    class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
                     :class="{ 'border-red-500': errors.username }"
                     placeholder="Enter username"
                   />
@@ -193,7 +193,7 @@
                     name="email"
                     type="email"
                     required
-                    class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
                     :class="{ 'border-red-500': errors.email }"
                     placeholder="Enter email"
                   />
@@ -212,7 +212,7 @@
                     name="login_code"
                     type="text"
                     required
-                    class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
                     :class="{ 'border-red-500': errors.login_code }"
                     placeholder="Enter login code"
                   />
@@ -231,7 +231,7 @@
                     name="password"
                     type="password"
                     required
-                    class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
                     :class="{ 'border-red-500': errors.password }"
                     placeholder="Enter password"
                   />
@@ -680,7 +680,7 @@ const selectRole = (role) => {
 .custom-select-field {
   appearance: none;
   width: 100%;
-  padding: 12px 40px 12px 45px;
+  padding: 5px 40px 5px 45px;
   font-size: 14px;
   border: 2px solid #f3f4f6;
   border-radius: 8px;
@@ -688,7 +688,7 @@ const selectRole = (role) => {
   color: #374151;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-height: 48px;
+  min-height: 20px;
 }
 
 .custom-select-field:focus {
@@ -722,7 +722,7 @@ const selectRole = (role) => {
 .custom-select-field option {
   background: white;
   color: #374151;
-  padding: 16px;
+  padding: 5px;
   font-size: 14px;
 }
 

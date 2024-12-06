@@ -127,7 +127,7 @@
                     name="name"
                     type="text"
                     required
-                    class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
                     placeholder="Enter category name"
                   />
                 </div>
@@ -138,15 +138,23 @@
             <!-- Icon -->
             <div>
               <label class="text-md font-medium gap-[5px] text-gray-700 flex items-start flex-col !border-b !border-b-[#cdcdcd]">
-                <span class="text-[14px]">Icon (FontAwesome class)</span>
+                <span class="text-[14px]">Icon</span>
                 <div class="flex items-center w-full">
                   <Icon name="mdi:image" class="text-pink-500 text-[22px]" />
-                  <Field
-                    name="icon"
-                    type="text"
-                    class="block w-full px-3 py-7 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
-                    placeholder="e.g., fa-dish"
-                  />
+                  <Field name="icon" v-slot="{ field }">
+                    <select 
+                      v-bind="field"
+                      class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                    >
+                      <option value="">Select an icon</option>
+                      <option v-for="icon in iconsList" :key="icon.value" :value="icon.value">
+                        <div class="flex items-center">
+                          <Icon :name="icon.value" class="mr-2" />
+                          {{ icon.label }}
+                        </div>
+                      </option>
+                    </select>
+                  </Field>
                 </div>
               </label>
               <ErrorMessage name="icon" class="text-red-500 text-xs mt-1" />
@@ -154,21 +162,22 @@
 
             <!-- Color -->
             <div>
-              <label class="text-md font-medium gap-[5px] text-gray-700 flex items-start flex-col">
+              <label class="text-md font-medium gap-[5px] text-gray-700 flex items-start flex-col !border-b !border-b-[#cdcdcd]">
                 <span class="text-[14px]">Color</span>
                 <div class="flex items-center w-full">
+                  <Icon name="mdi:palette" class="text-pink-500 text-[22px]" />
                   <Field name="color" v-slot="{ field }">
                     <select 
                       v-bind="field"
-                      class="block w-full px-3 py-2 rounded-md text-[14px] border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
+                      class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
                     >
                       <option value="">Select a color</option>
-                      <option value="red">Red</option>
-                      <option value="blue">Blue</option>
-                      <option value="green">Green</option>
-                      <option value="yellow">Yellow</option>
-                      <option value="purple">Purple</option>
-                      <option value="pink">Pink</option>
+                      <option v-for="color in colorsList" :key="color.value" :value="color.value">
+                        <div class="flex items-center">
+                          <div :class="`w-4 h-4 rounded-full bg-${color.value}-500 mr-2`"></div>
+                          {{ color.label }}
+                        </div>
+                      </option>
                     </select>
                   </Field>
                 </div>
@@ -373,8 +382,86 @@ const exportToPDF = () => {
   });
   doc.save("categories_list.pdf");
 };
+
+// Add these constants after the existing imports
+const iconsList = [
+  // Restaurant & Cafe Categories
+  { value: 'material-symbols:restaurant', label: 'Restaurant' },
+  { value: 'material-symbols:restaurant-menu', label: 'Menu' },
+  { value: 'mdi:coffee', label: 'Coffee' },
+  { value: 'mdi:food', label: 'Food' },
+  { value: 'mdi:food-fork-drink', label: 'Restaurant' },
+  { value: 'mdi:silverware-fork-knife', label: 'Dining' },
+  { value: 'mdi:coffee-maker', label: 'Coffee Maker' },
+  { value: 'mdi:coffee-to-go', label: 'Coffee To Go' },
+  { value: 'mdi:cake', label: 'Cake' },
+  { value: 'mdi:cake-variant', label: 'Dessert' },
+  { value: 'mdi:pizza', label: 'Pizza' },
+  { value: 'mdi:hamburger', label: 'Burger' },
+  { value: 'mdi:noodles', label: 'Noodles' },
+  { value: 'mdi:pasta', label: 'Pasta' },
+  { value: 'mdi:bread-slice', label: 'Bread' },
+  { value: 'mdi:cookie', label: 'Cookie' },
+  { value: 'mdi:ice-cream', label: 'Ice Cream' },
+  { value: 'mdi:cup-water', label: 'Drinks' },
+  { value: 'mdi:glass-cocktail', label: 'Cocktails' },
+  { value: 'mdi:glass-wine', label: 'Wine' },
+  { value: 'mdi:beer', label: 'Beer' },
+  { value: 'mdi:bottle-soda', label: 'Soft Drinks' },
+  { value: 'mdi:bottle-soda-classic', label: 'Soda' },
+  { value: 'mdi:fruit-watermelon', label: 'Fruits' },
+  { value: 'mdi:fruit-citrus', label: 'Citrus' },
+  { value: 'mdi:food-apple', label: 'Apple' },
+  { value: 'mdi:carrot', label: 'Vegetables' },
+  { value: 'mdi:fish', label: 'Seafood' },
+  { value: 'mdi:egg', label: 'Breakfast' },
+  { value: 'mdi:pot-steam', label: 'Hot Dishes' },
+  { value: 'mdi:bowl-mix', label: 'Salads' },
+  { value: 'mdi:soup', label: 'Soup' },
+  { value: 'mdi:chili-mild', label: 'Spicy' },
+  { value: 'mdi:cheese', label: 'Cheese' },
+  { value: 'mdi:shaker', label: 'Seasonings' },
+  { value: 'mdi:grill', label: 'Grilled' },
+  { value: 'mdi:blender', label: 'Smoothies' },
+  { value: 'mdi:tea', label: 'Tea' },
+  { value: 'mdi:cupcake', label: 'Cupcake' },
+  { value: 'mdi:cookie', label: 'Cookies' },
+  { value: 'mdi:french-fries', label: 'Fries' },
+  { value: 'mdi:sandwich', label: 'Sandwich' },
+  { value: 'mdi:taco', label: 'Mexican' },
+  { value: 'mdi:sushi', label: 'Sushi' },
+  { value: 'mdi:rice', label: 'Rice' },
+  // Special Categories
+  { value: 'mdi:star', label: 'Special' },
+  { value: 'mdi:fire', label: 'Hot' },
+  { value: 'mdi:leaf', label: 'Vegan' },
+  { value: 'mdi:heart', label: 'Healthy' },
+  { value: 'mdi:new-box', label: 'New' },
+];
+
+const colorsList = [
+  { value: 'red', label: 'Red' },
+  { value: 'blue', label: 'Blue' },
+  { value: 'green', label: 'Green' },
+  { value: 'yellow', label: 'Yellow' },
+  { value: 'purple', label: 'Purple' },
+  { value: 'pink', label: 'Pink' },
+];
 </script>
 
 <style scoped>
-/* Keep the same styles as before and add any category-specific styles if needed */
+.custom-input {
+  border: none;
+  outline: none;
+  background: transparent;
+}
+
+select.custom-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
 </style> 

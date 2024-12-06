@@ -13,7 +13,10 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     AuthStore.user = userCookie;
 
     if (to.path === '/auth/login') {
-      return navigateTo('/');
+      return navigateTo('/cashier');
+    }
+    if (to.path === '/') {
+      return navigateTo('/cashier');
     }
 
   } else {

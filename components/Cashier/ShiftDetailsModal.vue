@@ -8,7 +8,7 @@
     <Transition name="fade">
       <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-30 p-4"
            @click="handleClose">
-        <div class="bg-white py-3 px-2 rounded-xl w-full md:w-[95%] lg:w-[60%] xl:max-w-[550px] md:max-h-[90vh] flex flex-col shadow-xl"
+        <div class="bg-white py-3 px-2 rounded-xl w-full max-w-[550px] md:w-[95%] lg:w-[60%] xl:max-w-[550px] md:max-h-[90vh] flex flex-col shadow-xl"
              @click.stop>
           <!-- Modal Header -->
           <div class="px-4 py-2 md:py-3 flex justify-between items-center border-b sticky top-0 bg-white z-10">
@@ -20,9 +20,114 @@
 
           <!-- Modal Content -->
           <div class="flex-1 overflow-y-auto px-2 md:px-4 py-3">
-            <!-- Loading State -->
-            <div v-if="isLoading" class="flex justify-center items-center py-8">
-              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2b3c5e]"></div>
+            <!-- Loading State with Enhanced Content Loader -->
+            <div v-if="isLoading" class="space-y-2">
+              <!-- Timing Cards Skeleton -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 mb-2">
+                <div v-for="n in 2" :key="n" class="relative p-2 border rounded-lg bg-[#f8faff] border-[#2b3c5e]/10">
+                  <ContentLoader 
+                    viewBox="0 0 180 80"
+                    :speed="2"
+                    backgroundColor="#f3f3f3"
+                    foregroundColor="#ecebeb"
+                    class="w-full h-full"
+                  >
+                    <!-- Icon Circle (smaller) -->
+                    <circle cx="60" cy="20" r="12" />
+                    <!-- Title (smaller) -->
+                    <rect x="35" y="40" rx="2" ry="2" width="50" height="8" />
+                    <!-- Time (smaller) -->
+                    <rect x="25" y="55" rx="2" ry="2" width="70" height="6" />
+                  </ContentLoader>
+                </div>
+              </div>
+
+              <!-- Sales Summary Skeleton -->
+              <div class="bg-gray-50 p-2 rounded-lg mb-2">
+                <!-- Header -->
+                <ContentLoader 
+                  viewBox="0 0 180 20"
+                  :speed="2"
+                  backgroundColor="#f3f3f3"
+                  foregroundColor="#ecebeb"
+                  class="w-full mb-1.5"
+                >
+                  <!-- Icon (smaller) -->
+                  <rect x="0" y="0" rx="2" ry="2" width="16" height="16" />
+                  <!-- Title (smaller) -->
+                  <rect x="22" y="4" rx="2" ry="2" width="60" height="8" />
+                </ContentLoader>
+
+                <!-- Summary Items -->
+                <div class="space-y-1">
+                  <div v-for="n in 2" :key="n" class="bg-white p-1.5 rounded-md">
+                    <ContentLoader 
+                      viewBox="0 0 180 24"
+                      :speed="2"
+                      backgroundColor="#f3f3f3"
+                      foregroundColor="#ecebeb"
+                      class="w-full"
+                    >
+                      <!-- Left side (icon + text) -->
+                      <circle cx="10" cy="12" r="5" />
+                      <rect x="20" y="9" rx="2" ry="2" width="60" height="6" />
+                      <!-- Right side (amount) -->
+                      <rect x="120" y="9" rx="2" ry="2" width="45" height="6" />
+                    </ContentLoader>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Payment Methods Skeleton -->
+              <div class="bg-gray-50 p-2 rounded-lg mb-2">
+                <!-- Header -->
+                <ContentLoader 
+                  viewBox="0 0 180 20"
+                  :speed="2"
+                  backgroundColor="#f3f3f3"
+                  foregroundColor="#ecebeb"
+                  class="w-full mb-1.5"
+                >
+                  <!-- Icon (smaller) -->
+                  <rect x="0" y="0" rx="2" ry="2" width="16" height="16" />
+                  <!-- Title (smaller) -->
+                  <rect x="22" y="4" rx="2" ry="2" width="70" height="8" />
+                </ContentLoader>
+
+                <!-- Payment Items -->
+                <div class="space-y-1">
+                  <div v-for="n in 2" :key="n" class="bg-white p-1.5 rounded-md">
+                    <ContentLoader 
+                      viewBox="0 0 180 24"
+                      :speed="2"
+                      backgroundColor="#f3f3f3"
+                      foregroundColor="#ecebeb"
+                      class="w-full"
+                    >
+                      <!-- Left side (icon + text) -->
+                      <circle cx="10" cy="12" r="5" />
+                      <rect x="20" y="9" rx="2" ry="2" width="50" height="6" />
+                      <!-- Right side (amount) -->
+                      <rect x="120" y="9" rx="2" ry="2" width="45" height="6" />
+                    </ContentLoader>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Buttons Skeleton -->
+              <div class="flex flex-col sm:flex-row gap-1">
+                <ContentLoader 
+                  v-for="n in 3"
+                  :key="n"
+                  viewBox="0 0 60 24"
+                  :speed="2"
+                  backgroundColor="#f3f3f3"
+                  foregroundColor="#ecebeb"
+                  class="w-full sm:flex-1"
+                >
+                  <rect x="0" y="0" rx="4" ry="4" width="60" height="24" />
+                </ContentLoader>
+              </div>
             </div>
 
             <!-- Error State -->
@@ -34,7 +139,7 @@
             <template v-else-if="shiftDetails">
               <!-- Shift Timing Cards -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 mb-4">
-                <div class="relative p-4 border-2 rounded-xl bg-[#f8faff] border-[#2b3c5e]">
+                <div class="relative p-4 border-2 rounded-xl bg-[#f8faff] border-[#3947622c]">
                   <div class="flex flex-col items-center space-y-2">
                     <div class="bg-white p-3 rounded-lg shadow-sm">
                       <Icon name="mdi:clock-start" size="28" class="text-[#2b3c5e]" />
@@ -46,7 +151,7 @@
                   </div>
                 </div>
 
-                <div class="relative p-4 border-2 rounded-xl bg-[#f8faff] border-[#2b3c5e]">
+                <div class="relative p-4 border-2 rounded-xl bg-[#f8faff] border-[#3947622c]">
                   <div class="flex flex-col items-center space-y-2">
                     <div class="bg-white p-3 rounded-lg shadow-sm">
                       <Icon name="mdi:clock-end" size="28" class="text-[#2b3c5e]" />
@@ -121,19 +226,25 @@
                 </div>
 
                 <div class="grid gap-2">
-                  <div v-for="payment in shiftDetails.shift.payment_totals" 
-                       :key="payment.method" 
-                       class="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
+                  <!-- Cash Payment -->
+                  <div class="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
                     <div class="flex items-center gap-2">
-                      <Icon 
-                        :name="payment.method === 'Cash' ? 'mdi:cash' : 'mdi:credit-card'" 
-                        size="16" 
-                        class="text-[#2b3c5e]" 
-                      />
-                      <span class="text-sm text-gray-600">{{ payment.method }}</span>
+                      <Icon name="mdi:cash" size="16" class="text-[#2b3c5e]" />
+                      <span class="text-sm text-gray-600">Cash</span>
                     </div>
                     <span class="text-base font-bold text-[#2b3c5e]">
-                      £{{ formatPrice(payment.total_amount) }}
+                      £{{ formatPrice(shiftDetails.shift.payment_totals.find(p => p.method === 'Cash')?.total_amount || 0) }}
+                    </span>
+                  </div>
+
+                  <!-- Card Payment -->
+                  <div class="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
+                    <div class="flex items-center gap-2">
+                      <Icon name="mdi:credit-card" size="16" class="text-[#2b3c5e]" />
+                      <span class="text-sm text-gray-600">Card</span>
+                    </div>
+                    <span class="text-base font-bold text-[#2b3c5e]">
+                      £{{ formatPrice(shiftDetails.shift.payment_totals.find(p => p.method === 'Card')?.total_amount || 0) }}
                     </span>
                   </div>
                 </div>
@@ -174,6 +285,7 @@
 
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue'
+import { ContentLoader } from 'vue-content-loader'
 import ShiftReceiptTemplate from './ShiftReceiptTemplate.vue'
 import { useAuthStore } from "~/stores/auth";
 import HandleReqErrors from "~/helpers/HandleReqErrors.js"
@@ -208,11 +320,33 @@ const formatDateTime = (dateString) => {
   }).format(date)
 }
 
-const isLoading = computed(() => loading.value)
+// Debounce function
+const debounce = (fn, wait) => {
+  let timeout
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout)
+      fn(...args)
+    }
+    clearTimeout(timeout)
+    timeout = setTimeout(later, wait)
+  }
+}
 
+// Optimized fetch function with caching
+const cache = new Map()
 const fetchShiftDetails = async () => {
-  if (!useCookie('PosUserData').value?.shift) {
+  const shiftId = useCookie('PosUserData').value?.shift
+  
+  if (!shiftId) {
     error.value = 'No active shift found'
+    return
+  }
+
+  // Check cache first
+  const cacheKey = `shift_${shiftId}`
+  if (cache.has(cacheKey)) {
+    shiftDetails.value = cache.get(cacheKey)
     return
   }
 
@@ -220,9 +354,15 @@ const fetchShiftDetails = async () => {
   error.value = null
   
   try {
-    const response = await useApi(`shift/${useCookie('PosUserData').value.shift}/details`, 'GET')
+    const response = await useApi(`shift/${shiftId}/details`, 'GET')
     if (!response) throw new Error('No data received')
-    shiftDetails.value = response
+    
+    // Update UI in next frame
+    requestAnimationFrame(() => {
+      shiftDetails.value = response
+      // Cache the result
+      cache.set(cacheKey, response)
+    })
   } catch (err) {
     error.value = err.message || 'Failed to load shift details'
     console.error('Error fetching shift details:', err)
@@ -232,57 +372,79 @@ const fetchShiftDetails = async () => {
   }
 }
 
-const printShiftDetails = () => {
+// Debounced print function
+const printShiftDetails = debounce(() => {
   if (!shiftDetails.value?.shift) {
     push.error('No shift data available to print')
     return
   }
   receiptTemplateRef.value?.print()
-}
+}, 300)
 
+// Optimized close shift function
 const closeShift = async () => {
   loading.value = true
+  const shiftId = useCookie('PosUserData').value?.shift
+  
   try {
-    const shiftId = useCookie('PosUserData').value?.shift
     if (!shiftId) throw new Error('No active shift found')
     
     await useApi(`shift/${shiftId}/close`, 'POST')
+    
+    // Clear cache when closing shift
+    cache.clear()
+    
     push.success('Shift closed successfully')
     emit('close')
     AuthStore.logout()
     router.push('/auth/login')
   } catch (err) {
-    push.error(err.data.message)
+    push.error(err.data?.message || 'Failed to close shift')
   } finally {
     loading.value = false
   }
 }
 
-// Fetch data when modal opens
+// Watch for modal changes with improved performance
 watch(() => props.modelValue, (newValue) => {
   if (newValue) {
-    fetchShiftDetails();
+    requestAnimationFrame(() => {
+      fetchShiftDetails()
+    })
   } else {
-    // إعادة تعيين البيانات عند إغلاق Modal
-    shiftDetails.value = null;
-    error.value = null;
+    shiftDetails.value = null
+    error.value = null
   }
-}, { immediate: true }); // إضافة immediate: true للتنفيذ الفوري
+}, { immediate: true })
 
-onMounted(() => {
-  if (props.modelValue) {
-    fetchShiftDetails();
-  }
-});
+// Optimized close handler
+const handleClose = debounce(() => {
+  shiftDetails.value = null
+  error.value = null
+  emit('update:modelValue', false)
+  emit('close')
+}, 200)
 
-// إضافة دالة handleClose
-const handleClose = () => {
-  // تنظيف البيانات
-  shiftDetails.value = null;
-  error.value = null;
-  
-  // إغلاق Modal
-  emit('update:modelValue', false);
-  emit('close');
-};
+// Computed property for loading state
+const isLoading = computed(() => loading.value)
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Optimize animations */
+.modal-content {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+</style>

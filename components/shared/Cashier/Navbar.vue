@@ -41,9 +41,9 @@
       <!-- Kitchen Print Button -->
       <div @click="handleKitchenPrintClick" 
            class="bg-[#ffffff] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in rounded-full"
-           :class="canPrintOrder ? 'hover:bg-[#f2f2f2] text-[#ff6b00]' : 'opacity-50 cursor-not-allowed text-gray-400'">
+           :class="canPrintOrder ? 'hover:bg-[#f2f2f2] text-[#c0392b]' : 'opacity-50 cursor-not-allowed text-gray-400'">
         <div class="flex items-center justify-between gap-[10px]">
-          <div class="bg-[#fff5f0] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
+          <div class="bg-[#fdf4ed] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
             <Icon name="mdi:silverware-fork-knife" class="text-[15px] lg:text-[17px] xl:text-[19px]" />
           </div>
           <h1 class="text-[10px] lg:text-[12px] xl:text-[14px] font-[600]">Kitchen</h1>
@@ -53,7 +53,7 @@
       <!-- Split Button -->
       <div @click="handleSplitClick" 
            class="bg-[#ffffff] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in rounded-full"
-           :class="canSplitOrder ? 'hover:bg-[#f2f2f2] text-[#9c27b0]' : 'opacity-50 cursor-not-allowed text-gray-400'">
+           :class="canSplitOrder ? 'hover:bg-[#f2f2f2] text-[#2c3e50]' : 'opacity-50 cursor-not-allowed text-gray-400'">
         <div class="flex items-center justify-between gap-[10px]">
           <div class="bg-[#fdf2ff] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
             <Icon name="mdi:call-split" class="text-[15px] lg:text-[17px] xl:text-[19px]" />
@@ -65,7 +65,7 @@
       <!-- Print Button -->
       <div @click="handlePrintClick" 
            class="bg-[#ffffff] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in rounded-full"
-           :class="canPrintOrder ? 'hover:bg-[#f2f2f2] text-[#2196f3]' : 'opacity-50 cursor-not-allowed text-gray-400'">
+           :class="canPrintOrder ? 'hover:bg-[#f2f2f2] text-[#2980b9]' : 'opacity-50 cursor-not-allowed text-gray-400'">
         <div class="flex items-center justify-between gap-[10px]">
           <div class="bg-[#f0f7ff] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
             <Icon name="mdi:printer" class="text-[15px] lg:text-[17px] xl:text-[19px]" />
@@ -77,7 +77,7 @@
       <!-- Discount Button -->
       <div @click="handleDiscountClick" 
            class="bg-[#ffffff] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in rounded-full"
-           :class="canApplyDiscount ? 'hover:bg-[#f2f2f2] text-[#4caf50]' : 'opacity-50 cursor-not-allowed text-gray-400'">
+           :class="canApplyDiscount ? 'hover:bg-[#f2f2f2] text-[#16a085]' : 'opacity-50 cursor-not-allowed text-gray-400'">
         <div class="flex items-center justify-between gap-[10px]">
           <div class="bg-[#f0fff1] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
             <Icon name="mdi:tag-outline" class="text-[15px] lg:text-[17px] xl:text-[19px]" />
@@ -91,9 +91,9 @@
            class="bg-[#ffffff] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in hover:bg-[#f2f2f2] rounded-full">
         <div class="flex items-center justify-between gap-[10px]">
           <div class="bg-[#fff8e1] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
-            <Icon name="mdi:cash-register" class="text-[#ffa000] text-[15px] lg:text-[17px] xl:text-[19px]" />
+            <Icon name="mdi:cash-register" class="text-[#d35400] text-[15px] lg:text-[17px] xl:text-[19px]" />
           </div>
-          <h1 class="text-[10px] lg:text-[12px] xl:text-[14px] font-[600] text-[#ffa000]">Shift</h1>
+          <h1 class="text-[10px] lg:text-[12px] xl:text-[14px] font-[600] text-[#d35400]">Shift</h1>
         </div>
       </div>
 
@@ -102,19 +102,19 @@
            class="bg-[#ffffff] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in hover:bg-[#f2f2f2] rounded-full">
         <div class="flex items-center justify-between gap-[10px]">
           <div class="bg-[#e8eaf6] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
-            <Icon name="line-md:list" class="text-[#3f51b5] text-[15px] lg:text-[17px] xl:text-[19px]" />
+            <Icon name="line-md:list" class="text-[#2c3e50] text-[15px] lg:text-[17px] xl:text-[19px]" />
           </div>
-          <h1 class="text-[#3f51b5] text-[10px] lg:text-[12px] xl:text-[14px] font-[600]">Orders</h1>
+          <h1 class="text-[#2c3e50] text-[10px] lg:text-[12px] xl:text-[14px] font-[600]">Orders</h1>
         </div>
       </div>
 
       <!-- New Order Button -->
       <div @click="openNewOrder" 
            v-if="!OrderStore.$state.openOrder" 
-           class="bg-[#1ca84f] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in hover:bg-[#299751] rounded-full">
+           class="bg-[#1abc9c] shadow-md p-[4px_10px] lg:p-[6px_12px] xl:p-[8px_14px] cursor-pointer transition duration-200 ease-in hover:bg-[#16a085] rounded-full">
         <div class="flex items-center justify-between gap-[10px]">
           <div class="bg-[#f1f6ff] p-[3px] lg:p-[4px] xl:p-[5px] flex justify-center items-center rounded-full">
-            <Icon name="i-heroicons-plus" class="text-[#125b2d] text-[13px] lg:text-[15px] xl:text-[17px]" />
+            <Icon name="i-heroicons-plus" class="text-[#16a085] text-[13px] lg:text-[15px] xl:text-[17px]" />
           </div>
           <h1 class="text-[#fff] text-[10px] lg:text-[12px] xl:text-[14px] font-[600]">New order</h1>
         </div>
