@@ -128,7 +128,7 @@
       v-model="showDiscountModal"
       :ui="{ 
         width: 'sm:max-w-[600px]',
-        overlay: { background: 'bg-gray-900/60 backdrop-blur-sm' },
+        overlay: { background: 'bg-gray-900/60 ' },
         height: 'auto',
         padding: 'p-0',
         background: 'bg-white dark:bg-gray-900',

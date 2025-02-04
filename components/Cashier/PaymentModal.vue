@@ -5,7 +5,7 @@
     :ui="{ 
       width: 'sm:max-w-[550px]',
       height: 'h-auto sm:max-h-[90vh] md:max-h-[90vh] lg:max-h-[90vh]',
-      overlay: { background: 'bg-gray-900/60 backdrop-blur-sm' }
+      overlay: { background: 'bg-gray-900/60 ' }
     }"
   >
     <div class="p-4 sm:p-6 h-full overflow-y-auto">
@@ -197,6 +197,7 @@ const OrderStore = useOrderStore();
 // Update the orderData computed property
 const orderData = computed(() => ({
   id: props.orderData.id,
+  code: props.orderData.code,
   type: props.orderData.type,
   table_id: props.orderData.table_id,
   check_number: props.orderData.check_number,

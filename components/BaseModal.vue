@@ -3,7 +3,7 @@
   <Teleport to="body">
     <Transition name="fade">
       <div v-if="modelValue" 
-           class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-40 p-4"
+           class="fixed inset-0 bg-gray-900/60  flex items-center justify-center z-40 p-4"
            @click="$emit('update:modelValue', false)">
         <div class="bg-white rounded-2xl w-full relative overflow-hidden shadow-xl"
              :class="[

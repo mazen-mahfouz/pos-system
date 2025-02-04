@@ -32,7 +32,7 @@
       <!-- Right Section - Content -->
       <div class="w-full lg:w-1/2 flex items-center justify-center p-8">
         <div class="w-full max-w-md">
-          <div class="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8">
+          <div class="bg-white/90 rounded-3xl shadow-2xl p-8">
             <NuxtPage />
           </div>
         </div>

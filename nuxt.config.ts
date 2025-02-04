@@ -87,7 +87,7 @@ export default defineNuxtConfig({
 		},
 	},
 
-	plugins: [{ src: "~/plugins/echo.client.js", mode: "client" }],
+	plugins: [{ src: "~/plugins/echo.client.js", mode: "client" }, { src: "~/plugins/CustomAlert.js", mode: "client" }],
 
 	vite: {
 		server: {

@@ -6,7 +6,7 @@
     />
 
     <Transition name="fade">
-      <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-30 p-4"
+      <div class="fixed inset-0 bg-gray-900/60  flex items-center justify-center z-30 p-4"
            @click="handleClose">
         <div class="bg-white py-3 px-2 rounded-xl w-full max-w-[550px] md:w-[95%] lg:w-[60%] xl:max-w-[550px] md:max-h-[90vh] flex flex-col shadow-xl"
              @click.stop>
