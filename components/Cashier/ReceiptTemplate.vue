@@ -1,5 +1,5 @@
 <template>
-  <div class="receipt-container border border-gray-200 rounded-lg" ref="receiptRef">
+  <div class="receipt-container border border-black rounded-lg" ref="receiptRef">
     <!-- Header -->
     <div class="header">
       <div class="logo-text">
@@ -15,62 +15,62 @@
       <div class="detail-group">
         <div class="detail-item">
           <div class="flex items-center gap-1.5">
-            <i class="fas fa-hashtag text-[13px] text-[#2b3c5e]"></i>
-            <span class="text-[12px] text-gray-600">Order ID</span>
+            <i class="fas fa-hashtag text-black"></i>
+            <span class="text-[12px] text-black font-bold">Order ID</span>
           </div>
-          <p class="mt-1 text-[13px] font-bold text-[#2b3c5e]">#{{ props.order?.code }}</p>
+          <p class="mt-1 text-[13px] font-bold text-black">#{{ props.order?.code }}</p>
         </div>
         
         <div class="detail-item">
           <div class="flex items-center gap-1.5">
-            <i class="far fa-clock text-[13px] text-[#2b3c5e]"></i>
-            <span class="text-[12px] text-gray-600">Date</span>
+            <i class="far fa-clock text-black"></i>
+            <span class="text-[12px] text-black font-bold">Date</span>
           </div>
-          <p class="mt-1 text-[13px] font-medium">{{ formatDateTime(props.order?.created_at) }}</p>
+          <p class="mt-1 text-[13px] font-bold">{{ formatDateTime(props.order?.created_at) }}</p>
         </div>
       </div>
 
       <div class="detail-group">
         <div class="detail-item">
           <div class="flex items-center gap-1.5">
-            <i class="fas fa-circle-check text-[13px] text-[#2b3c5e]"></i>
-            <span class="text-[12px] text-gray-600">Status</span>
+            <i class="fas fa-circle-check text-black"></i>
+            <span class="text-[12px] text-black font-bold">Status</span>
           </div>
-          <span class="mt-1 inline-block status-badge">Live</span>
+          <span class="mt-1 inline-block status-badge font-bold">Live</span>
         </div>
         
         <div class="detail-item">
           <div class="flex items-center gap-1.5">
-            <i class="far fa-user text-[13px] text-[#2b3c5e]"></i>
-            <span class="text-[12px] text-gray-600">Customer</span>
+            <i class="far fa-user text-black"></i>
+            <span class="text-[12px] text-black font-bold">Customer</span>
           </div>
-          <p class="mt-1 text-[13px] font-medium">{{ props.order?.guest || 'Walk-in Customer' }}</p>
+          <p class="mt-1 text-[13px] font-bold">{{ props.order?.guest || 'Walk-in Customer' }}</p>
         </div>
       </div>
 
       <div class="detail-group">
         <div class="detail-item">
           <div class="flex items-center gap-1.5">
-            <i class="fas fa-shopping-bag text-[13px] text-[#2b3c5e]"></i>
-            <span class="text-[12px] text-gray-600">Order Type</span>
+            <i class="fas fa-shopping-bag text-black"></i>
+            <span class="text-[12px] text-black font-bold">Order Type</span>
           </div>
-          <p class="mt-1 text-[13px] font-medium">{{ props.order?.type }}</p>
+          <p class="mt-1 text-[13px] font-bold">{{ props.order?.type }}</p>
         </div>
         
         <div class="detail-item">
           <div class="flex items-center gap-1.5">
-            <i class="fas fa-list text-[13px] text-[#2b3c5e]"></i>
-            <span class="text-[12px] text-gray-600">Items Count</span>
+            <i class="fas fa-list text-black"></i>
+            <span class="text-[12px] text-black font-bold">Items Count</span>
           </div>
-          <p class="mt-1 text-[13px] font-medium">{{ props.order?.items?.length || 0 }}</p>
+          <p class="mt-1 text-[13px] font-bold">{{ props.order?.items?.length || 0 }}</p>
         </div>
 
         <div class="detail-item">
           <div class="flex items-center gap-1.5">
-            <i class="fas fa-money-bill text-[13px] text-[#2b3c5e]"></i>
-            <span class="text-[12px] text-gray-600">Total Amount</span>
+            <i class="fas fa-money-bill text-black"></i>
+            <span class="text-[12px] text-black font-bold">Total Amount</span>
           </div>
-          <p class="mt-1 text-[13px] font-bold text-[#2b3c5e]">£{{ formatPrice(props.order?.total_amount) }}</p>
+          <p class="mt-1 text-[13px] font-bold text-black">£ {{ formatPrice(props.order?.total_amount) }}</p>
         </div>
       </div>
     </div>
@@ -78,18 +78,18 @@
     <!-- Items Table -->
     <div class="items-table">
       <div class="table-header">
-        <div class="col-item">ITEM</div>
-        <div class="col-qty">QTY</div>
-        <div class="col-price">PRICE</div>
-        <div class="col-total">TOTAL</div>
+        <div class="col-item font-bold text-black">ITEM</div>
+        <div class="col-qty font-bold text-black">QTY</div>
+        <div class="col-price font-bold text-black">PRICE</div>
+        <div class="col-total font-bold text-black">TOTAL</div>
       </div>
 
       <div class="table-body">
         <div v-for="item in props.order?.items || []" :key="item.id" class="table-row">
           <div class="col-item">{{ item?.name ? item.name : item?.product?.name }}</div>
           <div class="col-qty">{{ item.quantity }}</div>
-          <div class="col-price">£{{ formatPrice(item.price) }}</div>
-          <div class="col-total">£{{ formatPrice(item.price * item.quantity) }}</div>
+          <div class="col-price">£ {{ formatPrice(item.price) }}</div>
+          <div class="col-total">£ {{ formatPrice(item.price * item.quantity) }}</div>
         </div>
       </div>
     </div>
@@ -98,11 +98,11 @@
     <div class="totals-section">
       <div class="total-row">
         <span>Subtotal</span>
-        <span>£{{ formatPrice(props.order?.sub_total) }}</span>
+        <span>£ {{ formatPrice(props.order?.sub_total) }}</span>
       </div>
       <div class="total-row">
         <span>Tax</span>
-        <span>£{{ formatPrice(props.order?.tax) }}</span>
+        <span>£ {{ formatPrice(props.order?.tax) }}</span>
       </div>
       <div class="total-row">
         <span>Service Charge</span>
@@ -114,7 +114,7 @@
       </div>
       <div class="total-row grand-total">
         <span>Total Amount</span>
-        <span class="amount">£{{ formatPrice(props.order?.total_amount) }}</span>
+        <span class="amount">£ {{ formatPrice(props.order?.total_amount) }}</span>
       </div>
     </div>
   </div>
@@ -130,6 +130,7 @@ const props = defineProps({
     required: true
   }
 });
+
 
 const AuthStore = useAuthStore();
 const receiptRef = ref(null);
@@ -158,6 +159,8 @@ const formatDateTime = (date, timeOnly = false) => {
 };
 
 const printReceipt = () => {
+  console.log(props.order)
+
   const printWindow = window.open('', '_blank', 'width=800,height=600');
   
   const printContent = `
@@ -180,10 +183,12 @@ const printReceipt = () => {
           body {
             margin: 0;
             padding: 8px;
-            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
             font-size: 12px;
             line-height: 1.6;
             background: #fff;
+            color: #000;
+            font-weight: bold;
           }
 
           .receipt-container {
@@ -200,7 +205,8 @@ const printReceipt = () => {
 
           .logo-text {
             font-size: 24px;
-            font-weight: 700;
+            font-weight: 900;
+            font-family: 'Arial Black', 'Helvetica Black', sans-serif;
             color: #000;
             margin-bottom: 8px;
             letter-spacing: 1px;
@@ -215,9 +221,10 @@ const printReceipt = () => {
           }
 
           .store-info {
-            font-size: 12px;
-            font-weight: 500;
-            color: #333;
+            font-size: 13px;
+            font-weight: bold;
+            font-family: Arial, 'Helvetica Neue', sans-serif;
+            color: #000;
           }
 
           .info-cards {
@@ -229,10 +236,10 @@ const printReceipt = () => {
           }
 
           .info-card {
-            background-color: #f8f8f8 !important;
+            background: #fff;
             padding: 10px;
             border-radius: 6px;
-            border: 1px solid #eee;
+            border: 1px solid #000;
           }
 
           .info-card-header {
@@ -251,16 +258,16 @@ const printReceipt = () => {
 
           .info-label {
             font-size: 11px;
-            color: #555;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 500;
+            color: #000;
+            font-weight: bold;
+            font-family: Arial, 'Helvetica Neue', sans-serif;
           }
 
           .info-value {
             margin-top: 4px;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: bold;
+            font-family: Arial, 'Helvetica Neue', sans-serif;
             color: #000;
           }
 
@@ -273,19 +280,21 @@ const printReceipt = () => {
 
           .items-table th {
             font-size: 11px;
-            color: #333;
-            text-transform: uppercase;
+            color: #000;
+            text-transform: none;
             padding: 8px 4px;
             border-bottom: 1px solid #000;
-            font-weight: 600;
+            font-weight: bold;
+            font-family: Arial, 'Helvetica Neue', sans-serif;
           }
 
           .items-table td {
             padding: 8px 4px;
             font-size: 12px;
-            border-bottom: 1px dashed #ddd;
+            border-bottom: 1px dashed #000;
             color: #000;
-            font-weight: 500;
+            font-weight: bold;
+            font-family: Arial, 'Helvetica Neue', sans-serif;
           }
 
           .items-table .text-right {
@@ -304,17 +313,19 @@ const printReceipt = () => {
             justify-content: space-between;
             font-size: 12px;
             margin-bottom: 6px;
-            font-weight: 500;
-            color: #333;
+            font-weight: bold;
+            color: #000;
+            font-family: Arial, 'Helvetica Neue', sans-serif;
           }
 
           .summary-total {
             margin-top: 12px;
             padding-top: 12px;
             border-top: 1px solid #000;
-            font-weight: 700;
+            font-weight: 900;
             font-size: 14px;
             color: #000;
+            font-family: 'Arial Black', 'Helvetica Black', sans-serif;
           }
 
           .receipt-footer {
@@ -323,19 +334,21 @@ const printReceipt = () => {
             border-top: 2px dashed #000;
             text-align: center;
             font-size: 12px;
-            font-weight: 700;
+            font-weight: bold;
             color: #000;
+            font-family: Arial, 'Helvetica Neue', sans-serif;
           }
 
           .qr-section {
             margin: 16px 0;
             padding: 10px;
-            background: #f8f8f8;
+            background: #fff;
             border-radius: 6px;
             font-size: 11px;
-            font-family: monospace;
-            font-weight: 700;
-            border: 1px solid #eee;
+            font-family: Arial, 'Helvetica Neue', sans-serif;
+            font-weight: bold;
+            border: 1px solid #000;
+            color: #000;
           }
         </style>
       </head>
@@ -398,8 +411,8 @@ const printReceipt = () => {
                 <tr>
                   <td>${item?.name || item?.product?.name}</td>
                   <td class="text-right">${item.quantity}</td>
-                  <td class="text-right">£${formatPrice(item.price)}</td>
-                  <td class="text-right">£${formatPrice(item.price * item.quantity)}</td>
+                  <td class="text-right">£ ${formatPrice(item.price)}</td>
+                  <td class="text-right">£ ${formatPrice(item.price * item.quantity)}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -408,27 +421,25 @@ const printReceipt = () => {
           <div class="summary-section">
             <div class="summary-row">
               <span><i class="fas fa-calculator"></i> Subtotal:</span>
-              <span>£${formatPrice(props.order?.sub_total)}</span>
+              <span>£ ${formatPrice(props.order?.sub_total)}</span>
             </div>
-            <div class="summary-row">
-              <span><i class="fas fa-percent"></i> VAT (20%):</span>
-              <span>£${formatPrice(props.order?.tax)}</span>
-            </div>
-            ${props.order?.service ? `
-              <div class="summary-row">
-                <span><i class="fas fa-concierge-bell"></i> Service:</span>
-                <span>£${formatPrice(props.order?.service)}</span>
-              </div>
-            ` : ''}
             ${props.order?.discount > 0 ? `
               <div class="summary-row">
                 <span><i class="fas fa-tag"></i> Discount:</span>
-                <span>-£${formatPrice(props.order?.discount)}</span>
+                <span>-£ ${formatPrice(props.order?.discount)}</span>
               </div>
             ` : ''}
+            <div class="summary-row">
+              <span><i class="fas fa-concierge-bell"></i> Service:</span>
+              <span>£ ${formatPrice(props.order?.service || 0)}</span>
+            </div>
+            <div class="summary-row">
+              <span><i class="fas fa-percent"></i> VAT (14%):</span>
+              <span>£ ${formatPrice(props.order?.tax)}</span>
+            </div>
             <div class="summary-total">
               <span><i class="fas fa-coins"></i> TOTAL:</span>
-              <span>£${formatPrice(props.order?.total_amount)}</span>
+              <span>£ ${formatPrice(props.order?.total_amount)}</span>
             </div>
           </div>
 
@@ -460,7 +471,83 @@ defineExpose({
 </script>
 
 <style scoped>
+/* تحديث الألوان والخطوط */
+.receipt-container {
+  border-color: #000;
+}
 
+.detail-item {
+  color: #000;
+  font-weight: bold;
+}
+
+.status-badge {
+  color: #000;
+  border: 1px solid #000;
+}
+
+.table-header {
+  border-bottom: 1px solid #000;
+}
+
+.table-row {
+  border-bottom: 1px dashed #000;
+}
+
+.col-item, .col-qty, .col-price, .col-total {
+  color: #000;
+  font-weight: bold;
+}
+
+.total-row {
+  color: #000;
+  font-weight: bold;
+}
+
+.grand-total {
+  color: #000;
+  font-weight: 900;
+  border-top: 1px solid #000;
+}
+
+/* إزالة جميع الألوان من الأيقونات */
+i {
+  color: #000 !important;
+}
+
+/* تأكيد على أن كل العناصر سوداء */
+span, p, div {
+  color: #000 !important;
+}
+
+/* تغيير لون النص السالب (الأحمر) إلى أسود */
+.discount {
+  color: #000 !important;
+}
+
+/* تقوية جميع الحدود وجعلها سوداء */
+.border {
+  border-color: #000 !important;
+}
+
+.border-t, .border-b {
+  border-color: #000 !important;
+}
+
+/* تحديث الخط */
+* {
+  font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+}
+
+.text-gray-600 {
+  color: #000 !important;
+  font-weight: bold;
+}
+
+.text-[#2b3c5e] {
+  color: #000 !important;
+  font-weight: bold;
+}
 
 /* Hide receipt on screen */
 .receipt-container {

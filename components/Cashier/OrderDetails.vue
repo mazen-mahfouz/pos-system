@@ -168,22 +168,6 @@
         </div>
         
         <div class="flex justify-between items-center text-xs xl:text-base">
-          <div class="flex items-center space-x-1 text-gray-600">
-            <Icon name="mdi:percent" size="12" />
-            <span>Tax</span>
-          </div>
-          <span class="font-medium">£{{ formatPrice(OrderStore.currentOrder.tax || 0) }}</span>
-        </div>
-        
-        <div class="flex justify-between items-center text-xs xl:text-base">
-          <div class="flex items-center space-x-1 text-gray-600">
-            <Icon name="mdi:room-service-outline" size="12" />
-            <span>Service</span>
-          </div>
-          <span class="font-medium">£{{ formatPrice(OrderStore.currentOrder.service || 0) }}</span>
-        </div>
-        
-        <div class="flex justify-between items-center text-xs xl:text-base">
           <div class="flex items-center space-x-1 text-green-600 cursor-pointer"
                @click="handleDiscountClick">
             <Icon name="mdi:tag-outline" size="12" />
@@ -203,6 +187,22 @@
                   size="12"
                   class="ml-2 cursor-pointer text-red-500 hover:text-red-600" />
           </div>
+        </div>
+
+        <div class="flex justify-between items-center text-xs xl:text-base">
+          <div class="flex items-center space-x-1 text-gray-600">
+            <Icon name="mdi:room-service-outline" size="12" />
+            <span>Service</span>
+          </div>
+          <span class="font-medium">£{{ formatPrice(OrderStore.currentOrder.service || 0) }}</span>
+        </div>
+        
+        <div class="flex justify-between items-center text-xs xl:text-base">
+          <div class="flex items-center space-x-1 text-gray-600">
+            <Icon name="mdi:percent" size="12" />
+            <span>VAT 14%</span>
+          </div>
+          <span class="font-medium">£{{ formatPrice(OrderStore.currentOrder.tax || 0) }}</span>
         </div>
       </div>
 

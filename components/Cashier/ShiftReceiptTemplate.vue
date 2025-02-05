@@ -34,7 +34,7 @@
             <i class="icon fas fa-clock"></i>
             <span class="info-label">End Time</span>
           </div>
-          <p class="info-value">{{ formatDateTime(shift.end_time) }}</p>
+          <p class="info-value">{{ formatDateTime(new Date()) }}</p>
         </div>
 
         <div class="info-card">
@@ -49,26 +49,26 @@
       <!-- Sales Summary -->
       <div class="summary-section">
         <div class="section-title">
-          <i class="fas fa-chart-line"></i> SALES SUMMARY
+          <i class="fas fa-chart-line"></i> Sales Summary
         </div>
         <div class="summary-row">
-          <span><i class="fas fa-shopping-cart"></i> Total Sales:</span>
+          <span><i class="fas fa-calculator"></i> Subtotal:</span>
           <span>£{{ formatPrice(shift.total_sales || 0) }}</span>
         </div>
-        <div class="summary-row">
-          <span><i class="fas fa-percent"></i> Tax (14%):</span>
-          <span>£{{ formatPrice(shift.total_tax || 0) }}</span>
-        </div>
-        <div class="summary-row">
-          <span><i class="fas fa-concierge-bell"></i> Service (12%):</span>
-          <span>£{{ formatPrice(shift.total_services || 0) }}</span>
-        </div>
         <div class="summary-row discount">
-          <span><i class="fas fa-tag"></i> Discounts:</span>
+          <span><i class="fas fa-tag"></i> Discount:</span>
           <span>-£{{ formatPrice(shift.total_discounts || 0) }}</span>
         </div>
+        <div class="summary-row">
+          <span><i class="fas fa-concierge-bell"></i> Service:</span>
+          <span>£{{ formatPrice(shift.total_services || 0) }}</span>
+        </div>
+        <div class="summary-row">
+          <span><i class="fas fa-percent"></i> VAT (14%):</span>
+          <span>£{{ formatPrice(shift.total_tax || 0) }}</span>
+        </div>
         <div class="summary-total">
-          <span><i class="fas fa-coins"></i> NET TOTAL:</span>
+          <span><i class="fas fa-coins"></i> Total:</span>
           <span>£{{ formatPrice(calculateNetTotal) }}</span>
         </div>
       </div>
@@ -161,14 +161,16 @@ const print = () => {
           body {
             margin: 0;
             padding: 8px;
-            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
             font-size: 12px;
             line-height: 1.6;
             background: #fff;
+            color: #000;
+            font-weight: bold;
           }
 
           .receipt-container {
-            width: 82mm;
+            width: 80mm;
             padding: 8px;
           }
 
@@ -179,9 +181,11 @@ const print = () => {
 
           .logo-text {
             font-size: 24px;
-            font-weight: 700;
-            color: #2b3c5e;
-            margin-bottom: 4px;
+            font-weight: 900;
+            font-family: 'Arial Black', 'Helvetica Black', sans-serif;
+            color: #000;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -189,8 +193,9 @@ const print = () => {
           }
 
           .store-info {
-            font-size: 12px;
-            color: #666;
+            font-size: 13px;
+            font-weight: bold;
+            color: #000;
           }
 
           .info-cards {
@@ -201,10 +206,10 @@ const print = () => {
           }
 
           .info-card {
-            background: #f8f8f8;
+            background: #fff;
             padding: 10px;
             border-radius: 6px;
-            border: 1px solid #eee;
+            border: 1px solid #000;
           }
 
           .info-card-header {
@@ -212,19 +217,20 @@ const print = () => {
             align-items: center;
             gap: 6px;
             margin-bottom: 4px;
+            color: #000;
           }
 
           .info-label {
             font-size: 11px;
-            color: #666;
-            text-transform: uppercase;
+            color: #000;
+            font-weight: bold;
           }
 
           .info-value {
             margin-top: 4px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #2b3c5e;
+            font-size: 12px;
+            font-weight: bold;
+            color: #000;
           }
 
           .items-table {
@@ -234,19 +240,20 @@ const print = () => {
           }
 
           .items-table th {
-            background: #f8f8f8;
             padding: 8px;
-            font-size: 11px;
-            font-weight: 600;
-            color: #666;
+            font-size: 12px;
+            font-weight: bold;
+            color: #000;
             text-align: left;
-            text-transform: uppercase;
+            border-bottom: 1px solid #000;
           }
 
           .items-table td {
             padding: 8px;
             font-size: 12px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px dashed #000;
+            color: #000;
+            font-weight: bold;
           }
 
           .items-table .text-right {
@@ -255,8 +262,16 @@ const print = () => {
 
           .summary-section {
             margin-top: 16px;
-            border-top: 1px solid #eee;
+            border-top: 1px solid #000;
             padding-top: 16px;
+          }
+
+          .section-title {
+            font-size: 14px;
+            font-weight: 900;
+            color: #000;
+            margin-bottom: 12px;
+            font-family: 'Arial Black', 'Helvetica Black', sans-serif;
           }
 
           .summary-row {
@@ -264,23 +279,42 @@ const print = () => {
             justify-content: space-between;
             margin-bottom: 8px;
             font-size: 12px;
-            color: #666;
+            color: #000;
+            font-weight: bold;
           }
 
           .summary-total {
             margin-top: 15px;
             padding-top: 12px;
             border-top: 1px solid #000;
-            font-weight: 700;
+            font-weight: 900;
             font-size: 14px;
-            color: #2b3c5e;
+            color: #000;
+            font-family: 'Arial Black', 'Helvetica Black', sans-serif;
           }
 
           .receipt-footer {
             margin-top: 24px;
             text-align: center;
             font-size: 12px;
-            color: #666;
+            color: #000;
+            font-weight: bold;
+            border-top: 2px dashed #000;
+            padding-top: 16px;
+          }
+
+          /* إزالة جميع الألوان من الأيقونات */
+          .text-[#2b3c5e] {
+            color: #000 !important;
+          }
+
+          .text-red-500, .text-red-600 {
+            color: #000 !important;
+          }
+
+          /* تأكيد على أن كل العناصر سوداء */
+          i, span, p, div {
+            color: #000 !important;
           }
         </style>
       </head>
@@ -317,7 +351,7 @@ const print = () => {
                 <i class="far fa-clock text-[#2b3c5e]"></i>
                 <span class="info-label">End Time</span>
               </div>
-              <p class="info-value">${formatDateTime(props.shift.end_time)}</p>
+              <p class="info-value">${formatDateTime(new Date())}</p>
             </div>
 
             <div class="info-card">
@@ -358,7 +392,7 @@ const print = () => {
 
           <div class="summary-total">
             <span><i class="fas fa-coins text-[#2b3c5e]"></i> TOTAL:</span>
-            <span>£${formatPrice(calculateNetTotal.value)}</span>
+            <span>£${formatPrice(props.shift.total_sales || 0)}</span>
           </div>
 
           ${props.shift.payment_totals?.length ? `
@@ -440,7 +474,7 @@ const getPaymentIcon = (method) => {
     display: block;
     width: 80mm;
     padding: 8px;
-    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
   }
 }
 </style>
