@@ -41,6 +41,7 @@
     "yup": "^1.4.0"
   },
   "devDependencies": {
+    "@iconify-json/material-symbols": "^1.2.14",
     "@vite-pwa/nuxt": "^0.10.6"
   }
 }

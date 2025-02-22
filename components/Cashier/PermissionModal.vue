@@ -43,10 +43,8 @@
                 v-model="codeDigits[index]"
                 type="text"
                 maxlength="1"
-                readonly
                 @paste="handlePaste"
-                :disabled="isLoading"
-                class="w-[45px] h-[45px] text-center text-xl font-bold border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2b365a] focus:border-[#2b365a] transition-all duration-300 bg-white shadow-sm disabled:opacity-50"
+                class="w-[45px] h-[45px] text-center text-xl font-bold border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2b365a] focus:border-[#2b365a] transition-all duration-300 bg-white shadow-sm"
                 :class="{ 'border-[#2b365a] bg-[#f8faff] transform scale-[1.05]': codeDigits[index] }"
                 @input="onCodeInput(index)"
                 @keydown="onCodeKeydown($event, index)"
@@ -289,24 +287,27 @@ const clearAllDigits = () => {
 };
 
 const handlePaste = (event) => {
-  event.preventDefault()
-  const pastedText = event.clipboardData.getData('text')
-  const numbers = pastedText.replace(/[^0-9]/g, '').slice(0, 4)
+  event.preventDefault();
+  const pastedText = event.clipboardData.getData('text');
+  const numbers = pastedText.replace(/[^0-9]/g, '').slice(0, 4);
   
   if (numbers.length) {
     numbers.split('').forEach((num, index) => {
       if (index < 4) {
-        codeDigits.value[index] = num
+        codeDigits.value[index] = num;
+        if (index < 3) {
+          codeInputs.value[index + 1]?.focus();
+        }
       }
-    })
+    });
     
     if (codeDigits.value.every(digit => digit !== '')) {
       setTimeout(() => {
-        handleConfirm()
-      }, 300)
+        handleConfirm();
+      }, 300);
     }
   }
-}
+};
 
 onMounted(() => {
   if (codeInputs.value[0]) {

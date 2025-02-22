@@ -18,7 +18,7 @@
             <i class="fas fa-hashtag text-black"></i>
             <span class="text-[12px] text-black font-bold">Order ID</span>
           </div>
-          <p class="mt-1 text-[13px] font-bold text-black">#{{ props.order?.code }}</p>
+          <p class="mt-1 text-[13px] font-bold text-black">#{{ props.order }}</p>
         </div>
         
         <div class="detail-item">
@@ -28,6 +28,14 @@
           </div>
           <p class="mt-1 text-[13px] font-bold">{{ formatDateTime(props.order?.created_at) }}</p>
         </div>
+
+        <div class="detail-item">
+          <div class="flex items-center gap-1.5">
+            <i class="fas fa-shopping-bag text-black"></i>
+            <span class="text-[12px] text-black font-bold">Type</span>
+          </div>
+          <p class="mt-1 text-[13px] font-bold">{{ props.order?.type }}</p>
+        </div>
       </div>
 
       <div class="detail-group">
@@ -36,7 +44,9 @@
             <i class="fas fa-circle-check text-black"></i>
             <span class="text-[12px] text-black font-bold">Status</span>
           </div>
-          <span class="mt-1 inline-block status-badge font-bold">Live</span>
+          <span class="mt-1 inline-block status-badge font-bold">
+            {{ props.order?.status }}
+          </span>
         </div>
         
         <div class="detail-item">
@@ -46,17 +56,17 @@
           </div>
           <p class="mt-1 text-[13px] font-bold">{{ props.order?.guest || 'Walk-in Customer' }}</p>
         </div>
+
+        <div v-if="props.order?.type === 'dine-in'" class="detail-item">
+          <div class="flex items-center gap-1.5">
+            <i class="fas fa-chair text-black"></i>
+            <span class="text-[12px] text-black font-bold">Table No.</span>
+          </div>
+          <p class="mt-1 text-[13px] font-bold">{{ props.order?.table_id }}</p>
+        </div>
       </div>
 
       <div class="detail-group">
-        <div class="detail-item">
-          <div class="flex items-center gap-1.5">
-            <i class="fas fa-shopping-bag text-black"></i>
-            <span class="text-[12px] text-black font-bold">Order Type</span>
-          </div>
-          <p class="mt-1 text-[13px] font-bold">{{ props.order?.type }}</p>
-        </div>
-        
         <div class="detail-item">
           <div class="flex items-center gap-1.5">
             <i class="fas fa-list text-black"></i>
@@ -198,7 +208,7 @@ const printReceipt = () => {
           }
 
           .store-header {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             padding-bottom: 16px;
             border-bottom: 2px dashed #000;
           }
@@ -229,24 +239,36 @@ const printReceipt = () => {
 
           .info-cards {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 16px;
-            text-align: left;
+            grid-template-columns: repeat(2, 1fr);
+            text-align: start;
+            gap: 12px;
+            margin-bottom: 24px;
+          }
+
+          /* Special container for the bottom items */
+          .bottom-items-container {
+            grid-column: 1 / -1;
+            display: grid;
+            /* Dynamic grid columns based on number of items */
+            grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 12px;
           }
 
           .info-card {
             background: #fff;
-            padding: 10px;
+            padding: 12px;
             border-radius: 6px;
             border: 1px solid #000;
+            height: auto;
+            min-height: 55px;
           }
 
           .info-card-header {
             display: flex;
-            align-items: center;
+            align-items: start;
             gap: 8px;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
           }
 
           .icon {
@@ -264,11 +286,11 @@ const printReceipt = () => {
           }
 
           .info-value {
-            margin-top: 4px;
+            margin: 0;
+            padding-top: 4px;
             font-size: 12px;
             font-weight: bold;
-            font-family: Arial, 'Helvetica Neue', sans-serif;
-            color: #000;
+            line-height: 1.4;
           }
 
           .items-table {
@@ -350,8 +372,12 @@ const printReceipt = () => {
             border: 1px solid #000;
             color: #000;
           }
+
+          /* Make specific cards span half width */
+          .info-card.half-width {
+            grid-column: span 3;
+          }
         </style>
-      </head>
       <body>
         <div class="receipt-container">
           <div class="store-header">
@@ -364,6 +390,7 @@ const printReceipt = () => {
           </div>
 
           <div class="info-cards">
+            <!-- First row: Order ID and Date -->
             <div class="info-card">
               <div class="info-card-header">
                 <i class="icon fas fa-hashtag"></i>
@@ -380,6 +407,7 @@ const printReceipt = () => {
               <p class="info-value">${formatDateTime(props.order?.created_at)}</p>
             </div>
 
+            <!-- Second row: Customer and Served By -->
             <div class="info-card">
               <div class="info-card-header">
                 <i class="icon far fa-user"></i>
@@ -394,6 +422,37 @@ const printReceipt = () => {
                 <span class="info-label">Served By</span>
               </div>
               <p class="info-value">${cashierName.value}</p>
+            </div>
+
+            <!-- Bottom row: Type, Table (if dine-in), and Items -->
+            <div class="bottom-items-container" style="grid-template-columns: repeat(${props.order?.type === 'dine-in' ? '3' : '2'}, 1fr)">
+              <div class="info-card">
+                <div class="info-card-header">
+                  <i class="icon fas fa-shopping-bag"></i>
+                  <span class="info-label">Type</span>
+                </div>
+                <p class="info-value">${props.order?.type}</p>
+              </div>
+
+              ${props.order?.type === 'dine-in' ? `
+                <div class="info-card">
+                  <div class="info-card-header">
+                    <i class="icon fas fa-chair"></i>
+                    <span class="info-label">Table</span>
+                  </div>
+                  <p class="info-value">${props.order?.table_id}</p>
+                </div>
+              ` : ''}
+
+              <div class="info-card">
+                <div class="info-card-header">
+                  <i class="icon fas fa-list"></i>
+                  <span class="info-label">Items</span>
+                </div>
+                <p class="info-value">${props.order?.items?.length || 0} (Qty: ${
+                  (props.order?.items || []).reduce((sum, item) => sum + (item.quantity || 0), 0)
+                })</p>
+              </div>
             </div>
           </div>
 
@@ -482,8 +541,9 @@ defineExpose({
 }
 
 .status-badge {
-  color: #000;
-  border: 1px solid #000;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
 }
 
 .table-header {

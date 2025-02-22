@@ -246,6 +246,7 @@ const printOrder = (order) => {
     type: order.type,
     table_id: order.table_id,
     guest: order.guest || 'Walk-in Customer',
+    status: order.status,
     items: order.items,
     sub_total: parseFloat(order.sub_total || 0),
     tax: parseFloat(order.tax || 0),
