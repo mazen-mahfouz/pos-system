@@ -55,11 +55,11 @@
         </span>
       </div>
 
-      <TransitionGroup name="list" tag="ul" class="space-y-2">
+      <ul class="space-y-2">
         <li v-for="item in OrderStore.currentOrder?.items" 
             :key="item.product_id" 
             @click="handleItemClick(item)"
-            class="group relative bg-white rounded-lg p-2.5 shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100/50">
+            class="order-item group relative bg-white rounded-lg p-2.5 shadow-sm hover:shadow-md border border-gray-100/50">
           <div class="flex items-center space-x-2">
             <div class="relative w-12 h-12 xl:w-14 xl:h-14 flex-shrink-0">
               <NuxtImg
@@ -148,7 +148,7 @@
             </Transition>
           </div>
         </li>
-      </TransitionGroup>
+      </ul>
 
       <div v-if="!OrderStore.currentOrder?.items?.length" 
            class="flex flex-col items-center justify-center py-6 text-center">
@@ -708,23 +708,21 @@ const getDropdownPosition = (item) => {
 </script>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+.order-item {
+  animation: fadeIn 0.2s ease-in-out;
+  will-change: transform, opacity;
 }
 
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Improve button interactions */
-button {
-  transition: all 0.2s ease;
-}
-
-button:active {
-  transform: scale(0.98);
-}
+/* Remove the TransitionGroup styles */
 </style>

@@ -1,98 +1,194 @@
 <template>
   <Teleport to="body">
-    <Transition name="fade">
-      <div v-if="modelValue" class="fixed inset-0 bg-gray-900/60  flex items-center justify-center z-30 p-4" :class="{'w-[calc(100%-300px)] xl:w-[calc(100%-400px)] 2xl:w-[calc(100%-500px)]': OrderStore.$state.openOrder, 'w-full': !OrderStore.$state.openOrder}" @click="closeModal">
-        <div class="bg-white py-4 px-2 rounded-[30px] w-full max-w-3xl h-[80vh] overflow-hidden shadow-lg overflow-y-auto" @click.stop>
-          <div class="p-2 pl-4 w-full flex justify-between items-center">
-            <h3 class="text-lg font-bold text-[#1A1A1A] text-center">Open Orders</h3>
-            <button @click="closeModal" class="text-gray-500 hover:text-gray-700 mr-4">
-              <UIcon name="mdi:close" class="text-lg" />
+    <Transition name="overlay">
+      <div v-if="modelValue" class="fixed inset-0 bg-black/50 flex items-center justify-center z-30 p-4" @click="closeModal">
+        <div class="bg-white rounded-lg w-full max-w-4xl h-[90vh] shadow-lg overflow-hidden modal-container" @click.stop>
+          <!-- Header -->
+          <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-white sticky top-0 z-10">
+            <h3 class="text-lg font-semibold text-gray-800">Open Orders</h3>
+            <button @click="closeModal" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+              <UIcon name="mdi:close" class="text-base text-gray-500" />
             </button>
           </div>
-          <div class="p-4 py-2 bg-white border-b border-gray-200">
-            <div class="flex flex-wrap gap-4">
-              <div class="item">
-                <div class="border border-[#d1d5db] rounded-lg flex items-center justify-between">
-                  <input type="text" v-model="searchQuery" class="min-w-[250px] h-[25px] text-[12px] font-[400] ml-[10px] placeholder:text-[#878787]" placeholder="Search orders" name="search" id="global-search" @input="handleSearch">
-                  <UIcon name="mdi:search" class="text-[#878787] text-[17px] font-[100] m-[10px]" />
+
+          <!-- Search and Filters -->
+          <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <div class="flex flex-wrap gap-4 items-center">
+              <!-- Search -->
+              <div class="flex-1 min-w-[240px]">
+                <div class="relative">
+                  <UIcon name="mdi:search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-base" />
+                  <input 
+                    type="text" 
+                    v-model="searchQuery" 
+                    class="w-full h-10 pl-10 pr-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all outline-none text-sm"
+                    placeholder="Search orders by code..." 
+                    @input="handleSearch"
+                  >
                 </div>
               </div>
-              <!-- <div class="item">
-                <DateRangeSelector v-model:from="dateFrom" v-model:to="dateTo" @update:dates="handleDateChange" placeholder="Select date" />
-              </div> -->
-              <div class="item">
-                <CustomUSelect v-model="selected" :options="types" />
+              
+              <!-- Type Selector -->
+              <div class="w-[220px]">
+                <CustomUSelect v-model="selected" :options="types" class="h-10" />
               </div>
             </div>
-            <div class="mt-[20px] mb-[15px]">
-              <FilterOptions :filters="filtersList" v-model="selectedFilter" />
+
+            <!-- Status Filters -->
+            <div class="mt-4">
+              <div class="flex gap-2">
+                <button
+                  v-for="filter in filtersList"
+                  :key="filter.value"
+                  @click="selectedFilter = filter.value"
+                  class="px-4 py-2 rounded-lg text-xs font-medium transition-all"
+                  :class="selectedFilter === filter.value ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-gray-600 hover:bg-gray-100'"
+                >
+                  {{ filter.name }}
+                  <span class="ml-2 px-2 py-0.5 rounded-full text-[10px]" :class="selectedFilter === filter.value ? 'bg-blue-500/80 text-white' : 'bg-gray-100'">
+                    {{ filter.count }}
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
-          <div class="p-6 bg-white">
-            <div v-if="isLoading" class="text-center py-4">
-              Loading orders...
+
+          <!-- Orders Grid -->
+          <div class="p-6 overflow-y-auto" style="height: calc(90vh - 240px);">
+            <div v-if="isLoading" class="flex items-center justify-center h-full">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
-            <div v-else-if="filteredOrders.length === 0" class="text-center py-4">
-              No orders found.
+            
+            <div v-else-if="filteredOrders.length === 0" class="flex flex-col items-center justify-center h-full text-gray-500">
+              <UIcon name="mdi:clipboard-text-off" class="text-5xl mb-3" />
+              <p class="text-lg">No orders found</p>
             </div>
-            <div v-else >
-              <TransitionGroup name="list" tag="div" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-3">
-                <div v-for="order in filteredOrders" :key="order.id" 
-                  @click="order.status === 'live' ? selectOrder(order) : null"
-                  class="order-card rounded-md shadow border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-md"
-                  :class="{
-                    'cursor-pointer hover:scale-105': order.status === 'live',
-                    'bg-green-50': order.status === 'completed',
-                    'bg-red-50': order.status === 'canceled',
-                  }">
-                  <div class="p-4">
-                    <div class="flex justify-between items-center mb-1">
-                      <span class="text-sm font-semibold text-gray-800">{{ order.code }}</span>   
-                      <span :class="getStatusClass(order.status)">
-                        {{ order.status }}
-                      </span>
+
+            <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div 
+                v-for="order in paginatedOrders" 
+                :key="order.id" 
+                @click="order.status === 'live' ? selectOrder(order) : null"
+                class="bg-white rounded-lg border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-md"
+                :class="{
+                  'cursor-pointer transform hover:-translate-y-1': order.status === 'live',
+                  'border-l-4 border-l-green-500 cursor-not-allowed': order.status === 'completed',
+                  'border-l-4 border-l-red-500 cursor-not-allowed': order.status === 'canceled',
+                  'border-l-4 border-l-yellow-500': order.status === 'live',
+                }"
+              >
+                <div class="p-4">
+                  <div class="flex justify-between items-center mb-2.5">
+                    <span class="text-xs font-bold text-gray-900">{{ order.code }}</span>   
+                    <span :class="getStatusClass(order.status)">{{ order.status }}</span>
+                  </div>
+                  
+                  <div class="space-y-1.5">
+                    <div class="flex items-center text-gray-600">
+                      <UIcon name="mdi:clock-outline" class="mr-1.5 text-xs" />
+                      <span class="text-[11px]">{{ formatDate(order.created_at) }}</span>
                     </div>
-                    <div class="text-xs text-gray-600 mb-1">{{ formatDate(order.created_at) }}</div>
-                    <div class="flex items-center justify-between mb-1">
-                      <div class="flex items-center">
-                        <Icon name="mdi:silverware-fork-knife" class="text-gray-500 mr-1 text-xs" />
-                        <span class="text-xs text-gray-600">{{ order.type }}</span>
+                    
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center text-gray-600">
+                        <UIcon name="mdi:silverware" class="mr-2 text-sm" />
+                        <span class="text-xs">{{ order.type }}</span>
                       </div>
-                      <div class="flex items-center">
-                        <Icon name="mdi:account" class="text-gray-500 mr-1 text-xs" />
-                        <span class="text-xs text-gray-600">Table {{ order.table_id }}</span>
+                      <div class="flex items-center text-gray-600">
+                        <UIcon name="mdi:table-furniture" class="mr-2 text-sm" />
+                        <span class="text-xs">{{ order.table_id == null ? 'Any Table' : 'Table ' + order.table_id }}</span>
                       </div>
-                    </div>
-                    <div class="flex justify-between items-center">
-                      <span class="text-xs font-medium text-gray-500">Total</span>
-                      <span class="text-sm font-bold text-gray-800">${{ formatPrice(order.total_amount) }}</span>
-                    </div>
-                    <div class="flex justify-between items-center mt-2">
-                      <button 
-                        @click.stop="printOrder(order)"
-                        class="text-xs flex items-center gap-1 text-gray-600 hover:text-gray-800"
-                      >
-                        <Icon name="mdi:printer" class="text-sm" />
-                        Print
-                      </button>
-                      <span v-if="order.status !== 'live'" class="text-xs">
-                        <span v-if="order.status === 'completed'" class="text-green-600">Order completed</span>
-                        <span v-else class="text-red-600">Order canceled</span>
-                      </span>
                     </div>
                   </div>
+
+                  <div class="mt-4 pt-3 border-t border-gray-200 flex items-center justify-between">
+                    <button 
+                      @click.stop="printOrder(order)"
+                      class="text-xs flex items-center gap-2 text-gray-600 hover:text-gray-900 bg-gray-50 px-3 py-1.5 rounded-lg transition-colors"
+                    >
+                      <UIcon name="mdi:printer" class="text-sm" />
+                      Print
+                    </button>
+                    <span class="text-sm font-semibold">${{ formatPrice(order.total_amount) }}</span>
+                  </div>
                 </div>
-              </TransitionGroup>
+              </div>
+            </div>
+
+            <!-- Pagination -->
+            <div v-if="filteredOrders.length > 0" class="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 select-none">
+              <span class="text-sm text-gray-500">
+                Showing {{ startIndex }} - {{ endIndex }} of {{ totalOrders }} orders
+              </span>
+              
+              <div class="flex items-center gap-1">
+                <!-- First Page -->
+                <button 
+                  @click="goToPage(1)"
+                  :disabled="currentPage === 1"
+                  class="w-9 h-9 flex items-center justify-center rounded-lg transition-colors text-sm"
+                  :class="currentPage === 1 ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-gray-100 text-gray-600'"
+                >
+                  <UIcon name="mdi:chevron-double-left" />
+                </button>
+
+                <!-- Previous Page -->
+                <button 
+                  @click="prevPage"
+                  :disabled="currentPage === 1"
+                  class="w-9 h-9 flex items-center justify-center rounded-lg transition-colors text-sm"
+                  :class="currentPage === 1 ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-gray-100 text-gray-600'"
+                >
+                  <UIcon name="mdi:chevron-left" />
+                </button>
+
+                <!-- Page Numbers -->
+                <div class="flex items-center">
+                  <template v-for="page in visiblePages" :key="page">
+                    <button 
+                      v-if="page !== '...'"
+                      @click="goToPage(page)"
+                      class="w-9 h-9 flex items-center justify-center rounded-lg transition-colors text-sm mx-0.5"
+                      :class="currentPage === page ? 'bg-blue-600 text-white font-medium' : 'hover:bg-gray-100 text-gray-600'"
+                    >
+                      {{ page }}
+                    </button>
+                    <span 
+                      v-else 
+                      class="w-9 h-9 flex items-center justify-center text-gray-400"
+                    >
+                      {{ page }}
+                    </span>
+                  </template>
+                </div>
+
+                <!-- Next Page -->
+                <button 
+                  @click="nextPage"
+                  :disabled="currentPage === totalPages"
+                  class="w-9 h-9 flex items-center justify-center rounded-lg transition-colors text-sm"
+                  :class="currentPage === totalPages ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-gray-100 text-gray-600'"
+                >
+                  <UIcon name="mdi:chevron-right" />
+                </button>
+
+                <!-- Last Page -->
+                <button 
+                  @click="goToPage(totalPages)"
+                  :disabled="currentPage === totalPages"
+                  class="w-9 h-9 flex items-center justify-center rounded-lg transition-colors text-sm"
+                  :class="currentPage === totalPages ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-gray-100 text-gray-600'"
+                >
+                  <UIcon name="mdi:chevron-double-right" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </Transition>
   </Teleport>
-  <ReceiptTemplate 
-    ref="receiptRef"
-    :order="selectedOrderForPrint"
-  />
+  <ReceiptTemplate ref="receiptRef" :order="selectedOrderForPrint" />
 </template>
 
 <script setup>
@@ -115,10 +211,9 @@ const searchQuery = ref('');
 const dateFrom = ref(null);
 const dateTo = ref(null);
 const selected = ref(null);
-const selectedFilter = ref('all'); // تعيين القيمة الافتراضية
+const selectedFilter = ref('all');
 const isLoading = ref(true);
 
-// استخدام ref للطلبات بدلاً من computed مباشرة
 const orders = computed(() => OrderStore.orders);
 
 const types = [
@@ -133,30 +228,42 @@ const filtersList = ref([
   { value: 'canceled', name: 'canceled', count: 0 },
 ]);
 
-// تحديث filteredOrders
+const currentPage = ref(1);
+const itemsPerPage = 8;
+
+const totalOrders = computed(() => filteredOrders.value.length || 0);
+
+const totalPages = computed(() => {
+  return Math.ceil(totalOrders.value / itemsPerPage) || 1; // Ensure at least 1 page
+});
+
+const paginatedOrders = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return filteredOrders.value.slice(start, end);
+});
+
 const filteredOrders = computed(() => {
-  if (isLoading.value || !orders.value?.length) return [];
+  if (!Array.isArray(orders.value)) {
+    return [];
+  }
   
   return orders.value.filter(order => {
     const matchesSearch = order.code.toLowerCase().includes(searchQuery.value.toLowerCase());
     const matchesType = !selected.value || order.type === selected.value;
     const matchesFilter = selectedFilter.value === 'all' || order.status === selectedFilter.value;
-    const orderDate = new Date(order.created_at);
-    const matchesDate = (!dateFrom.value || !dateTo.value) || 
-                       (orderDate >= dateFrom.value && orderDate <= dateTo.value);
-    return matchesSearch && matchesType && matchesFilter && matchesDate;
+    return matchesSearch && matchesType && matchesFilter;
   });
 });
 
-// تحديث updateFilterCounts
 const updateFilterCounts = () => {
-  if (!orders.value?.length) return;
+  const ordersArray = orders.value || [];
   
   const counts = {
-    all: orders.value.length,
-    completed: orders.value.filter(order => order.status === 'completed').length,
-    live: orders.value.filter(order => order.status === 'live').length,
-    canceled: orders.value.filter(order => order.status === 'canceled').length
+    all: ordersArray.length,
+    completed: ordersArray.filter(order => order.status === 'completed').length,
+    live: ordersArray.filter(order => order.status === 'live').length,
+    canceled: ordersArray.filter(order => order.status === 'canceled').length
   };
 
   filtersList.value = filtersList.value.map(filter => ({
@@ -165,15 +272,20 @@ const updateFilterCounts = () => {
   }));
 };
 
-// تحديث watch للـ orders
 watch(() => orders.value, (newOrders) => {
-  if (newOrders?.length) {
-    isLoading.value = false;
-    updateFilterCounts();
+  
+  if (newOrders === undefined || newOrders === null) {
+    isLoading.value = true;
+    return;
   }
-}, { immediate: true });
 
-// تحديث watch للـ modelValue
+  isLoading.value = false;
+  updateFilterCounts();
+}, { 
+  immediate: true,
+  deep: true
+});
+
 watch(() => props.modelValue, (newValue) => {
   if (newValue && orders.value?.length) {
     updateFilterCounts();
@@ -238,7 +350,6 @@ const receiptRef = ref(null);
 const selectedOrderForPrint = ref({});
 
 const printOrder = (order) => {
-  console.log(order)
   selectedOrderForPrint.value = {
     id: order.id,
     code: order.code,
@@ -267,24 +378,117 @@ const printOrder = (order) => {
   });
 };
 
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+    scrollToTop();
+  }
+};
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+    scrollToTop();
+  }
+};
+
+const goToPage = (page) => {
+  if (typeof page === 'number' && page !== currentPage.value) {
+    currentPage.value = page;
+    scrollToTop();
+  }
+};
+
+const scrollToTop = () => {
+  const container = document.querySelector('.orders-container');
+  if (container) {
+    container.scrollTop = 0;
+  }
+};
+
+const startIndex = computed(() => {
+  return (currentPage.value - 1) * itemsPerPage + 1;
+});
+
+const endIndex = computed(() => {
+  return Math.min(currentPage.value * itemsPerPage, totalOrders.value);
+});
+
+const visiblePages = computed(() => {
+  const total = totalPages.value;
+  const current = currentPage.value;
+  
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  if (current <= 3) {
+    return [1, 2, 3, 4, '...', total];
+  }
+
+  if (current >= total - 2) {
+    return [1, '...', total - 3, total - 2, total - 1, total];
+  }
+
+  return [
+    1,
+    '...',
+    current - 1,
+    current,
+    current + 1,
+    '...',
+    total
+  ];
+});
+
+const handleSearch = () => {
+  currentPage.value = 1;
+};
+
+watch(searchQuery, () => {
+  currentPage.value = 1;
+});
+
+watch(selectedFilter, () => {
+  currentPage.value = 1;
+});
+
+watch(selected, () => {
+  currentPage.value = 1;
+});
+
 </script>
 
 <style scoped>
-.fade-enter-active, .fade-leave-active {
+.overlay-enter-active {
   transition: opacity 0.3s ease;
 }
-.fade-enter-from, .fade-leave-to {
+
+.overlay-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.overlay-enter-from,
+.overlay-leave-to {
   opacity: 0;
 }
 
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.5s ease;
+.modal-container {
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
-.list-enter-from,
-.list-leave-to {
-  opacity: 0;
-  transform: translateY(30px);
+
+/* Update status classes */
+.getStatusClass {
+  @apply px-2.5 py-1 rounded-lg text-xs font-medium;
+}
+[data-status="completed"] {
+  @apply bg-green-50 text-green-700;
+}
+[data-status="live"] {
+  @apply bg-yellow-50 text-yellow-700;
+}
+[data-status="canceled"] {
+  @apply bg-red-50 text-red-700;
 }
 </style>
 
