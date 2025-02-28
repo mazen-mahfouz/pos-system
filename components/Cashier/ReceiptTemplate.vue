@@ -34,7 +34,9 @@
             <i class="fas fa-shopping-bag text-black"></i>
             <span class="text-[12px] text-black font-bold">Type</span>
           </div>
-          <p class="mt-1 text-[13px] font-bold">{{ props.order?.type }}</p>
+          <p class="mt-1 text-[13px] font-bold">{{ props.order?.type }}
+            <span v-if="props.order?.type === 'dine-in'">(Table: {{ props.order?.table_id }})</span>
+          </p>
         </div>
       </div>
 
@@ -55,14 +57,6 @@
             <span class="text-[12px] text-black font-bold">Customer</span>
           </div>
           <p class="mt-1 text-[13px] font-bold">{{ props.order?.guest || 'Walk-in Customer' }}</p>
-        </div>
-
-        <div v-if="props.order?.type === 'dine-in'" class="detail-item">
-          <div class="flex items-center gap-1.5">
-            <i class="fas fa-chair text-black"></i>
-            <span class="text-[12px] text-black font-bold">Table No.</span>
-          </div>
-          <p class="mt-1 text-[13px] font-bold">{{ props.order?.table_id }}</p>
         </div>
       </div>
 
@@ -425,22 +419,22 @@ const printReceipt = () => {
             </div>
 
             <!-- Bottom row: Type, Table (if dine-in), and Items -->
-            <div class="bottom-items-container" style="grid-template-columns: repeat(${props.order?.type === 'dine-in' ? '3' : '2'}, 1fr)">
+            <div class="bottom-items-container" style="grid-template-columns: repeat(${props.order?.type === 'dine-in' ? '3' : '3'}, 1fr)">
               <div class="info-card">
                 <div class="info-card-header">
                   <i class="icon fas fa-shopping-bag"></i>
                   <span class="info-label">Type</span>
                 </div>
-                <p class="info-value">${props.order?.type}</p>
+                <p class="info-value">${props.order?.type}${props.order?.type === 'dine-in' ? ` (Table: ${props.order?.table_id})` : ''}</p>
               </div>
 
-              ${props.order?.type === 'dine-in' ? `
+              ${props.order?.type === 'takeaway' || 'takeaway' ? `
                 <div class="info-card">
                   <div class="info-card-header">
-                    <i class="icon fas fa-chair"></i>
-                    <span class="info-label">Table</span>
+                    <i class="icon fas fa-circle-check"></i>
+                    <span class="info-label">Status</span>
                   </div>
-                  <p class="info-value">${props.order?.table_id}</p>
+                  <p class="info-value">${props.order?.status}</p>
                 </div>
               ` : ''}
 

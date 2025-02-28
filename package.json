@@ -16,6 +16,7 @@
     "@pinia/nuxt": "^0.5.5",
     "@vee-validate/rules": "^4.13.2",
     "@vee-validate/yup": "^4.13.2",
+    "chart.js": "^4.4.8",
     "cookie-universal-nuxt": "^2.2.2",
     "date-fns": "^2.30.0",
     "jspdf": "^2.5.1",

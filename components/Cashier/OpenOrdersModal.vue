@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <Transition name="overlay">
-      <div v-if="modelValue" class="fixed inset-0 bg-black/50 flex items-center justify-center z-30 p-4" @click="closeModal">
+      <div v-if="modelValue" class="fixed inset-0 bg-black/50 flex items-center justify-center z-30 p-4" :class="{'w-[calc(100%-300px)] xl:w-[calc(100%-400px)] 2xl:w-[calc(100%-500px)]': OrderStore.$state.openOrder, 'w-full': !OrderStore.$state.openOrder}" @click="closeModal">
         <div class="bg-white rounded-lg w-full max-w-4xl h-[90vh] shadow-lg overflow-hidden modal-container" @click.stop>
           <!-- Header -->
           <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-white sticky top-0 z-10">
@@ -54,7 +54,7 @@
           </div>
 
           <!-- Orders Grid -->
-          <div class="p-6 overflow-y-auto" style="height: calc(90vh - 240px);">
+          <div class="p-6 overflow-y-auto" style="height: calc(95vh - 240px);">
             <div v-if="isLoading" class="flex items-center justify-center h-full">
               <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
@@ -68,7 +68,7 @@
               <div 
                 v-for="order in paginatedOrders" 
                 :key="order.id" 
-                @click="order.status === 'live' ? selectOrder(order) : null"
+                @click="order.status === 'live' ? selectOrder(order) : showOrderDetails(order)"
                 class="bg-white rounded-lg border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-md"
                 :class="{
                   'cursor-pointer transform hover:-translate-y-1': order.status === 'live',
@@ -189,6 +189,11 @@
     </Transition>
   </Teleport>
   <ReceiptTemplate ref="receiptRef" :order="selectedOrderForPrint" />
+  <CashierOrderDetailsModal
+    v-if="selectedViewOrder"
+    v-model="showOrderDetailsModal"
+    :order="selectedViewOrder"
+  />
 </template>
 
 <script setup>
@@ -456,6 +461,16 @@ watch(selectedFilter, () => {
 watch(selected, () => {
   currentPage.value = 1;
 });
+
+const showOrderDetailsModal = ref(false);
+const selectedViewOrder = ref(null);
+
+const showOrderDetails = (order) => {
+  if (order.status === 'completed' || order.status === 'canceled') {
+    selectedViewOrder.value = order;
+    showOrderDetailsModal.value = true;
+  }
+};
 
 </script>
 

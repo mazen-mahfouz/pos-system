@@ -177,7 +177,7 @@ export default defineNuxtConfig({
 	},
 
 	build: {
-		transpile: ["@nuxt/ui"],
+		transpile: ["@nuxt/ui", 'chart.js'],
 	},
 
 	colorModel: {

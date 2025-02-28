@@ -29,7 +29,7 @@
       <div class="mb-6">
         <div 
           @click="isWaste = !isWaste"
-          class="flex items-center justify-between p-4 border-2 rounded-xl cursor-pointer transition-all duration-200"
+          class="flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-all duration-200"
           :class="isWaste ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300'"
         >
           <div class="flex items-center space-x-3">
@@ -39,14 +39,12 @@
               size="24" 
             />
             <div>
-              <h3 class="text-[15px] font-medium" :class="isWaste ? 'text-red-700' : 'text-gray-700'">
-                Mark as Waste
-              </h3>
+              <h3 class="text-[15px] font-medium text-gray-700">Mark as Waste</h3>
               <p class="text-[13px] text-gray-500">Items will be marked as wasted in inventory</p>
             </div>
           </div>
           <div class="flex-shrink-0">
-            <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center"
+            <div class="w-6 h-6 rounded-full border flex items-center justify-center"
                  :class="isWaste ? 'border-red-500 bg-red-500' : 'border-gray-300'">
               <Icon v-if="isWaste" name="mdi:check" class="text-white" size="16" />
             </div>
@@ -62,7 +60,7 @@
             v-for="reason in reasons"
             :key="reason"
             @click="selectedReason = reason"
-            class="p-3 text-[13px] border-2 rounded-lg transition-all duration-200 text-left"
+            class="p-3 text-[13px] border rounded-lg transition-all duration-200 text-left"
             :class="selectedReason === reason 
               ? 'border-[#2b3c5e] bg-[#f8faff] text-[#2b3c5e]' 
               : 'border-gray-200 text-gray-600 hover:border-gray-300'"
@@ -70,8 +68,20 @@
             {{ reason }}
           </button>
         </div>
-        <p v-if="showError" class="text-red-500 text-[12px] mt-2">
-          Please select a reason to continue
+        
+        <!-- Manual Reason Input -->
+        <div>
+          <h3 class="text-[14px] font-medium text-gray-700">Additional Details <span class="text-red-500">*</span></h3>
+          <input
+            v-model="manualReason"
+            type="text"
+            placeholder="Enter additional details"
+            class="w-full p-3 text-[13px] border rounded-lg transition-all duration-200 border-gray-200 focus:border-[#2b3c5e] outline-none"
+          />
+        </div>
+        
+        <p v-if="showError" class="text-red-500 text-[12px]">
+          Please select a reason and provide additional details
         </p>
       </div>
 
@@ -110,6 +120,7 @@ const emit = defineEmits(['update:modelValue', 'confirm']);
 const isWaste = ref(false);
 const selectedReason = ref('');
 const showError = ref(false);
+const manualReason = ref('');
 
 const reasons = [
   'Customer Cancelled',
@@ -127,11 +138,12 @@ const closeModal = () => {
 const resetForm = () => {
   isWaste.value = false;
   selectedReason.value = '';
+  manualReason.value = '';
   showError.value = false;
 };
 
 const handleConfirm = async () => {
-  if (!selectedReason.value) {
+  if (!selectedReason.value || !manualReason.value) {
     showError.value = true;
     return;
   }
@@ -141,7 +153,8 @@ const handleConfirm = async () => {
       type: 'object',
       data: {
         waste: isWaste.value ? 1 : null,
-        reason: selectedReason.value
+        reason: selectedReason.value,
+        manual_reason: manualReason.value
       }
     });
 

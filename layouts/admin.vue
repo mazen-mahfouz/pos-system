@@ -1,7 +1,7 @@
 <template>
     <div class="admin p-[10px] flex gap-[40px] flex-col">
         <SharedAdminNavbar />
-        <div class="flex w-full h-screen">
+        <div class="flex w-full">
             <SharedAdminSidebar />
             <main class="rounded-lg transition-width duration-200 ease-in" :class="{ 'w-[100%]': !openSidebar, 'w-[calc(100%_-_200px)]': openSidebar }">
                 <NuxtPage></NuxtPage>
