@@ -9,6 +9,61 @@
                 <span class="text-[#334155] group-hover:text-[#2d71f8] font-medium text-[14px]">{{link.name}}</span>
             </nuxt-link>
             
+            <!-- Materials Dropdown -->
+            <div class="relative">
+                <button @click="toggleMaterials" 
+                    class="sidebar-link group w-full flex items-center justify-between p-[12px_15px] hover:bg-[#f0f7ff] text-start rounded-lg transition-all duration-300"
+                    :class="{ 'bg-[#f0f7ff]': showMaterials }">
+                    <div class="flex items-center gap-3">
+                        <Icon name="mdi:package-variant" class="text-[#64748b] group-hover:text-[#2d71f8] text-[16px]"
+                           :class="{ 'text-[#2d71f8]': showMaterials }" />
+                        <span class="text-[#334155] group-hover:text-[#2d71f8] font-medium text-[14px]"
+                              :class="{ 'text-[#2d71f8]': showMaterials }">Materials</span>
+                    </div>
+                    <Icon name="mdi:chevron-down" 
+                        class="text-[12px] text-[#64748b] transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                        :class="{ 'rotate-180': showMaterials, 'text-[#2d71f8]': showMaterials }" />
+                </button>
+                
+                <Transition
+                    enter-active-class="transition duration-300 ease-out"
+                    enter-from-class="transform -translate-y-2 opacity-0"
+                    enter-to-class="transform translate-y-0 opacity-100"
+                    leave-active-class="transition duration-200 ease-in"
+                    leave-from-class="transform translate-y-0 opacity-100"
+                    leave-to-class="transform -translate-y-2 opacity-0"
+                >
+                    <div v-if="showMaterials" 
+                        class="absolute w-[100%] mt-1 py-2 bg-white z-20 border-t border-t-[#e2e8f0]
+                            backdrop-blur-sm backdrop-saturate-150">
+                        <div class="">
+                            <TransitionGroup
+                                enter-active-class="transition-all duration-300 ease-out"
+                                enter-from-class="opacity-0 -translate-x-2"
+                                enter-to-class="opacity-100 translate-x-0"
+                                leave-active-class="transition-all duration-200 ease-in"
+                                leave-from-class="opacity-100 translate-x-0"
+                                leave-to-class="opacity-0 -translate-x-2"
+                                move-class="transition-transform duration-300"
+                            >
+                                <nuxt-link v-for="(material, index) in materialsLinks" 
+                                    :key="material.path" 
+                                    :to="material.path"
+                                    :style="{ animationDelay: `${index * 50}ms` }"
+                                    class="group flex items-center rounded-lg mt-[3px] gap-3 px-4 py-3 hover:bg-[#f0f7ff] transition-colors duration-200 animate-fadeIn">
+                                    <Icon :name="material.icon" 
+                                        class="text-[#64748b] group-hover:text-[#2d71f8] text-[14px]
+                                            transition-transform duration-300 ease-out group-hover:scale-110" />
+                                    <span class="text-[13px] text-[#334155] group-hover:text-[#2d71f8] font-medium whitespace-nowrap">
+                                        {{ material.name }}
+                                    </span>
+                                </nuxt-link>
+                            </TransitionGroup>
+                        </div>
+                    </div>
+                </Transition>
+            </div>
+
             <!-- Reports Dropdown -->
             <div class="relative">
                 <button @click="toggleReports" 
@@ -81,15 +136,26 @@ const toggleReports = () => {
     showReports.value = !showReports.value;
 };
 
+const showMaterials = ref(false);
+const toggleMaterials = () => {
+    showMaterials.value = !showMaterials.value;
+};
+
 const regularLinks = [
     { name: 'Home', path: '/admin', icon: 'mdi:home' },
     { name: 'Items', path: '/admin/items', icon: 'mdi:package' },
     { name: 'Tables', path: '/admin/table', icon: 'mdi:table' },
     { name: 'Categories', path: '/admin/categories', icon: 'mdi:tag-multiple' },
     { name: 'Recipes', path: '/admin/recipes', icon: 'mdi:silverware-fork-knife' },
-    { name: 'Materials', path: '/admin/materials', icon: 'mdi:package-variant' },
     { name: 'Orders History', path: '/admin/order-history', icon: 'mdi:history' },
     { name: 'Users', path: '/admin/users', icon: 'mdi:account-group' },
+];
+
+const materialsLinks = [
+    { name: 'Materials List', path: '/admin/materials', icon: 'mdi:package-variant' },
+    { name: 'Material Transactions', path: '/admin/materials/transactions', icon: 'mdi:history' },
+    { name: 'Material Adjustment', path: '/admin/materials/adjustment', icon: 'mdi:scale' },
+    { name: 'Material Receipt', path: '/admin/materials/receipt', icon: 'mdi:receipt' },
 ];
 
 const reportLinks = [

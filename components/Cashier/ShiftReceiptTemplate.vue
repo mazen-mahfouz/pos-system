@@ -351,7 +351,7 @@ const print = () => {
                 <i class="far fa-clock text-[#2b3c5e]"></i>
                 <span class="info-label">End Time</span>
               </div>
-              <p class="info-value">${formatDateTime(new Date())}</p>
+              <p class="info-value">${formatDateTime(props.shift.end_time || new Date())}</p>
             </div>
 
             <div class="info-card">
@@ -359,20 +359,49 @@ const print = () => {
                 <i class="fas fa-user-tie text-[#2b3c5e]"></i>
                 <span class="info-label">Cashier</span>
               </div>
-              <p class="info-value">${cashierName.value}</p>
+              <p class="info-value">${props.shift.user || cashierName.value}</p>
             </div>
           </div>
 
           <table class="items-table">
             <thead>
               <tr>
-                <th>Summary</th>
+                <th>Orders Summary</th>
+                <th class="text-right">Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><i class="fas fa-check-circle text-[#2b3c5e]"></i> Completed Orders</td>
+                <td class="text-right">${props.shift.total_completed_orders || 0}</td>
+              </tr>
+              <tr>
+                <td><i class="fas fa-box text-[#2b3c5e]"></i> Items Sold</td>
+                <td class="text-right">${props.shift.total_items_sold || 0}</td>
+              </tr>
+              ${props.shift.total_canceled_orders ? `
+              <tr>
+                <td><i class="fas fa-times-circle text-[#2b3c5e]"></i> Canceled Orders</td>
+                <td class="text-right">${props.shift.total_canceled_orders}</td>
+              </tr>` : ''}
+              ${props.shift.total_canceled_value ? `
+              <tr>
+                <td><i class="fas fa-times-circle text-[#2b3c5e]"></i> Canceled Value</td>
+                <td class="text-right">£${formatPrice(props.shift.total_canceled_value)}</td>
+              </tr>` : ''}
+            </tbody>
+          </table>
+
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th>Financial Summary</th>
                 <th class="text-right">Amount</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><i class="fas fa-shopping-cart text-[#2b3c5e]"></i> Total Sales</td>
+                <td><i class="fas fa-shopping-cart text-[#2b3c5e]"></i> Subtotal</td>
                 <td class="text-right">£${formatPrice(props.shift.total_sales || 0)}</td>
               </tr>
               <tr>
@@ -389,10 +418,9 @@ const print = () => {
               </tr>
             </tbody>
           </table>
-
           <div class="summary-total">
             <span><i class="fas fa-coins text-[#2b3c5e]"></i> TOTAL:</span>
-            <span>£${formatPrice(props.shift.total_sales || 0)}</span>
+            <span>£${formatPrice(calculateNetTotal.value)}</span>
           </div>
 
           ${props.shift.payment_totals?.length ? `
@@ -449,13 +477,15 @@ const calculateNetTotal = computed(() => {
   const services = Number(props.shift?.total_services || 0);
   const discounts = Number(props.shift?.total_discounts || 0);
   
-  return sales + tax + services - discounts;
+  return sales;
 });
 
 const getPaymentIcon = (method) => {
   const icons = {
     'Cash': 'fas fa-money-bill-wave',
     'Card': 'fas fa-credit-card',
+    'Visa': 'fas fa-credit-card',
+    'MasterCard': 'fas fa-credit-card',
     'Bank Transfer': 'fas fa-university',
     'Mobile Wallet': 'fas fa-mobile-alt'
   };

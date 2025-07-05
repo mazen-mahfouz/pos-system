@@ -137,6 +137,26 @@
 
             <!-- Content -->
             <template v-else-if="shiftDetails">
+              <!-- User Information Card -->
+              <div class="bg-gray-50 p-3 md:p-4 rounded-xl mb-3 md:mb-4">
+                <div class="flex items-center gap-2 mb-3">
+                  <div class="bg-[#2b3c5e] p-1.5 rounded-lg">
+                    <Icon name="mdi:account" size="18" class="text-white" />
+                  </div>
+                  <h3 class="text-base font-bold text-gray-800">Cashier Information</h3>
+                </div>
+                
+                <div class="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
+                  <div class="flex items-center gap-2">
+                    <Icon name="mdi:account-circle" size="16" class="text-[#2b3c5e]" />
+                    <span class="text-sm text-gray-600">User</span>
+                  </div>
+                  <span class="text-base font-bold text-[#2b3c5e]">
+                    {{ shiftDetails.shift.user }}
+                  </span>
+                </div>
+              </div>
+
               <!-- Shift Timing Cards -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 mb-4">
                 <div class="relative p-4 border-2 rounded-xl bg-[#f8faff] border-[#3947622c]">
@@ -216,6 +236,58 @@
                 </div>
               </div>
 
+              <!-- Orders Summary -->
+              <div class="bg-gray-50 p-3 md:p-4 rounded-xl mb-3 md:mb-4">
+                <div class="flex items-center gap-2 mb-3">
+                  <div class="bg-[#2b3c5e] p-1.5 rounded-lg">
+                    <Icon name="mdi:clipboard-text" size="18" class="text-white" />
+                  </div>
+                  <h3 class="text-base font-bold text-gray-800">Orders Summary</h3>
+                </div>
+
+                <div class="space-y-1.5 md:space-y-2">
+                  <div class="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
+                    <div class="flex items-center gap-2">
+                      <Icon name="mdi:check-circle" size="16" class="text-green-600" />
+                      <span class="text-sm text-gray-600">Completed Orders</span>
+                    </div>
+                    <span class="text-base font-bold text-[#2b3c5e]">
+                      {{ shiftDetails.shift.total_completed_orders }}
+                    </span>
+                  </div>
+
+                  <div class="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
+                    <div class="flex items-center gap-2">
+                      <Icon name="mdi:package-variant" size="16" class="text-[#2b3c5e]" />
+                      <span class="text-sm text-gray-600">Items Sold</span>
+                    </div>
+                    <span class="text-base font-bold text-[#2b3c5e]">
+                      {{ shiftDetails.shift.total_items_sold }}
+                    </span>
+                  </div>
+
+                  <div class="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
+                    <div class="flex items-center gap-2">
+                      <Icon name="mdi:cancel" size="16" class="text-red-500" />
+                      <span class="text-sm text-gray-600">Canceled Orders</span>
+                    </div>
+                    <span class="text-base font-bold text-red-500">
+                      {{ shiftDetails.shift.total_canceled_orders }}
+                    </span>
+                  </div>
+
+                  <div class="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
+                    <div class="flex items-center gap-2">
+                      <Icon name="mdi:currency-usd-off" size="16" class="text-red-500" />
+                      <span class="text-sm text-gray-600">Canceled Value</span>
+                    </div>
+                    <span class="text-base font-bold text-red-500">
+                      £{{ formatPrice(shiftDetails.shift.total_canceled_value) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
               <!-- Payment Methods -->
               <div class="bg-gray-50 p-3 md:p-4 rounded-xl mb-3 md:mb-4">
                 <div class="flex items-center gap-2 mb-3">
@@ -226,25 +298,15 @@
                 </div>
 
                 <div class="grid gap-2">
-                  <!-- Cash Payment -->
-                  <div class="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
+                  <!-- Display payment methods dynamically from data -->
+                  <div v-for="payment in shiftDetails.shift.payment_totals" :key="payment.method" 
+                       class="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
                     <div class="flex items-center gap-2">
-                      <Icon name="mdi:cash" size="16" class="text-[#2b3c5e]" />
-                      <span class="text-sm text-gray-600">Cash</span>
+                      <Icon :name="getPaymentIcon(payment.method)" size="16" class="text-[#2b3c5e]" />
+                      <span class="text-sm text-gray-600">{{ payment.method }}</span>
                     </div>
                     <span class="text-base font-bold text-[#2b3c5e]">
-                      £{{ formatPrice(shiftDetails.shift.payment_totals.find(p => p.method === 'Cash')?.total_amount || 0) }}
-                    </span>
-                  </div>
-
-                  <!-- Card Payment -->
-                  <div class="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
-                    <div class="flex items-center gap-2">
-                      <Icon name="mdi:credit-card" size="16" class="text-[#2b3c5e]" />
-                      <span class="text-sm text-gray-600">Card</span>
-                    </div>
-                    <span class="text-base font-bold text-[#2b3c5e]">
-                      £{{ formatPrice(shiftDetails.shift.payment_totals.find(p => p.method === 'Card')?.total_amount || 0) }}
+                      £{{ formatPrice(payment.total_amount) }}
                     </span>
                   </div>
                 </div>
@@ -427,6 +489,21 @@ const handleClose = debounce(() => {
 
 // Computed property for loading state
 const isLoading = computed(() => loading.value)
+
+// Function to determine payment icon based on method
+const getPaymentIcon = (method) => {
+  const methodIcons = {
+    'Cash': 'mdi:cash',
+    'Card': 'mdi:credit-card',
+    'Visa': 'mdi:credit-card',
+    'MasterCard': 'mdi:credit-card',
+    'AmEx': 'mdi:credit-card',
+    'PayPal': 'mdi:paypal',
+    'Other': 'mdi:wallet'
+  }
+  
+  return methodIcons[method] || 'mdi:wallet'
+}
 </script>
 
 <style scoped>

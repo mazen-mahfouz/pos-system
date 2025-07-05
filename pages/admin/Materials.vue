@@ -23,6 +23,14 @@
             Export to Excel
           </UButton>
           <UButton
+            color="blue"
+            variant="soft"
+            icon="i-heroicons-document-arrow-up"
+            @click="openImportModal"
+          >
+            Import from Excel
+          </UButton>
+          <UButton
             color="red"
             variant="soft"
             icon="i-heroicons-document-arrow-down"
@@ -124,59 +132,59 @@
               <ErrorMessage name="name" class="text-red-500 text-xs mt-1" />
             </div>
 
-            <!-- Quantity -->
+            <!-- Stock Unit -->
             <div>
               <label class="text-md font-medium gap-[5px] text-gray-700 flex items-start flex-col !border-b !border-b-[#cdcdcd]">
-                <span class="text-[14px]">Quantity</span>
-                <div class="flex items-center w-full">
-                  <Icon name="mdi:scale" class="text-pink-500 text-[22px]" />
-                  <Field
-                    name="quantity"
-                    type="number"
-                    required
-                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
-                    placeholder="Enter quantity"
-                  />
-                </div>
-              </label>
-              <ErrorMessage name="quantity" class="text-red-500 text-xs mt-1" />
-            </div>
-
-            <!-- Unit -->
-            <div>
-              <label class="text-md font-medium gap-[5px] text-gray-700 flex items-start flex-col !border-b !border-b-[#cdcdcd]">
-                <span class="text-[14px]">Unit</span>
+                <span class="text-[14px]">Stock Unit</span>
                 <div class="flex items-center w-full">
                   <Icon name="mdi:ruler" class="text-pink-500 text-[22px]" />
                   <Field
-                    name="unit"
+                    name="stock_unit"
                     type="text"
                     required
                     class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
-                    placeholder="Enter unit (e.g., kg, g, l)"
+                    placeholder="Enter stock unit (e.g., kg, l)"
                   />
                 </div>
               </label>
-              <ErrorMessage name="unit" class="text-red-500 text-xs mt-1" />
+              <ErrorMessage name="stock_unit" class="text-red-500 text-xs mt-1" />
             </div>
 
-            <!-- Purchase Price -->
+            <!-- Recipe Unit -->
             <div>
               <label class="text-md font-medium gap-[5px] text-gray-700 flex items-start flex-col !border-b !border-b-[#cdcdcd]">
-                <span class="text-[14px]">Purchase Price</span>
+                <span class="text-[14px]">Recipe Unit</span>
                 <div class="flex items-center w-full">
-                  <Icon name="mdi:currency-usd" class="text-pink-500 text-[22px]" />
+                  <Icon name="mdi:ruler" class="text-pink-500 text-[22px]" />
                   <Field
-                    name="purchase_price"
+                    name="recipe_unit"
+                    type="text"
+                    required
+                    class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
+                    placeholder="Enter recipe unit (e.g., g, ml)"
+                  />
+                </div>
+              </label>
+              <ErrorMessage name="recipe_unit" class="text-red-500 text-xs mt-1" />
+            </div>
+
+            <!-- Conversion Rate -->
+            <div>
+              <label class="text-md font-medium gap-[5px] text-gray-700 flex items-start flex-col !border-b !border-b-[#cdcdcd]">
+                <span class="text-[14px]">Conversion Rate</span>
+                <div class="flex items-center w-full">
+                  <Icon name="mdi:calculator" class="text-pink-500 text-[22px]" />
+                  <Field
+                    name="conversion_rate"
                     type="number"
                     step="0.01"
                     required
                     class="block w-full px-3 py-4 rounded-md text-[14px] shadow-sm placeholder-gray-500 text-gray-900 custom-input"
-                    placeholder="Enter purchase price"
+                    placeholder="Enter conversion rate (e.g., 1000 for kg to g)"
                   />
                 </div>
               </label>
-              <ErrorMessage name="purchase_price" class="text-red-500 text-xs mt-1" />
+              <ErrorMessage name="conversion_rate" class="text-red-500 text-xs mt-1" />
             </div>
 
             <div class="flex justify-end">
@@ -217,6 +225,76 @@
         </div>
       </UCard>
     </UModal>
+
+    <!-- Import Modal -->
+    <UModal v-model="isImportModalOpen">
+      <UCard class="w-full">
+        <template #header>
+          <div class="flex justify-between items-center">
+            <h3 class="text-xl font-semibold text-gray-800">Import Materials from Excel</h3>
+            <UButton 
+              color="gray" 
+              variant="ghost" 
+              icon="i-heroicons-x-mark" 
+              @click="isImportModalOpen = false" 
+            />
+          </div>
+        </template>
+        
+        <div class="space-y-4">
+          <div class="flex flex-col items-center p-6 border-2 border-dashed border-gray-300 rounded-lg">
+            <Icon name="mdi:file-excel" class="text-green-500 text-4xl mb-4" />
+            <p class="text-sm text-gray-500 mb-4">Upload your Excel file containing materials data</p>
+            <div class="flex items-center space-x-4 mb-4">
+              <UButton
+                color="gray"
+                variant="soft"
+                icon="i-heroicons-document-arrow-down"
+                @click="downloadExample"
+              >
+                Download Example
+              </UButton>
+              <UButton
+                color="blue"
+                variant="soft"
+                @click="$refs.fileInput.click()"
+              >
+                Choose File
+              </UButton>
+            </div>
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              @change="handleFileUpload"
+              class="hidden"
+              ref="fileInput"
+            />
+            <p v-if="selectedFile" class="mt-2 text-sm text-gray-600">
+              Selected file: {{ selectedFile.name }}
+            </p>
+          </div>
+          
+          <div class="flex justify-end space-x-4">
+            <UButton
+              color="gray"
+              variant="soft"
+              @click="isImportModalOpen = false"
+            >
+              Cancel
+            </UButton>
+            <UButton
+              color="blue"
+              variant="soft"
+              :loading="isImporting"
+              :disabled="!selectedFile"
+              @click="importMaterials"
+            >
+              Import
+            </UButton>
+          </div>
+        </div>
+      </UCard>
+    </UModal>
   </div>
 </template>
 
@@ -238,8 +316,9 @@ pageTitle.value = "/ Materials";
 
 const columns = [
   { key: 'name', label: 'Name' },
-  { key: 'quantity', label: 'Quantity' },
-  { key: 'purchase_price', label: 'Purchase Price' },
+  { key: 'stock_unit', label: 'Stock Unit' },
+  { key: 'recipe_unit', label: 'Recipe Unit' },
+  { key: 'conversion_rate', label: 'Conversion Rate' },
   { key: 'action', label: 'Actions' },
 ];
 
@@ -253,13 +332,18 @@ const isDeleteModalOpen = ref(false);
 const selectedMaterial = ref(null);
 const materialToDelete = ref(null);
 const isEditing = ref(false);
+const isImportModalOpen = ref(false);
+const selectedFile = ref(null);
+const isImporting = ref(false);
+const fileInput = ref(null);
+const materialHeaders = ref([]);
 
 // Validation schema
 const materialSchema = object().shape({
   name: string().required('Name is required'),
-  quantity: number().required('Quantity is required').positive('Quantity must be positive'),
-  unit: string().required('Unit is required'),
-  purchase_price: number().required('Purchase price is required').positive('Price must be positive'),
+  stock_unit: string().required('Stock unit is required'),
+  recipe_unit: string().required('Recipe unit is required'),
+  conversion_rate: number('Conversion rate must be number').required('Conversion rate is required').positive('Conversion rate must be positive'),
 });
 
 // Computed properties
@@ -275,7 +359,8 @@ const fetchMaterials = async () => {
   error.value = null;
   try {
     const response = await useApi('materials', 'GET');
-    materials.value = response;
+    materials.value = response.materials;
+    materialHeaders.value = response.headers;
   } catch (err) {
     error.value = 'Failed to fetch materials';
     HandleReqErrors(err);
@@ -293,9 +378,9 @@ const openAddModal = () => {
   isEditing.value = false;
   selectedMaterial.value = {
     name: '',
-    quantity: '',
-    unit: '',
-    purchase_price: '',
+    stock_unit: '',
+    recipe_unit: '',
+    conversion_rate: null,
   };
   isAddEditModalOpen.value = true;
 };
@@ -320,7 +405,10 @@ const submitMaterial = async (values) => {
 
     const response = await useApi(endpoint, method, {
       type: 'json',
-      data: values
+      data: {
+        ...values,
+        quantity: 0
+      }
     });
 
     if (response) {
@@ -354,8 +442,9 @@ const confirmDelete = async () => {
 const exportToExcel = () => {
   const worksheet = XLSX.utils.json_to_sheet(filteredMaterials.value.map(material => ({
     Name: material.name,
-    Quantity: `${material.quantity} ${material.unit}`,
-    'Purchase Price': `$${material.purchase_price}`,
+    'Stock Unit': material.stock_unit,
+    'Recipe Unit': material.recipe_unit,
+    'Conversion Rate': material.conversion_rate,
   })));
   
   const workbook = XLSX.utils.book_new();
@@ -366,17 +455,89 @@ const exportToExcel = () => {
 const exportToPDF = () => {
   const doc = new jsPDF();
   doc.autoTable({
-    head: [['Name', 'Quantity', 'Purchase Price']],
+    head: [['Name', 'Stock Unit', 'Recipe Unit', 'Conversion Rate']],
     body: filteredMaterials.value.map(material => [
       material.name,
-      `${material.quantity} ${material.unit}`,
-      `$${material.purchase_price}`
+      material.stock_unit,
+      material.recipe_unit,
+      material.conversion_rate
     ])
   });
   doc.save("materials_list.pdf");
+};
+
+// Import functions
+const openImportModal = () => {
+  isImportModalOpen.value = true;
+  selectedFile.value = null;
+};
+
+const handleFileUpload = (event) => {
+  const file = event.target.files[0];
+  if (file && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls'))) {
+    selectedFile.value = file;
+  } else {
+    push.error('Please select a valid Excel file (.xlsx or .xls)');
+    event.target.value = null;
+  }
+};
+
+const importMaterials = async () => {
+  if (!selectedFile.value) return;
+
+  isImporting.value = true;
+  try {
+    const formData = new FormData();
+    formData.append('file', selectedFile.value);
+    console.log(selectedFile.value);
+
+    const response = await useApi('materials/import', 'POST', {
+      type: 'json',
+      data: {
+        file: selectedFile.value
+      }
+    });
+
+    if (response.success) {
+      await fetchMaterials();
+      isImportModalOpen.value = false;
+      selectedFile.value = null;
+      push.success('Materials imported successfully');
+    }else{
+      response.errors.forEach(err => {
+        push.error(err);
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    error.forEach(err => {
+      console.log(err);
+      HandleReqErrors(error);
+    });
+    HandleReqErrors(error);
+  } finally {
+    isImporting.value = false;
+  }
+};
+
+const downloadExample = () => {
+  // Create empty example data with just the headers
+  const exampleData = [{}];
+
+  // Create worksheet with dynamic headers from API
+  const worksheet = XLSX.utils.json_to_sheet(exampleData, {
+    header: materialHeaders.value
+  });
+  
+  // Create workbook
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Materials Example");
+  
+  // Save file
+  XLSX.writeFile(workbook, "materials_example.xlsx");
 };
 </script>
 
 <style scoped>
 /* Keep the same styles as in the Users.vue file */
-</style> 
+</style>  

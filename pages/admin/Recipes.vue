@@ -351,7 +351,6 @@ const handleRecipeSubmit = async (values) => {
     const endpoint = isEditing.value ? `recipes/${selectedRecipe.value.id}` : 'recipes';
     const method = isEditing.value ? 'POST' : 'POST';
     
-    // تأكد إضافي من تنسيق البيانات
     const requestData = {
       name: values.name,
       instructions: values.instructions,
@@ -362,7 +361,6 @@ const handleRecipeSubmit = async (values) => {
       }))
     };
 
-    // طباعة للتأكد من شكل البيانات قبل الإرسال للAPI
     console.log('Request Data:', requestData);
 
     await useApi(endpoint, method, {
@@ -374,6 +372,7 @@ const handleRecipeSubmit = async (values) => {
     isAddEditModalOpen.value = false;
     push.success(isEditing.value ? 'Recipe updated successfully' : 'Recipe created successfully');
   } catch (error) {
+    console.log(error)
     HandleReqErrors(error);
   }
 };

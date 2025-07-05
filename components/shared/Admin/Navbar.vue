@@ -41,12 +41,14 @@
     </div>
 </template>
 <script setup>
+import HandleReqErrors from "~/helpers/HandleReqErrors.js";
 
 const pageTitle = useState("pageTitle");
 const openSidebar = useState("openSidebar");
 openSidebar.value = false;
 
 import { useAuthStore } from "~/stores/auth";
+import { useCookie, navigateTo } from '#app';
 
 const AuthStore = useAuthStore();
 
@@ -58,19 +60,19 @@ const items = [
     }],
     [{
         label: 'Logout',
-        icon: 'mdi:location-exit'
+        icon: 'mdi:location-exit',
     }]
 ];
 
 const logout = () => {
-    useApi(`logout`, "POST")
-        .then(response => {
-            push.success(response.message)
-            router.push('/auth/login')
-        })
-        .catch(error => {
-            HandleReqErrors(error);
-        });
+  useApi(`logout`, "POST")
+    .then(response => {
+      push.success(response.message)
+      navigateTo('/auth/login')
+    })
+    .catch(error => {
+      HandleReqErrors(error);
+    });
 };
 
 const formattedDate = ref('');

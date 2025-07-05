@@ -273,6 +273,9 @@ import CashierShiftDetailsModal from '~/components/Cashier/ShiftDetailsModal.vue
 import CashierSplitOrderModal from '~/components/Cashier/SplitOrderModal.vue';
 import KitchenReceiptTemplate from './KitchenReceiptTemplate.vue';
 
+import { useCookie, navigateTo } from '#app';
+
+
 const emit = defineEmits(['open-discount-modal']);
 
 const OrderStore = useOrderStore();
@@ -309,7 +312,6 @@ const items = [
   [{
       label: 'Logout',
       icon: 'mdi:location-exit',
-      link: '/auth/login'
   }]
 ]
 const open = ref(false)
@@ -327,7 +329,7 @@ const logout = () => {
   useApi(`logout`, "POST")
     .then(response => {
       push.success(response.message)
-      router.push('/auth/login')
+      navigateTo('/auth/login')
     })
     .catch(error => {
       HandleReqErrors(error);
